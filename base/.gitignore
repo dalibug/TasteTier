@@ -1,0 +1,82 @@
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+out/
+!out/.gitkeep
+
+### Cursor IDE ###
+.cursor/
+
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+logs/
+*.log
+
+### Gradle ###
+.gradle/
+build/
+!build/.gitkeep
+gradle-app.setting
+gradlew
+gradlew.bat
+gradle/
+gradle.log
+
+### Spring Boot ###
+*.war
+*.jar
+
+### Docker ###
+.dockerignore
+docker-compose.override.yml
+docker-compose.debug.yml
+mysql-data/
+**/docker.log
+
+### Heroku ###
+.heroku/
+node_modules/
+.npm/
+.yarn/
+.yarn-cache/
+.yarnrc
+.npmrc
+
+### MySQL Workbench ###
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+*.bak
+mysqldump.sql
+
+### Logs ###
+*.log
+logs/
+**/logs/
+spring.log
+
+### System files ###
+.DS_Store
+Thumbs.db
+
+### Environment Variables ###
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+.env.*.local
+
+### Misc ###
+*.swp
+*.swo
+*.swn
