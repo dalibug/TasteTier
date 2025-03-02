@@ -50,5 +50,97 @@ body {
     letter-spacing: 2px;
 }
 
+.title2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #2c2c2c;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    letter-spacing: 2px;
+}
+
+/* Authentication Pages Background */
+.auth-background {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+
+/* Authentication Container */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 350px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Authentication Form */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.auth-form input {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    color: #333;
+    outline: none;
+    text-align: center;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.auth-form input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* Authentication Buttons */
+.form-btn {
+    background: #4a4a4a;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.form-btn:hover {
+    background: #2c2c2c;
+}
+
+/* Authentication Links */
+.auth-link {
+    color: white;
+    font-size: 14px;
+    font-family: 'Work Sans', sans-serif;
+    text-decoration: none;
+    margin-top: 10px;
+    display: block;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
 
 
