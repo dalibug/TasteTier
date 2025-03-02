@@ -1,18 +1,20 @@
 package com.example.base;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/test") // Base path for the route
+@Controller
 public class TestController {
 
-    @GetMapping
-    public String testEndpoint() {
-        return "Test endpoint is working!";
+    @GetMapping("/test")
+    public String testEndpoint(Model model) {
+        model.addAttribute("message", "FlavorTiers is Live!");
+        return "index"; // Looks for index.html in templates/
     }
 }
+
+
 
 
 
