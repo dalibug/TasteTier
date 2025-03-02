@@ -86,6 +86,10 @@ body {
     backdrop-filter: blur(15px);
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Authentication Form */
