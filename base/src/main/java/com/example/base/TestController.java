@@ -9,7 +9,7 @@ public class TestController {
 
     @GetMapping("/test")
     public String testEndpoint(Model model) {
-        model.addAttribute("message", "FlavorTiers is Live!");
+        model.addAttribute("message", "TasteTiers is Live!");
         return "index"; // Looks for index.html in templates/
     }
 }
