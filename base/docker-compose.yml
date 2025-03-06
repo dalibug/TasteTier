@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8
-    container_name: mysql-container
+    container_name: mysql-container2
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -18,7 +18,7 @@ services:
   springboot-app:
     build:
       context: .
-    container_name: springboot-app
+    container_name: springboot-app2
     restart: always
     depends_on:
       - mysql
