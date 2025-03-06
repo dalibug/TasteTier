@@ -18,10 +18,19 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Database dependencies
+	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33' //MySQL connector
+	runtimeOnly 'com.h2database:h2' // Temporary for testing
+	runtimeOnly 'org.postgresql:postgresql' // For production
+
+	// Testing dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 tasks.named('test') {
