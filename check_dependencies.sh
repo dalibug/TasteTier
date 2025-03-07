@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Setting up TasteTier development environment..."
+echo "Checking dependencies..."
 
 # Function to check if a command exists
 command_exists() {
@@ -94,87 +94,38 @@ install_python3() {
     fi
 }
 
-# Check for required tools
-echo "Checking system requirements..."
-
-# Check and install npm if needed
+# Check and install Node.js/npm
 if ! command_exists npm; then
     echo "npm not found. Installing Node.js and npm..."
     install_nodejs
 else
-    echo "✅ npm found"
+    echo "✅ npm is installed"
 fi
 
-# Check and install Docker if needed
+# Check and install Docker
 if ! command_exists docker; then
     echo "Docker not found. Installing Docker..."
     install_docker
 else
-    echo "✅ Docker found"
+    echo "✅ Docker is installed"
 fi
 
-# Check and install Python3 if needed
+# Check and install Python3
 if ! command_exists python3; then
     echo "Python3 not found. Installing Python3..."
     install_python3
 else
-    echo "✅ Python3 found"
+    echo "✅ Python3 is installed"
 fi
 
 # Check if Docker daemon is running
-if ! docker info > /dev/null 2>&1; then
+if ! docker info >/dev/null 2>&1; then
     echo "⚠️ Docker daemon is not running. Please start Docker Desktop."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "You can start Docker Desktop from your Applications folder."
     fi
-    exit 1
 else
     echo "✅ Docker daemon is running"
 fi
 
-echo "Setting up frontend..."
-cd frontend
-
-# Check if node_modules exists and package.json has changed
-if [ ! -d "node_modules" ] || [ package.json -nt node_modules ]; then
-    echo "Installing frontend dependencies..."
-    npm install
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to install frontend dependencies"
-        exit 1
-    fi
-else
-    echo "✅ Frontend dependencies are up to date"
-fi
-
-cd ../backend
-
-# Check if Gradle wrapper exists
-if [ ! -f "gradlew" ]; then
-    echo "Initializing Gradle wrapper..."
-    gradle wrapper
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to initialize Gradle wrapper"
-        exit 1
-    fi
-fi
-
-# Make gradlew executable
-chmod +x gradlew
-
-# Check if build is needed
-if [ ! -d "build/libs" ] || [ build.gradle -nt build/libs/base-0.0.1-SNAPSHOT.jar ]; then
-    echo "Building backend..."
-    ./gradlew build -x test
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to build backend"
-        exit 1
-    fi
-else
-    echo "✅ Backend build is up to date"
-fi
-
-cd ..
-
-echo "✅ Setup completed successfully!"
-echo "You can now run ./start.sh to start the application" 
+echo "✅ Dependency check completed!" 
