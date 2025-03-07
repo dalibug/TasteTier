@@ -13,7 +13,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8081/api/test-entities/test-connection');
+      const response = await fetch('http://localhost:8082/api/test-entities/test-connection');
       const data = await response.json();
       setConnectionStatus(data);
     } catch (err) {
@@ -28,7 +28,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8081/api/test-entities');
+      const response = await fetch('http://localhost:8082/api/test-entities');
       const data = await response.json();
       setEntities(data);
     } catch (err) {
@@ -44,7 +44,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8081/api/test-entities', {
+      const response = await fetch('http://localhost:8082/api/test-entities', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      await fetch(`http://localhost:8081/api/test-entities/${id}`, {
+      await fetch(`http://localhost:8082/api/test-entities/${id}`, {
         method: 'DELETE',
       });
       setEntities(entities.filter(entity => entity.id !== id));
@@ -82,7 +82,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      await fetch('http://localhost:8081/api/test-entities', {
+      await fetch('http://localhost:8082/api/test-entities', {
         method: 'DELETE',
       });
       setEntities([]);
@@ -110,6 +110,12 @@ function App() {
           <h2>Database Connection Test</h2>
           <button onClick={testConnection} disabled={loading}>
             Test Connection
+          </button>
+          <button 
+            onClick={() => window.location.href = 'http://localhost:8000'} 
+            style={{ marginLeft: '10px' }}
+          >
+            Back to Welcome
           </button>
           {connectionStatus && (
             <div className="connection-status">

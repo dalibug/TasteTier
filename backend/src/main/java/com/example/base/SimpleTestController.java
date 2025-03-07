@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/test") // Base path for the route
-public class TestController {
+@RequestMapping("/simple-test") // Updated path to avoid conflicts
+public class SimpleTestController {
 
     @GetMapping
     public String testEndpoint() {
