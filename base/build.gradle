@@ -17,30 +17,58 @@ repositories {
 	mavenCentral()
 }
 
+//dependencies {
+////    // Spring Boot JPA / Data
+////    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//
+//    // Security & OAuth
+//    implementation 'org.springframework.boot:spring-boot-starter-security'
+//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+//
+//    // Lombok
+//    implementation 'org.projectlombok:lombok'
+//
+////    // Database dependencies
+////    runtimeOnly 'com.mysql:mysql-connector-j:8.0.33' // MySQL connector
+////    runtimeOnly 'com.h2database:h2' // Temporary for testing
+////    runtimeOnly 'org.postgresql:postgresql' // For production
+//
+//    // Testing dependencies
+//    // Note: 'spring-boot-starter-test' is typically enough, but you can keep JUnit Jupiter if you prefer
+//    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+//    testImplementation 'org.springframework.security:spring-security-test'
+//
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+//    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+//}
+
 dependencies {
-    // Spring Boot JPA / Data
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    
     // Security & OAuth
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    
-    // Lombok
     implementation 'org.projectlombok:lombok'
-    
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Spring Boot JPA / Data
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
     // Database dependencies
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.33' // MySQL connector
     runtimeOnly 'com.h2database:h2' // Temporary for testing
     runtimeOnly 'org.postgresql:postgresql' // For production
 
     // Testing dependencies
-    // Note: 'spring-boot-starter-test' is typically enough, but you can keep JUnit Jupiter if you prefer
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.springframework.security:spring-security-test'
-    
+
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {
