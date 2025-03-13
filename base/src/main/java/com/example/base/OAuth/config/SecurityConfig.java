@@ -3,6 +3,7 @@ package com.example.base.OAuth.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -14,6 +15,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@Profile("prod")  // This configuration is only active when the 'prod' profile is used
 @RequiredArgsConstructor
 public class SecurityConfig {
 

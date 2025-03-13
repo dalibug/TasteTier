@@ -1,6 +1,6 @@
-package com.example.base.controller;
+package com.example.base.api.controller;
 
-import com.example.base.model.Recipe;
+import com.example.base.api.model.Recipe;
 import com.example.base.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -36,4 +36,16 @@ public class RecipeController {
     public Recipe addRecipe(@RequestBody Recipe recipe) {
         return recipeService.addRecipe(recipe);
     }
+
+    // PUT /api/recipes/{id} - Updates an existing recipe.
+    @PutMapping("/{id}")
+    public Recipe updateRecipe(@PathVariable Long id, @RequestBody Recipe updatedRecipe) {
+        return recipeService.updateRecipe(id, updatedRecipe);
+    }
+    // DELETE /api/recipes/{id} - Deletes a recipe by its ID.
+    @DeleteMapping("/{id}")
+    public void deleteRecipe(@PathVariable Long id) {
+        recipeService.deleteRecipe(id);
+    }
+
 }
