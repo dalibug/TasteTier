@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - TasteTiers</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Playfair+Display:wght@700&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
     <style>
         .auth-background {
@@ -26,6 +26,7 @@
             width: 100%;
             margin-top: 16px;
             transition: background-color 0.3s;
+            text-decoration: none;
         }
         .google-btn:hover {
             background-color: #f8f9fa;
@@ -67,7 +68,7 @@
             <button type="submit" class="form-btn">Log In</button>
         </form>
         <div class="divider"><span>or</span></div>
-        <a href="/oauth2/authorization/google" class="google-btn">
+        <a href="http://localhost:8082/oauth2/authorization/google" class="google-btn">
             <img src="https://www.google.com/favicon.ico" alt="Google">
             Continue with Google
         </a>

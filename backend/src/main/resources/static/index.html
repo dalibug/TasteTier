@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - TasteTiers</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Playfair+Display:wght@700&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .auth-background {
+            background: url('background.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            padding: 1.5rem;
+            width: 100%;
+        }
+        .left-buttons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .right-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .welcome-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            text-transform: uppercase;
+            transition: background 0.3s ease, transform 0.2s;
+            backdrop-filter: blur(10px);
+            font-family: 'Work Sans', sans-serif;
+        }
+        .welcome-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="auth-background">
+    <header>
+        <div class="left-buttons">
+            <button class="welcome-btn" onclick="location.href='http://localhost:3000'">Database Testing</button>
+        </div>
+        <div class="right-buttons">
+            <button class="auth-btn" onclick="location.href='login.html'">Log In</button>
+            <button class="auth-btn" onclick="location.href='signup.html'">Sign Up</button>
+            <button class="auth-btn" style="margin-top: 10px;" onclick="location.href='tierlists.html'">Tier Lists</button>
+        </div>
+    </header>
+    <main>
+        <h1 class="title">Welcome</h1>
+        <h1 class="title">to</h1>
+        <h1 class="title">Taste-Tiers</h1>
+    </main>
+</body>
+</html> 
+
+<!-- attempting to merge into workingmain -->

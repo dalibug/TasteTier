@@ -55,9 +55,9 @@ chmod +x gradlew
 echo "Building backend..."
 ./gradlew build -x test
 
-# Kill any existing processes on ports 3000 and 8000
+# Kill any existing processes on ports 3000 and 8082
 echo "Cleaning up existing processes..."
-lsof -i :3000,8000 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null || true
+lsof -i :3000,8082 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null || true
 
 # Start backend services
 echo "Starting backend services..."
@@ -72,77 +72,27 @@ docker volume prune -f
 echo "Starting Docker services..."
 docker-compose up -d
 
-# Function to check container status
-check_container_status() {
-    container_name=$1
-    if [ "$(docker ps -q -f name=$container_name)" ]; then
-        status=$(docker inspect -f '{{.State.Health.Status}}' $container_name)
-        echo "$container_name status: $status"
-        if [ "$status" = "healthy" ]; then
-            return 0
-        fi
-    fi
-    return 1
-}
-
-# Wait for MySQL to be ready
+# Wait for MySQL to be healthy
 echo "Waiting for MySQL to be ready..."
-attempts=0
-max_attempts=30
-while ! check_container_status "mysql-container"; do
-    if [ $attempts -eq $max_attempts ]; then
-        echo "Error: MySQL failed to start after $max_attempts attempts"
-        docker-compose logs mysql-container
-        exit 1
-    fi
-    echo "Waiting for MySQL... (attempt $((attempts+1))/$max_attempts)"
+while ! docker ps | grep -q "mysql.*healthy"; do
+    echo "Waiting for MySQL to become healthy..."
     sleep 2
-    attempts=$((attempts+1))
 done
 
-echo "MySQL is ready! Waiting for Spring Boot..."
+echo "MySQL is ready!"
+echo "Waiting for Spring Boot to start..."
 
-# Function to check Spring Boot health
-check_spring_boot() {
-    response=$(curl -s http://localhost:8082/api/test-entities/test-connection 2>&1)
-    if [[ $response == *"connection successful"* ]]; then
-        return 0
-    fi
-    return 1
-}
-
-# Wait for Spring Boot with better error handling
-attempts=0
-max_attempts=30
-while ! check_spring_boot; do
-    if [ $attempts -eq $max_attempts ]; then
-        echo "Error: Spring Boot failed to start after $max_attempts attempts"
-        echo "Showing Spring Boot logs:"
-        docker-compose logs springboot-app
-        echo "Showing MySQL logs:"
-        docker-compose logs mysql-container
-        exit 1
-    fi
-    if [ $attempts -eq 0 ]; then
-        echo "Waiting for Spring Boot to initialize..."
-        docker-compose logs --tail=20 springboot-app
-    fi
-    echo "Waiting for Spring Boot... (attempt $((attempts+1))/$max_attempts)"
-    sleep 3
-    attempts=$((attempts+1))
-    
-    # Show Spring Boot logs every 5 attempts
-    if [ $((attempts % 5)) -eq 0 ]; then
-        echo "Recent Spring Boot logs:"
-        docker-compose logs --tail=5 springboot-app
-    fi
+# Wait for Spring Boot to be ready
+while ! curl -s http://localhost:8082/login.html > /dev/null; do
+    echo "Waiting for Spring Boot..."
+    sleep 2
 done
 
-echo "Backend is ready!"
+echo "Spring Boot is ready!"
 
 cd ..
 
-# Start React development server (without opening browser)
+# Start React development server
 echo "Starting React application..."
 cd frontend
 BROWSER=none npm start &
@@ -167,9 +117,9 @@ fi
 
 echo "TasteTier is running!"
 echo "Access the application at:"
-echo "- Welcome page: http://localhost:8000"
-echo "- Database Testing: http://localhost:3000"
+echo "- Frontend: http://localhost:3000"
 echo "- Backend API: http://localhost:8082"
+echo "- Login page: http://localhost:8082/login.html"
 echo ""
 echo "Press Ctrl+C to stop all services"
 
