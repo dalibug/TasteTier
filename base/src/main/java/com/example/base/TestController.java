@@ -2,6 +2,7 @@ package com.example.base;
 
 import com.example.base.OAuth.OAuthUser.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -12,6 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
+
+
+// This controller will only be active in production.
+@Profile("prod")
+// I was having issues with TestController when
+// attempting to test api crud operations
+// (which required an OAuth2AuthorizedClientService)
+// causing the application startup to fail in
+// development environment
 
 @RestController
 public class TestController {
