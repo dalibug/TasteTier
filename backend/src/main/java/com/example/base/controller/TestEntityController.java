@@ -30,6 +30,7 @@ public class TestEntityController {
     private TestEntityRepository testEntityRepository;
 
     // Create a new TestEntity
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<TestEntity> createTestEntity(@RequestBody TestEntity testEntity) {
         try {
@@ -41,6 +42,7 @@ public class TestEntityController {
     }
 
     // Retrieve all TestEntities
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<TestEntity>> getAllTestEntities() {
         try {

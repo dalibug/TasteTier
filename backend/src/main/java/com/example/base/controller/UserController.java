@@ -21,6 +21,7 @@ public class UserController {
     private UserRepository userRepository;
 
     // Get all users
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         try {
@@ -44,6 +45,7 @@ public class UserController {
     }
 
     // Create a new user
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
@@ -119,6 +121,7 @@ public class UserController {
     }
 
     // OAuth login/signup
+    @SuppressWarnings("null")
     @PostMapping("/oauth")
     public ResponseEntity<User> oauthLogin(@RequestBody Map<String, String> oauthData) {
         try {

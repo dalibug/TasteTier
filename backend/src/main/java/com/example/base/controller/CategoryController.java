@@ -20,6 +20,7 @@ public class CategoryController {
     private CategoryRepository categoryRepository;
 
     // Get all categories
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
         try {
@@ -31,6 +32,7 @@ public class CategoryController {
     }
 
     // Get active categories
+    @SuppressWarnings("null")
     @GetMapping("/active")
     public ResponseEntity<List<Category>> getActiveCategories() {
         try {
@@ -42,6 +44,7 @@ public class CategoryController {
     }
 
     // Get categories active on a specific date
+    @SuppressWarnings("null")
     @GetMapping("/active-on/{date}")
     public ResponseEntity<List<Category>> getCategoriesActiveOnDate(@PathVariable("date") String dateStr) {
         try {
@@ -66,6 +69,7 @@ public class CategoryController {
     }
 
     // Create a new category
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         try {
@@ -119,6 +123,7 @@ public class CategoryController {
     }
 
     // Search categories by name
+    @SuppressWarnings("null")
     @GetMapping("/search")
     public ResponseEntity<List<Category>> searchCategories(@RequestParam("name") String name) {
         try {
