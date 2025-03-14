@@ -24,13 +24,6 @@ if ! command_exists docker; then
     exit 1
 fi
 
-# Check for Python3
-if ! command_exists python3; then
-    echo "Python3 not found. Please install Python3 first."
-    echo "Visit: https://www.python.org/downloads/"
-    exit 1
-fi
-
 # Initialize frontend dependencies if needed
 echo "Checking frontend dependencies..."
 cd frontend
@@ -55,9 +48,9 @@ chmod +x gradlew
 echo "Building backend..."
 ./gradlew build -x test
 
-# Kill any existing processes on ports 3000 and 8000
+# Kill any existing processes on ports 3000 and 8082
 echo "Cleaning up existing processes..."
-lsof -i :3000,8000 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null || true
+lsof -i :3000,8082 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null || true
 
 # Start backend services
 echo "Starting backend services..."
@@ -142,33 +135,28 @@ echo "Backend is ready!"
 
 cd ..
 
-# Start React development server (without opening browser)
+# Start React development server
 echo "Starting React application..."
 cd frontend
 BROWSER=none npm start &
 
-# Start static file server
-echo "Starting welcome page server..."
-python3 -m http.server 8000 &
+# Wait for React to start
+echo "Waiting for React to start..."
+sleep 5
 
-# Wait for servers to be ready
-echo "Waiting for servers to start..."
-sleep 3
-
-# Open welcome page in default browser
-echo "Opening welcome page..."
+# Open React app in default browser
+echo "Opening application in browser..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    open http://localhost:8000
+    open http://localhost:3000
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    xdg-open http://localhost:8000
+    xdg-open http://localhost:3000
 elif [[ "$OSTYPE" == "msys" ]]; then
-    start http://localhost:8000
+    start http://localhost:3000
 fi
 
 echo "TasteTier is running!"
 echo "Access the application at:"
-echo "- Welcome page: http://localhost:8000"
-echo "- Database Testing: http://localhost:3000"
+echo "- Frontend: http://localhost:3000"
 echo "- Backend API: http://localhost:8082"
 echo ""
 echo "Press Ctrl+C to stop all services"

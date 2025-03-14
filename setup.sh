@@ -63,37 +63,6 @@ install_docker() {
     fi
 }
 
-# Function to install Python3
-install_python3() {
-    echo "Installing Python3..."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
-        if command_exists brew; then
-            brew install python3
-        else
-            echo "Homebrew is not installed. Please install Homebrew first:"
-            echo "Visit: https://brew.sh/"
-            exit 1
-        fi
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        # Linux
-        if command_exists apt; then
-            sudo apt-get update
-            sudo apt-get install -y python3 python3-pip
-        elif command_exists yum; then
-            sudo yum install -y python3 python3-pip
-        else
-            echo "Unsupported package manager. Please install Python3 manually."
-            echo "Visit: https://www.python.org/downloads/"
-            exit 1
-        fi
-    else
-        echo "Unsupported operating system. Please install Python3 manually."
-        echo "Visit: https://www.python.org/downloads/"
-        exit 1
-    fi
-}
-
 # Check for required tools
 echo "Checking system requirements..."
 
@@ -111,14 +80,6 @@ if ! command_exists docker; then
     install_docker
 else
     echo "✅ Docker found"
-fi
-
-# Check and install Python3 if needed
-if ! command_exists python3; then
-    echo "Python3 not found. Installing Python3..."
-    install_python3
-else
-    echo "✅ Python3 found"
 fi
 
 # Check if Docker daemon is running
