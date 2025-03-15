@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background2.png';
+import googleLogo from '../assets/google-logo.svg';
 
 const Login = () => {
   const backgroundStyle = {
@@ -8,9 +9,8 @@ const Login = () => {
     backgroundSize: 'cover',
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add login logic here
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:8083/oauth2/authorization/google';
   };
 
   return (
@@ -24,11 +24,10 @@ const Login = () => {
       </header>
       <main className="auth-container">
         <h1 className="title2">Login</h1>
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <input type="email" placeholder="Email" required />
-          <input type="password" placeholder="Password" required />
-          <button type="submit" className="form-btn">Log In</button>
-        </form>
+        <button onClick={handleGoogleLogin} className="google-login-button">
+          <img src={googleLogo} alt="Google logo" />
+          Sign in with Google
+        </button>
         <Link to="/signup" className="auth-link">
           Don't have an account? Sign up
         </Link>

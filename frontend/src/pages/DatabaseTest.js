@@ -15,7 +15,7 @@ function DatabaseTest() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8082/api/test-entities/test-connection');
+      const response = await fetch('http://localhost:8083/api/test-entities/test-connection');
       const data = await response.json();
       setConnectionStatus(data);
     } catch (err) {
@@ -30,7 +30,7 @@ function DatabaseTest() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8082/api/test-entities');
+      const response = await fetch('http://localhost:8083/api/test-entities');
       const data = await response.json();
       setEntities(data);
     } catch (err) {
@@ -46,7 +46,7 @@ function DatabaseTest() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8082/api/test-entities', {
+      const response = await fetch('http://localhost:8083/api/test-entities', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ function DatabaseTest() {
     setLoading(true);
     setError(null);
     try {
-      await fetch(`http://localhost:8082/api/test-entities/${id}`, {
+      await fetch(`http://localhost:8083/api/test-entities/${id}`, {
         method: 'DELETE',
       });
       setEntities(entities.filter(entity => entity.id !== id));
@@ -84,7 +84,7 @@ function DatabaseTest() {
     setLoading(true);
     setError(null);
     try {
-      await fetch('http://localhost:8082/api/test-entities', {
+      await fetch('http://localhost:8083/api/test-entities', {
         method: 'DELETE',
       });
       setEntities([]);

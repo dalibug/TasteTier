@@ -7,20 +7,10 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Check and install dependencies
-echo "Checking dependencies..."
-
 # Check for npm
 if ! command_exists npm; then
     echo "npm not found. Please install Node.js and npm first."
     echo "Visit: https://nodejs.org/"
-    exit 1
-fi
-
-# Check for Docker
-if ! command_exists docker; then
-    echo "Docker not found. Please install Docker first."
-    echo "Visit: https://www.docker.com/products/docker-desktop"
     exit 1
 fi
 
@@ -44,94 +34,29 @@ fi
 # Make gradlew executable
 chmod +x gradlew
 
-# Build the backend if needed
-echo "Building backend..."
-./gradlew build -x test
-
-# Kill any existing processes on ports 3000 and 8082
+# Kill any existing processes on ports 3000 and 8083
 echo "Cleaning up existing processes..."
-lsof -i :3000,8082 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null || true
+lsof -i :3000,8083 | grep LISTEN | awk '{print $2}' | xargs kill -9 2>/dev/null || true
 
-# Start backend services
-echo "Starting backend services..."
-docker-compose down
+# Start Spring Boot in the background
+echo "Starting Spring Boot application..."
+./gradlew bootRun --console=plain &
+SPRING_PID=$!
 
-# Remove old containers and volumes to ensure clean start
-echo "Cleaning up Docker resources..."
-docker-compose rm -f
-docker volume prune -f
-
-# Start services
-echo "Starting Docker services..."
-docker-compose up -d
-
-# Function to check container status
-check_container_status() {
-    container_name=$1
-    if [ "$(docker ps -q -f name=$container_name)" ]; then
-        status=$(docker inspect -f '{{.State.Health.Status}}' $container_name)
-        echo "$container_name status: $status"
-        if [ "$status" = "healthy" ]; then
-            return 0
-        fi
-    fi
-    return 1
-}
-
-# Wait for MySQL to be ready
-echo "Waiting for MySQL to be ready..."
+# Wait for Spring Boot to start
+echo "Waiting for Spring Boot to initialize..."
 attempts=0
 max_attempts=30
-while ! check_container_status "mysql-container"; do
+while ! curl -s http://localhost:8083 > /dev/null; do
     if [ $attempts -eq $max_attempts ]; then
-        echo "Error: MySQL failed to start after $max_attempts attempts"
-        docker-compose logs mysql-container
+        echo "Error: Spring Boot failed to start after $max_attempts attempts"
+        kill $SPRING_PID
         exit 1
     fi
-    echo "Waiting for MySQL... (attempt $((attempts+1))/$max_attempts)"
+    echo "Waiting for Spring Boot... (attempt $((attempts+1))/$max_attempts)"
     sleep 2
     attempts=$((attempts+1))
 done
-
-echo "MySQL is ready! Waiting for Spring Boot..."
-
-# Function to check Spring Boot health
-check_spring_boot() {
-    response=$(curl -s http://localhost:8082/api/test-entities/test-connection 2>&1)
-    if [[ $response == *"connection successful"* ]]; then
-        return 0
-    fi
-    return 1
-}
-
-# Wait for Spring Boot with better error handling
-attempts=0
-max_attempts=30
-while ! check_spring_boot; do
-    if [ $attempts -eq $max_attempts ]; then
-        echo "Error: Spring Boot failed to start after $max_attempts attempts"
-        echo "Showing Spring Boot logs:"
-        docker-compose logs springboot-app
-        echo "Showing MySQL logs:"
-        docker-compose logs mysql-container
-        exit 1
-    fi
-    if [ $attempts -eq 0 ]; then
-        echo "Waiting for Spring Boot to initialize..."
-        docker-compose logs --tail=20 springboot-app
-    fi
-    echo "Waiting for Spring Boot... (attempt $((attempts+1))/$max_attempts)"
-    sleep 3
-    attempts=$((attempts+1))
-    
-    # Show Spring Boot logs every 5 attempts
-    if [ $((attempts % 5)) -eq 0 ]; then
-        echo "Recent Spring Boot logs:"
-        docker-compose logs --tail=5 springboot-app
-    fi
-done
-
-echo "Backend is ready!"
 
 cd ..
 
@@ -139,10 +64,23 @@ cd ..
 echo "Starting React application..."
 cd frontend
 BROWSER=none npm start &
+REACT_PID=$!
 
 # Wait for React to start
 echo "Waiting for React to start..."
-sleep 5
+attempts=0
+max_attempts=30
+while ! curl -s http://localhost:3000 > /dev/null; do
+    if [ $attempts -eq $max_attempts ]; then
+        echo "Error: React failed to start after $max_attempts attempts"
+        kill $SPRING_PID
+        kill $REACT_PID
+        exit 1
+    fi
+    echo "Waiting for React... (attempt $((attempts+1))/$max_attempts)"
+    sleep 2
+    attempts=$((attempts+1))
+done
 
 # Open React app in default browser
 echo "Opening application in browser..."
@@ -157,9 +95,20 @@ fi
 echo "TasteTier is running!"
 echo "Access the application at:"
 echo "- Frontend: http://localhost:3000"
-echo "- Backend API: http://localhost:8082"
+echo "- Backend API: http://localhost:8083"
 echo ""
 echo "Press Ctrl+C to stop all services"
+
+# Function to cleanup processes on exit
+cleanup() {
+    echo "Stopping services..."
+    kill $SPRING_PID 2>/dev/null
+    kill $REACT_PID 2>/dev/null
+    exit 0
+}
+
+# Set up trap for cleanup
+trap cleanup INT TERM
 
 # Wait for Ctrl+C
 wait 

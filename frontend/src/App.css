@@ -162,6 +162,22 @@ main {
   background: #2c2c2c;
 }
 
+.google-btn {
+  background: #4285f4;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 500;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.google-btn:hover {
+  background: #357ae8;
+}
+
 /* Authentication Links */
 .auth-link {
   color: white;
@@ -528,4 +544,40 @@ li {
 .nav-btn:hover {
   background: rgba(255, 255, 255, 0.4);
   transform: scale(1.05);
+}
+
+.google-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border: 2px solid rgba(44, 44, 44, 0.3);
+    border-radius: 20px;
+    background-color: transparent;
+    color: #2c2c2c;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    font-family: 'Work Sans', sans-serif;
+}
+
+.google-login-button:hover {
+    background-color: rgba(66, 133, 244, 0.1);
+    border-color: rgba(66, 133, 244, 0.5);
+    transform: scale(1.02);
+}
+
+.google-login-button img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0);
+}
+
+.google-login-button:hover img {
+    filter: brightness(0) saturate(100%) invert(45%) sepia(96%) saturate(1648%) hue-rotate(201deg) brightness(95%) contrast(98%);
 }

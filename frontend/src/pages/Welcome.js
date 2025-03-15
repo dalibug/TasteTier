@@ -28,9 +28,6 @@ const Welcome = () => {
           <Link to="/login">
             <button className="auth-btn">Log In</button>
           </Link>
-          <Link to="/signup">
-            <button className="auth-btn">Sign Up</button>
-          </Link>
           <Link to="/tierlists">
             <button className="auth-btn">Tier Lists</button>
           </Link>
