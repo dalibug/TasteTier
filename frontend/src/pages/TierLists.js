@@ -25,13 +25,7 @@ const TierLists = () => {
     // Filter recipes that have been rated
     const ratedRecipes = recipes.filter(recipe => selectedTiers[recipe.id]);
     
-    if (ratedRecipes.length === 0) {
-      alert('Please rate at least one recipe before creating a tier list!');
-      return;
-    }
-
-    if (!tierListName.trim()) {
-      alert('Please give your tier list a name!');
+    if (ratedRecipes.length === 0 || !tierListName.trim()) {
       return;
     }
 
@@ -42,7 +36,8 @@ const TierLists = () => {
       items: ratedRecipes.map(recipe => ({
         recipeName: recipe.name,
         tier: selectedTiers[recipe.id]
-      }))
+      })),
+      likedBy: [] // Initialize empty likedBy array
     };
 
     // Add the new tier list to the state
@@ -105,18 +100,15 @@ const TierLists = () => {
 
   return (
     <div className="tierlists-background" style={backgroundStyle}>
-      <div className="nav-buttons">
-        <Link to="/">
-          <button className="nav-btn home-btn">Home</button>
-        </Link>
-      </div>
-
-      <div className="content-wrapper">
+      <div className="fixed-header">
+        <div className="nav-buttons">
+          <Link to="/">
+            <button className="nav-btn home-btn">Home</button>
+          </Link>
+        </div>
         <h1 className="page-title">Your Tier Lists</h1>
-
-        {/* Recipe rating section */}
-        <div className="tierlists-container">
-          <div className="name-input-container">
+        <div className="name-input-container">
+          <div className="input-row">
             <input
               type="text"
               placeholder="Enter your tier list name"
@@ -131,7 +123,11 @@ const TierLists = () => {
               Create Tier List
             </button>
           </div>
+        </div>
+      </div>
 
+      <div className="content-wrapper">
+        <div className="tierlists-container">
           <div className="recipe-cards-container">
             {recipes.map(recipe => (
               <div key={recipe.id} className="tier-card">
@@ -161,7 +157,9 @@ const TierLists = () => {
               {tierLists.map(tierList => (
                 <div key={tierList.id} className="tierlist-card">
                   <div className="tierlist-header">
-                    <h3 className="tierlist-name">{tierList.name}</h3>
+                    <div className="header-content">
+                      <h3 className="tierlist-name">{tierList.name}</h3>
+                    </div>
                   </div>
                   <div className="tierlist-items">
                     {tierList.items.map((item, index) => (
@@ -180,6 +178,14 @@ const TierLists = () => {
                     >
                       Edit
                     </button>
+                    <span className="similarity-badge">
+                      <i className="fas fa-heart"></i>
+                      {tierList.likedBy && tierList.likedBy.length > 0 
+                        ? tierList.likedBy.length === 1
+                          ? `Liked by ${tierList.likedBy[0]}`
+                          : `Liked by ${tierList.likedBy[0]} and ${tierList.likedBy.length - 1} others`
+                        : 'No likes yet'}
+                    </span>
                   </div>
                 </div>
               ))}

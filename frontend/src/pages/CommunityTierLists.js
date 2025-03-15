@@ -54,18 +54,19 @@ const CommunityTierLists = () => {
 
   return (
     <div className="tierlists-background" style={backgroundStyle}>
-      <div className="nav-buttons">
-        <Link to="/">
-          <button className="nav-btn home-btn">Home</button>
-        </Link>
-        <Link to="/tierlists">
-          <button className="nav-btn">My Tier Lists</button>
-        </Link>
+      <div className="fixed-header">
+        <div className="nav-buttons">
+          <Link to="/">
+            <button className="nav-btn home-btn">Home</button>
+          </Link>
+          <Link to="/tierlists">
+            <button className="nav-btn">My Tier Lists</button>
+          </Link>
+        </div>
+        <h1 className="page-title">Community Tier Lists</h1>
       </div>
 
       <div className="content-wrapper">
-        <h1 className="page-title">Community Tier Lists</h1>
-
         <div className="existing-tierlists">
           <div className="tierlists-grid">
             {communityLists.map(tierList => (
