@@ -485,15 +485,37 @@ li {
 }
 
 .nav-buttons {
-  position: relative;
   display: flex;
   gap: 10px;
-  justify-content: center;
-  margin-bottom: 10px;
-  width: 100%;
+  align-items: center;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+.nav-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  text-transform: none;
+  text-decoration: none;
+}
+
+.nav-btn:hover {
+  background-color: rgba(135, 162, 127, 0.8);
+  transform: translateY(-2px);
 }
 
 .page-title {
+  margin-top: 60px;  /* Add space for the nav buttons */
   font-family: 'Playfair Display', serif;
   font-size: 36px;
   font-weight: 700;
@@ -501,7 +523,6 @@ li {
   color: #2c2c2c;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
   text-align: center;
-  margin: 0;
   margin-bottom: 10px;
   position: relative;
   z-index: 2;
@@ -961,25 +982,6 @@ li {
   gap: 4px;
 }
 
-.nav-btn {
-  background-color: rgba(44, 44, 44, 0.6);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-family: 'Work Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  text-transform: none;
-  font-size: 14px;
-}
-
-.nav-btn:hover {
-  background-color: #2c2c2c;
-  transform: translateY(-2px);
-}
-
 /* Specific styling for the login page home button */
 .auth-container .nav-btn {
   margin-top: 40px;
@@ -1206,24 +1208,16 @@ li {
   background-color: rgba(44, 44, 44, 0.6);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  width: 42px;
-  height: 42px;
+  padding: 10px;
   border-radius: 50%;
-  font-family: 'Work Sans', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-left: 15px;
-  backdrop-filter: blur(10px);
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-}
-
-.cycle-week-btn i {
-  font-size: 20px;
-  color: white;
-  transition: transform 0.5s ease;
+  backdrop-filter: blur(10px);
 }
 
 .cycle-week-btn:hover {
@@ -1231,6 +1225,7 @@ li {
   transform: translateY(-2px);
 }
 
-.cycle-week-btn:hover i {
-  transform: rotate(360deg);
+.cycle-week-btn svg {
+  width: 20px;  /* Make the icon smaller than the button */
+  height: 20px;  /* Make the icon smaller than the button */
 }

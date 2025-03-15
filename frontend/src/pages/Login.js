@@ -1,16 +1,42 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import backgroundImage from '../assets/background2.png';
 import googleLogo from '../assets/google-logo.svg';
 
 const Login = () => {
+  const location = useLocation();
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
     backgroundSize: 'cover',
   };
 
+  useEffect(() => {
+    // Check if we're returning from a logout
+    const params = new URLSearchParams(location.search);
+    if (params.get('logout') === 'true') {
+      // Clear any remaining session data
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear Google OAuth session
+      const googleLogoutUrl = 'https://accounts.google.com/logout';
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = googleLogoutUrl;
+      document.body.appendChild(iframe);
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+    }
+  }, [location]);
+
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8083/oauth2/authorization/google';
+    // Clear any existing session data before login
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Add prompt=select_account to force Google account selection
+    window.location.href = 'http://localhost:8083/oauth2/authorization/google?prompt=select_account';
   };
 
   return (

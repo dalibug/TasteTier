@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 const TierLists = () => {
   const [selectedTiers, setSelectedTiers] = useState({});
@@ -13,6 +15,19 @@ const TierLists = () => {
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
     backgroundSize: 'cover',
+  };
+
+  const handleLogout = () => {
+    // Call backend logout endpoint
+    fetch('http://localhost:8083/logout', {
+      method: 'POST',
+      credentials: 'include'
+    }).then(() => {
+      // Clear frontend session
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login?logout=true';
+    });
   };
 
   const selectTier = (recipeId, tier) => {
@@ -128,6 +143,7 @@ const TierLists = () => {
           <Link to="/">
             <button className="nav-btn home-btn">Home</button>
           </Link>
+          <button onClick={handleLogout} className="nav-btn">Logout</button>
         </div>
         <h1 className="page-title">Your Tier Lists</h1>
         <div className="name-input-container">
@@ -150,7 +166,7 @@ const TierLists = () => {
               onClick={cycleWeek}
               title="Next Week's Recipes"
             >
-              <i className="fas fa-sync"></i>
+              <FontAwesomeIcon icon={faArrowsRotate} />
             </button>
           </div>
         </div>
