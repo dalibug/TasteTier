@@ -119,6 +119,7 @@ main {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
+  border: 1px solid rgba(44, 44, 44, 0.3);
 }
 
 /* Authentication Form */
@@ -433,6 +434,7 @@ li {
   align-items: center;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(44, 44, 44, 0.3);
 }
 
 .tierlists-container {
@@ -480,6 +482,7 @@ li {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  border: 1px solid rgba(44, 44, 44, 0.3);
 }
 
 .tier-card:hover {
