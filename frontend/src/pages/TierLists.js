@@ -8,6 +8,7 @@ const TierLists = () => {
   const [tierListName, setTierListName] = useState('');
   const [editingTierList, setEditingTierList] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [currentWeek, setCurrentWeek] = useState(1);
 
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
@@ -19,6 +20,15 @@ const TierLists = () => {
       ...prev,
       [recipeId]: tier
     }));
+  };
+
+  const cycleWeek = () => {
+    setCurrentWeek(prev => (prev % 3) + 1);
+  };
+
+  const getCurrentRecipes = () => {
+    const startIndex = (currentWeek - 1) * 5;
+    return recipes.slice(startIndex, startIndex + 5);
   };
 
   const createTierList = () => {
@@ -89,11 +99,24 @@ const TierLists = () => {
   };
 
   const recipes = [
+    // Week 1 recipes (1-5)
     { id: 1, name: 'Recipe 1', description: 'recipe placeholder' },
     { id: 2, name: 'Recipe 2', description: 'recipe placeholder' },
     { id: 3, name: 'Recipe 3', description: 'recipe placeholder' },
     { id: 4, name: 'Recipe 4', description: 'recipe placeholder' },
     { id: 5, name: 'Recipe 5', description: 'recipe placeholder' },
+    // Week 2 recipes (6-10)
+    { id: 6, name: 'Recipe 6', description: 'recipe placeholder' },
+    { id: 7, name: 'Recipe 7', description: 'recipe placeholder' },
+    { id: 8, name: 'Recipe 8', description: 'recipe placeholder' },
+    { id: 9, name: 'Recipe 9', description: 'recipe placeholder' },
+    { id: 10, name: 'Recipe 10', description: 'recipe placeholder' },
+    // Week 3 recipes (11-15)
+    { id: 11, name: 'Recipe 11', description: 'recipe placeholder' },
+    { id: 12, name: 'Recipe 12', description: 'recipe placeholder' },
+    { id: 13, name: 'Recipe 13', description: 'recipe placeholder' },
+    { id: 14, name: 'Recipe 14', description: 'recipe placeholder' },
+    { id: 15, name: 'Recipe 15', description: 'recipe placeholder' },
   ];
 
   const tiers = ['S Tier', 'A Tier', 'B Tier', 'C Tier'];
@@ -122,6 +145,13 @@ const TierLists = () => {
             >
               Create Tier List
             </button>
+            <button 
+              className="cycle-week-btn"
+              onClick={cycleWeek}
+              title="Next Week's Recipes"
+            >
+              <i className="fas fa-sync"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -129,7 +159,7 @@ const TierLists = () => {
       <div className="content-wrapper">
         <div className="tierlists-container">
           <div className="recipe-cards-container">
-            {recipes.map(recipe => (
+            {getCurrentRecipes().map(recipe => (
               <div key={recipe.id} className="tier-card">
                 <h2>{recipe.name}</h2>
                 <p>{recipe.description}</p>

@@ -1201,3 +1201,36 @@ li {
 .content-wrapper::-webkit-scrollbar-thumb:hover {
   background: rgba(44, 44, 44, 0.7);
 }
+
+.cycle-week-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 15px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.cycle-week-btn i {
+  font-size: 20px;
+  color: white;
+  transition: transform 0.5s ease;
+}
+
+.cycle-week-btn:hover {
+  background-color: rgba(135, 162, 127, 0.8);
+  transform: translateY(-2px);
+}
+
+.cycle-week-btn:hover i {
+  transform: rotate(360deg);
+}
