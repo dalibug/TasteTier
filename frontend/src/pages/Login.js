@@ -15,21 +15,17 @@ const Login = () => {
 
   return (
     <div className="auth-background" style={backgroundStyle}>
-      <header>
-        <div className="auth-buttons">
-          <Link to="/">
-            <button className="auth-btn">⬅</button>
-          </Link>
-        </div>
-      </header>
       <main className="auth-container">
         <h1 className="title2">Login</h1>
-        <button onClick={handleGoogleLogin} className="google-login-button">
+        <button onClick={handleGoogleLogin} className="oauth-btn">
           <img src={googleLogo} alt="Google logo" />
           Sign in with Google
         </button>
         <Link to="/signup" className="auth-link">
           Don't have an account? Sign up
+        </Link>
+        <Link to="/" className="auth-link">
+          <button className="form-btn">Home</button>
         </Link>
       </main>
     </div>

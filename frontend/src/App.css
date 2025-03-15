@@ -36,22 +36,22 @@ header {
 }
 
 .auth-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 12px 18px;
-  cursor: pointer;
-  border-radius: 20px;
+  background-color: rgba(44, 44, 44, 0.6);
   color: white;
-  font-size: 16px;
-  text-transform: uppercase;
-  transition: background 0.3s ease, transform 0.2s;
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
   font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  text-transform: none;
 }
 
 .auth-btn:hover {
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(1.05);
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
 }
 
 /* Main content */
@@ -80,13 +80,14 @@ main {
 
 .title2 {
   font-family: 'Playfair Display', serif;
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 700;
   text-transform: uppercase;
   color: #2c2c2c;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
   letter-spacing: 2px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
 }
 
 /* Authentication background */
@@ -122,6 +123,23 @@ main {
   border: 1px solid rgba(44, 44, 44, 0.3);
 }
 
+.auth-container .auth-btn {
+  width: 100%;
+  margin-top: 40px;
+  padding: 15px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.auth-container .auth-link {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.auth-container .nav-btn {
+  margin-top: 40px;
+}
+
 /* Authentication Form */
 .auth-form {
   display: flex;
@@ -131,57 +149,86 @@ main {
 }
 
 .auth-form input {
-  padding: 15px;
+  padding: 10px 20px;
   border-radius: 8px;
   border: none;
-  font-size: 18px;
+  font-size: 14px;
   background: rgba(255, 255, 255, 0.7);
   color: #333;
   outline: none;
   text-align: center;
   font-family: 'Work Sans', sans-serif;
+  width: 100%;
 }
 
 .auth-form input::placeholder {
   color: rgba(0, 0, 0, 0.5);
+  font-size: 14px;
 }
 
 /* Form Button */
 .form-btn {
-  background: #4a4a4a;
+  background-color: rgba(44, 44, 44, 0.6);
   color: white;
-  padding: 12px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
   border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s;
   font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  width: 100%;
+}
+
+.auth-form .form-btn:hover {
+  background-color: rgba(135, 162, 127, 0.8);
+  transform: translateY(-2px);
 }
 
 .form-btn:hover {
-  background: #2c2c2c;
+  background-color: rgba(135, 162, 127, 0.8);
+  transform: translateY(-2px);
 }
 
-.google-btn {
-  background: #4285f4;
+.auth-container .form-btn:last-child:hover {
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
+}
+
+.oauth-btn {
+  background-color: rgba(44, 44, 44, 0.6);
   color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  font-weight: 500;
+  gap: 12px;
   width: 100%;
   margin-bottom: 20px;
+  font-size: 14px;
 }
 
-.google-btn:hover {
-  background: #357ae8;
+.oauth-btn img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+.oauth-btn:hover {
+  background-color: rgba(66, 133, 244, 0.6);
+  transform: translateY(-2px);
 }
 
 /* Authentication Links */
 .auth-link {
-  color: white;
+  color: #2c2c2c;
   font-size: 14px;
   font-family: 'Work Sans', sans-serif;
   text-decoration: none;
@@ -396,9 +443,9 @@ li {
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
-  position: fixed;
+  position: relative;
   color: white;
   padding: 2rem;
   display: flex;
@@ -407,46 +454,150 @@ li {
   overflow: hidden;
 }
 
-.page-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 48px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #2c2c2c;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  margin-bottom: 2rem;
-  position: relative;
-  z-index: 2;
-}
-
-.recipes-container {
-  width: 90%;
+.content-wrapper {
   max-width: 1200px;
-  height: calc(100vh - 250px);
-  margin-top: 100px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(44, 44, 44, 0.3);
 }
 
 .tierlists-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 2rem;
+  height: 70vh;
+  position: relative;
+  padding: 0 20px;
+}
+
+.name-input-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 600px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+}
+
+.tierlist-name-input {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(44, 44, 44, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.tierlist-name-input::placeholder {
+  color: rgba(44, 44, 44, 0.6);
+}
+
+.tierlist-name-input:focus {
+  outline: none;
+  border-color: rgba(66, 133, 244, 0.5);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Add a container for scrollable recipe cards */
+.recipe-cards-container {
+  display: flex;
   gap: 2rem;
   width: 100%;
-  height: 100%;
-  align-items: center;
-  padding: 2rem;
-  overflow-y: auto;
-  position: relative;
+  overflow-x: auto;
+  padding: 20px 0;
+  scroll-behavior: smooth;
+  min-width: min-content;
+}
+
+.tier-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  width: 100%;
+  max-width: 500px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(44, 44, 44, 0.3);
+}
+
+.tier-card:hover {
+  transform: translateY(-5px);
+}
+
+.tier-card h2 {
+  color: #2c2c2c;
+  margin: 0 0 1rem 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.tier-card p {
+  color: #2c2c2c;
+  margin-bottom: 1rem;
+}
+
+.tier-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tier-item {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #2c2c2c;
+}
+
+.tier-item:hover {
+  background: rgba(44, 44, 44, 0.6);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.tier-item.selected {
+  background: #2c2c2c;
+  color: white;
+}
+
+/* Custom scrollbar for horizontal scroll */
+.recipe-cards-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.recipe-cards-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.recipe-cards-container::-webkit-scrollbar-thumb {
+  background: rgba(44, 44, 44, 0.5);
+  border-radius: 10px;
+}
+
+.recipe-cards-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 44, 44, 0.7);
 }
 
 /* Custom scrollbar for the tierlists container */
@@ -468,119 +619,470 @@ li {
   background: rgba(44, 44, 44, 0.7);
 }
 
-.tier-card {
+.existing-tierlists {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+}
+
+.tierlists-grid {
+  display: flex;
+  gap: 20px;
+  padding: 20px 0;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  min-width: min-content;
+}
+
+/* Custom scrollbar for horizontal scroll */
+.tierlists-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tierlists-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.tierlists-grid::-webkit-scrollbar-thumb {
+  background: rgba(44, 44, 44, 0.5);
+  border-radius: 10px;
+}
+
+.tierlists-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 44, 44, 0.7);
+}
+
+.community-button-container {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+  position: sticky;
+  top: 20px;
+  z-index: 10;
+}
+
+/* Keep the tierlist card styles separate */
+.tierlist-card {
+  flex: 0 0 300px;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  padding: 2rem;
+  padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(44, 44, 44, 0.3);
   transition: transform 0.2s;
-  width: 100%;
-  max-width: 500px;
-  min-height: 400px;
-  margin: 1rem 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  border: 1px solid rgba(44, 44, 44, 0.3);
 }
 
-.tier-card:hover {
+.tierlist-card:hover {
   transform: translateY(-5px);
 }
 
-.tier-card h2 {
-  color:  #2c2c2c;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 0.5rem;
-}
-
-.tier-card p {
-  color:  #2c2c2c;
-  margin-bottom: 1rem;
-}
-
-.tier-items {
+.tierlist-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(44, 44, 44, 0.2);
 }
 
-.tier-item {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 1rem;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: background 0.2s;
+.tierlist-date {
   color: #2c2c2c;
+  font-size: 0.9em;
+  font-family: 'Work Sans', sans-serif;
 }
 
-.tier-item:hover {
+.tierlist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.tierlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.tierlist-item:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
-.tier-item.selected {
-  background:  #2c2c2c;
+.recipe-name {
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.tier-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 500;
+  font-family: 'Work Sans', sans-serif;
   color: white;
+  backdrop-filter: blur(5px);
+}
+
+.tier-badge.s {
+  background-color: rgba(255, 69, 69, 0.7);
+}
+
+.tier-badge.a {
+  background-color: rgba(255, 167, 38, 0.7);
+}
+
+.tier-badge.b {
+  background-color: rgba(102, 187, 106, 0.7);
+}
+
+.tier-badge.c {
+  background-color: rgba(66, 165, 245, 0.7);
+}
+
+/* Rate Recipes Section */
+.tierlists-container h2 {
+  color: #2c2c2c;
+  margin-bottom: 20px;
+  font-family: 'Work Sans', sans-serif;
+}
+
+/* Community Button */
+.community-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.community-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.community-btn:hover {
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
+}
+
+/* Community Tier Lists Page */
+.creator-name {
+  color: #666;
+  font-size: 0.9em;
+  font-family: 'Work Sans', sans-serif;
+}
+
+.tierlist-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.edit-btn {
+  background: rgba(44, 44, 44, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: white;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  min-width: 100px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.edit-btn:hover {
+  background-color: rgba(135, 162, 127, 0.8);
+  transform: translateY(-2px);
+}
+
+.like-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.like-btn {
+  background: rgba(44, 44, 44, 0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.like-btn:hover {
+  background: rgba(44, 44, 44, 0.3);
+  transform: scale(1.1);
+}
+
+.like-btn .thumbs-up {
+  font-size: 22px;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.like-btn.liked {
+  background: #2078f4;
+}
+
+.likes-count {
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 0.95em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
 }
 
 .nav-buttons {
   position: absolute;
   top: 20px;
-  left: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
 .nav-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 12px 18px;
-  cursor: pointer;
-  border-radius: 20px;
+  background-color: rgba(44, 44, 44, 0.6);
   color: white;
-  font-size: 16px;
-  text-transform: uppercase;
-  transition: background 0.3s ease, transform 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  text-transform: none;
+  font-size: 18px;
+  width: 100%;
+  text-align: center;
 }
 
 .nav-btn:hover {
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(1.05);
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
 }
 
-.google-login-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px 20px;
-    border: 2px solid rgba(44, 44, 44, 0.3);
-    border-radius: 20px;
-    background-color: transparent;
-    color: #2c2c2c;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-    text-decoration: none;
-    backdrop-filter: blur(10px);
-    font-family: 'Work Sans', sans-serif;
+.nav-btn.home-btn:hover {
+  background-color: #2c2c2c;
 }
 
-.google-login-button:hover {
-    background-color: rgba(66, 133, 244, 0.1);
-    border-color: rgba(66, 133, 244, 0.5);
-    transform: scale(1.02);
+/* Create Tier List Button */
+.create-tierlist-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 15px;
+  backdrop-filter: blur(10px);
 }
 
-.google-login-button img {
-    width: 20px;
-    height: 20px;
-    filter: brightness(0);
+.create-tierlist-btn:hover {
+  background-color: rgba(135, 162, 127, 0.8);
+  transform: translateY(-2px);
 }
 
-.google-login-button:hover img {
-    filter: brightness(0) saturate(100%) invert(45%) sepia(96%) saturate(1648%) hue-rotate(201deg) brightness(95%) contrast(98%);
+.tierlist-name {
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.2em;
+  margin: 0;
+}
+
+@media (max-width: 1200px) {
+  .tierlists-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .tierlists-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .tierlists-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.edit-modal {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 25px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.modal-title {
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #2c2c2c;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.modal-content {
+  margin-bottom: 20px;
+}
+
+.edit-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.edit-item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
+}
+
+.action-btn.delete {
+  background-color: rgba(255, 69, 69, 0.7);
+}
+
+.action-btn.delete:hover {
+  background-color: rgba(255, 69, 69, 0.9);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.tier-select {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(44, 44, 44, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+}
+
+.similarity-badge {
+  background: rgba(44, 44, 44, 0.6);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-family: 'Work Sans', sans-serif;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }

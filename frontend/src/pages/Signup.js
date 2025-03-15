@@ -15,13 +15,6 @@ const Signup = () => {
 
   return (
     <div className="auth-background" style={backgroundStyle}>
-      <header>
-        <div className="auth-buttons">
-          <Link to="/">
-            <button className="auth-btn">⬅</button>
-          </Link>
-        </div>
-      </header>
       <main className="auth-container">
         <h1 className="title2">Sign Up</h1>
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -32,6 +25,9 @@ const Signup = () => {
         </form>
         <Link to="/login" className="auth-link">
           Already have an account? Log in
+        </Link>
+        <Link to="/" className="auth-link">
+          <button className="form-btn">Home</button>
         </Link>
       </main>
     </div>

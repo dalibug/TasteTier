@@ -4,6 +4,7 @@ import Welcome from './pages/Welcome';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import TierLists from './pages/TierLists';
+import CommunityTierLists from './pages/CommunityTierLists';
 import DatabaseTest from './pages/DatabaseTest';
 import './App.css';
 
@@ -14,6 +15,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/tierlists" element={<TierLists />} />
+      <Route path="/community-tierlists" element={<CommunityTierLists />} />
       <Route path="/database-test" element={<DatabaseTest />} />
     </Routes>
   );
