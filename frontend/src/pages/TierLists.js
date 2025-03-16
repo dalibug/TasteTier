@@ -8,28 +8,8 @@ const TierLists = () => {
   const [currentWeek, setCurrentWeek] = useState(1);
   const [tierListName, setTierListName] = useState('');
   const [selectedTiers, setSelectedTiers] = useState({});
-  const [tierLists, setTierLists] = useState([
-    {
-      id: 1,
-      name: "My Favorite Recipes",
-      items: [
-        { recipeName: "Spaghetti Carbonara", tier: "S Tier" },
-        { recipeName: "Chicken Tikka Masala", tier: "A Tier" },
-        { recipeName: "Sushi Roll", tier: "S Tier" }
-      ],
-      likedBy: ["John", "Alice"]
-    },
-    {
-      id: 2,
-      name: "Weekend Specials",
-      items: [
-        { recipeName: "Pizza Margherita", tier: "A Tier" },
-        { recipeName: "Beef Stir Fry", tier: "B Tier" },
-        { recipeName: "Pad Thai", tier: "A Tier" }
-      ],
-      likedBy: ["Bob"]
-    }
-  ]);
+  const [tierLists, setTierLists] = useState([]);
+  const [isHovered, setIsHovered] = useState(false);
 
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
@@ -227,9 +207,20 @@ const TierLists = () => {
         </div>
 
         {/* Community Tier Lists Button */}
-        <div className="community-tierlists-button-container">
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
           <Link to="/community-tierlists">
-            <button className="community-tierlists-btn">
+            <button 
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              style={{
+                backgroundColor: isHovered ? '#8FBC8F' : '#2c2c2c',
+                color: 'white',
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                transition: 'background-color 0.3s ease'
+              }}>
               View Community Tier Lists
             </button>
           </Link>
