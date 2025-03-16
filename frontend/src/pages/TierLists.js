@@ -145,7 +145,7 @@ const TierLists = () => {
           </Link>
           <button onClick={handleLogout} className="nav-btn">Logout</button>
         </div>
-        <h1 className="page-title">Your Tier Lists</h1>
+        <h1 className="page-title">Create Your Recipe Tier List</h1>
         <div className="name-input-container">
           <div className="input-row">
             <input

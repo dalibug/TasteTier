@@ -108,7 +108,7 @@ main {
 .auth-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   width: 100%;
   max-width: 350px;
@@ -137,6 +137,21 @@ main {
 .auth-container .auth-link {
   width: 100%;
   margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.auth-container .auth-link.signup-link {
+  justify-content: center;
+}
+
+.auth-container .auth-link .form-btn {
+  width: 100%;
+  margin-top: 0;
+}
+
+.auth-container .form-btn {
+  margin-top: 10px;
 }
 
 .auth-container .nav-btn {
@@ -240,7 +255,7 @@ main {
 }
 
 .auth-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Responsive Design */
@@ -485,37 +500,15 @@ li {
 }
 
 .nav-buttons {
+  position: relative;
   display: flex;
   gap: 10px;
-  align-items: center;
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-}
-
-.nav-btn {
-  background-color: rgba(44, 44, 44, 0.6);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-family: 'Work Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  font-size: 14px;
-  text-transform: none;
-  text-decoration: none;
-}
-
-.nav-btn:hover {
-  background-color: rgba(135, 162, 127, 0.8);
-  transform: translateY(-2px);
+  justify-content: center;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
 .page-title {
-  margin-top: 60px;  /* Add space for the nav buttons */
   font-family: 'Playfair Display', serif;
   font-size: 36px;
   font-weight: 700;
@@ -523,6 +516,7 @@ li {
   color: #2c2c2c;
   text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
   text-align: center;
+  margin: 0;
   margin-bottom: 10px;
   position: relative;
   z-index: 2;
@@ -982,6 +976,25 @@ li {
   gap: 4px;
 }
 
+.nav-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  text-transform: none;
+  font-size: 14px;
+}
+
+.nav-btn:hover {
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
+}
+
 /* Specific styling for the login page home button */
 .auth-container .nav-btn {
   margin-top: 40px;
@@ -1085,7 +1098,40 @@ li {
 }
 
 .modal-content {
-  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 25px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.modal-content h2 {
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.2em;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(44, 44, 44, 0.2);
 }
 
 .edit-item {
@@ -1208,16 +1254,24 @@ li {
   background-color: rgba(44, 44, 44, 0.6);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 10px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
+  font-family: 'Work Sans', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 40px;
-  height: 40px;
+  margin-left: 15px;
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
+  padding: 0;
+}
+
+.cycle-week-btn i {
+  font-size: 20px;
+  color: white;
+  transition: transform 0.5s ease;
 }
 
 .cycle-week-btn:hover {
@@ -1225,7 +1279,6 @@ li {
   transform: translateY(-2px);
 }
 
-.cycle-week-btn svg {
-  width: 20px;  /* Make the icon smaller than the button */
-  height: 20px;  /* Make the icon smaller than the button */
+.cycle-week-btn:hover i {
+  transform: rotate(360deg);
 }
