@@ -12,6 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Arrays;
@@ -22,25 +25,30 @@ public class SecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Autowired
-    private OAuth2UserService oauth2UserService;
+    private com.example.base.service.OAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .headers(headers -> headers
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000)
+                    .disable() // Disable HSTS for local development
+                )
+            )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/oauth2/**", "/login/**", "/", "/error", "/auth/**").permitAll()
-                .requestMatchers("/db-test/**").permitAll()  // Temporarily allow database testing
+                .requestMatchers("/api/health").permitAll()
+                .requestMatchers("/api/test-entities/**").permitAll()
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
             .oauth2Login(oauth2 -> oauth2
-                .loginPage("/oauth2/authorization/google")
                 .userInfoEndpoint(userInfo -> userInfo
-                    .userService(oauth2UserService)
+                    .oidcUserService(customOAuth2UserService)
                 )
-                .defaultSuccessUrl("http://localhost:3000/tierlists", true)
-                .failureUrl("http://localhost:3000/login?error=true")
                 .successHandler((request, response, authentication) -> {
                     logger.info("OAuth2 login successful, redirecting to frontend");
                     response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
