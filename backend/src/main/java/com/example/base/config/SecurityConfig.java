@@ -1,5 +1,7 @@
 package com.example.base.config;
 
+import com.example.base.service.OAuth2UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +21,9 @@ import java.util.Arrays;
 public class SecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
+    @Autowired
+    private OAuth2UserService oauth2UserService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -31,6 +36,9 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/oauth2/authorization/google")
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(oauth2UserService)
+                )
                 .defaultSuccessUrl("http://localhost:3000/tierlists", true)
                 .failureUrl("http://localhost:3000/login?error=true")
                 .successHandler((request, response, authentication) -> {

@@ -5,12 +5,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 const TierLists = () => {
-  const [selectedTiers, setSelectedTiers] = useState({});
-  const [tierLists, setTierLists] = useState([]);
-  const [tierListName, setTierListName] = useState('');
-  const [editingTierList, setEditingTierList] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(1);
+  const [tierListName, setTierListName] = useState('');
+  const [selectedTiers, setSelectedTiers] = useState({});
+  const [tierLists, setTierLists] = useState([
+    {
+      id: 1,
+      name: "My Favorite Recipes",
+      items: [
+        { recipeName: "Spaghetti Carbonara", tier: "S Tier" },
+        { recipeName: "Chicken Tikka Masala", tier: "A Tier" },
+        { recipeName: "Sushi Roll", tier: "S Tier" }
+      ],
+      likedBy: ["John", "Alice"]
+    },
+    {
+      id: 2,
+      name: "Weekend Specials",
+      items: [
+        { recipeName: "Pizza Margherita", tier: "A Tier" },
+        { recipeName: "Beef Stir Fry", tier: "B Tier" },
+        { recipeName: "Pad Thai", tier: "A Tier" }
+      ],
+      likedBy: ["Bob"]
+    }
+  ]);
 
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
@@ -43,13 +62,6 @@ const TierLists = () => {
     });
   };
 
-  const selectTier = (recipeId, tier) => {
-    setSelectedTiers(prev => ({
-      ...prev,
-      [recipeId]: tier
-    }));
-  };
-
   const cycleWeek = () => {
     setCurrentWeek(prev => (prev % 3) + 1);
   };
@@ -59,92 +71,62 @@ const TierLists = () => {
     return recipes.slice(startIndex, startIndex + 5);
   };
 
+  const handleTierSelect = (recipeId, tier) => {
+    setSelectedTiers(prev => ({
+      ...prev,
+      [recipeId]: tier
+    }));
+  };
+
   const createTierList = () => {
-    // Filter recipes that have been rated
-    const ratedRecipes = recipes.filter(recipe => selectedTiers[recipe.id]);
-    
-    if (ratedRecipes.length === 0 || !tierListName.trim()) {
+    if (!tierListName.trim()) {
       return;
     }
 
-    // Create a new tier list with rated recipes
-    const newTierList = {
-      id: Date.now(), // temporary ID for frontend
-      name: tierListName,
-      items: ratedRecipes.map(recipe => ({
+    const selectedRecipes = Object.entries(selectedTiers).map(([recipeId, tier]) => {
+      const recipe = recipes.find(r => r.id === parseInt(recipeId));
+      return {
         recipeName: recipe.name,
-        tier: selectedTiers[recipe.id]
-      })),
-      likedBy: [] // Initialize empty likedBy array
+        tier: tier
+      };
+    });
+
+    if (selectedRecipes.length === 0) {
+      return;
+    }
+
+    const newTierList = {
+      id: tierLists.length + 1,
+      name: tierListName,
+      items: selectedRecipes,
+      likedBy: []
     };
 
-    // Add the new tier list to the state
-    setTierLists(prev => [newTierList, ...prev]);
-
-    // Clear selected tiers and name
-    setSelectedTiers({});
+    setTierLists(prev => [...prev, newTierList]);
     setTierListName('');
+    setSelectedTiers({});
   };
 
-  const handleEdit = (tierList) => {
-    setEditingTierList(tierList);
-    setShowEditModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setEditingTierList(null);
-    setShowEditModal(false);
-  };
-
-  const handleUpdateTier = (itemIndex, newTier) => {
-    setEditingTierList(prev => ({
-      ...prev,
-      items: prev.items.map((item, index) => 
-        index === itemIndex ? { ...item, tier: newTier } : item
-      )
-    }));
-  };
-
-  const handleDeleteItem = (itemIndex) => {
-    setEditingTierList(prev => ({
-      ...prev,
-      items: prev.items.filter((_, index) => index !== itemIndex)
-    }));
-  };
-
-  const handleDeleteList = () => {
-    setTierLists(prev => prev.filter(list => list.id !== editingTierList.id));
-    handleCloseModal();
-  };
-
-  const handleSaveChanges = () => {
-    setTierLists(prev => 
-      prev.map(list => 
-        list.id === editingTierList.id ? editingTierList : list
-      )
-    );
-    handleCloseModal();
-  };
-
+  // Hardcoded recipes data
   const recipes = [
     // Week 1 recipes (1-5)
-    { id: 1, name: 'Recipe 1', description: 'recipe placeholder' },
-    { id: 2, name: 'Recipe 2', description: 'recipe placeholder' },
-    { id: 3, name: 'Recipe 3', description: 'recipe placeholder' },
-    { id: 4, name: 'Recipe 4', description: 'recipe placeholder' },
-    { id: 5, name: 'Recipe 5', description: 'recipe placeholder' },
+    { id: 1, name: 'Spaghetti Carbonara', description: 'Classic Italian pasta dish' },
+    { id: 2, name: 'Chicken Tikka Masala', description: 'Indian curry dish' },
+    { id: 3, name: 'Sushi Roll', description: 'Japanese rice and fish dish' },
+    { id: 4, name: 'Pizza Margherita', description: 'Traditional Italian pizza' },
+    { id: 5, name: 'Beef Stir Fry', description: 'Chinese-style stir-fried beef' },
     // Week 2 recipes (6-10)
-    { id: 6, name: 'Recipe 6', description: 'recipe placeholder' },
-    { id: 7, name: 'Recipe 7', description: 'recipe placeholder' },
-    { id: 8, name: 'Recipe 8', description: 'recipe placeholder' },
-    { id: 9, name: 'Recipe 9', description: 'recipe placeholder' },
-    { id: 10, name: 'Recipe 10', description: 'recipe placeholder' },
+    { id: 6, name: 'Pad Thai', description: 'Thai noodle dish' },
+    { id: 7, name: 'Greek Salad', description: 'Mediterranean salad' },
+    { id: 8, name: 'Tacos', description: 'Mexican street food' },
+    { id: 9, name: 'Ramen', description: 'Japanese noodle soup' },
+    { id: 10, name: 'Falafel', description: 'Middle Eastern chickpea balls' },
     // Week 3 recipes (11-15)
-    { id: 11, name: 'Recipe 11', description: 'recipe placeholder' },
-    { id: 12, name: 'Recipe 12', description: 'recipe placeholder' },
-    { id: 13, name: 'Recipe 13', description: 'recipe placeholder' },
-    { id: 14, name: 'Recipe 14', description: 'recipe placeholder' },
-    { id: 15, name: 'Recipe 15', description: 'recipe placeholder' },
+    { id: 11, name: 'Paella', description: 'Spanish rice dish' },
+    { id: 12, name: 'Bibimbap', description: 'Korean mixed rice bowl' },
+    { id: 13, name: 'Pho', description: 'Vietnamese noodle soup' },
+    { id: 14, name: 'Moussaka', description: 'Greek eggplant casserole' },
+    { id: 15, name: 'Dumplings', description: 'Chinese steamed dumplings' },
   ];
 
   const tiers = ['S Tier', 'A Tier', 'B Tier', 'C Tier'];
@@ -197,7 +179,7 @@ const TierLists = () => {
                     <span
                       key={tier}
                       className={`tier-item ${selectedTiers[recipe.id] === tier ? 'selected' : ''}`}
-                      onClick={() => selectTier(recipe.id, tier)}
+                      onClick={() => handleTierSelect(recipe.id, tier)}
                     >
                       {tier}
                     </span>
@@ -209,104 +191,49 @@ const TierLists = () => {
         </div>
 
         {/* Display existing tier lists */}
-        {tierLists.length > 0 && (
-          <div className="existing-tierlists">
-            <h2>Your Created Tier Lists</h2>
-            <div className="tierlists-grid">
-              {tierLists.map(tierList => (
-                <div key={tierList.id} className="tierlist-card">
-                  <div className="tierlist-header">
-                    <div className="header-content">
-                      <h3 className="tierlist-name">{tierList.name}</h3>
-                    </div>
-                  </div>
-                  <div className="tierlist-items">
-                    {tierList.items.map((item, index) => (
-                      <div key={index} className="tierlist-item">
-                        <span className="recipe-name">{item.recipeName}</span>
-                        <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
-                          {item.tier}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="tierlist-footer">
-                    <button 
-                      className="edit-btn"
-                      onClick={() => handleEdit(tierList)}
-                    >
-                      Edit
-                    </button>
-                    <span className="similarity-badge">
-                      <i className="fas fa-heart"></i>
-                      {tierList.likedBy && tierList.likedBy.length > 0 
-                        ? tierList.likedBy.length === 1
-                          ? `Liked by ${tierList.likedBy[0]}`
-                          : `Liked by ${tierList.likedBy[0]} and ${tierList.likedBy.length - 1} others`
-                        : 'No likes yet'}
-                    </span>
+        <div className="existing-tierlists">
+          <h2>Your Created Tier Lists</h2>
+          <div className="tierlists-grid">
+            {tierLists.map(tierList => (
+              <div key={tierList.id} className="tierlist-card">
+                <div className="tierlist-header">
+                  <div className="header-content">
+                    <h3 className="tierlist-name">{tierList.name}</h3>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="community-button-container">
-              <Link to="/community-tierlists">
-                <button className="community-btn">
-                  View Community Tier Lists
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {showEditModal && editingTierList && (
-          <div className="modal-overlay">
-            <div className="edit-modal">
-              <div className="modal-header">
-                <h3 className="modal-title">Edit {editingTierList.name}</h3>
-                <button className="close-modal" onClick={handleCloseModal}>&times;</button>
-              </div>
-              <div className="modal-content">
-                {editingTierList.items.map((item, index) => (
-                  <div key={index} className="edit-item">
-                    <span className="recipe-name">{item.recipeName}</span>
-                    <div className="edit-item-actions">
-                      <select
-                        className="tier-select"
-                        value={item.tier}
-                        onChange={(e) => handleUpdateTier(index, e.target.value)}
-                      >
-                        {tiers.map(tier => (
-                          <option key={tier} value={tier}>{tier}</option>
-                        ))}
-                      </select>
-                      <button 
-                        className="action-btn delete"
-                        onClick={() => handleDeleteItem(index)}
-                      >
-                        Delete
-                      </button>
+                <div className="tierlist-items">
+                  {tierList.items.map((item, index) => (
+                    <div key={index} className="tierlist-item">
+                      <span className="recipe-name">{item.recipeName}</span>
+                      <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
+                        {item.tier}
+                      </span>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <div className="tierlist-footer">
+                  <span className="similarity-badge">
+                    <i className="fas fa-heart"></i>
+                    {tierList.likedBy && tierList.likedBy.length > 0 
+                      ? tierList.likedBy.length === 1
+                        ? `Liked by ${tierList.likedBy[0]}`
+                        : `Liked by ${tierList.likedBy[0]} and ${tierList.likedBy.length - 1} others`
+                      : 'No likes yet'}
+                  </span>
+                </div>
               </div>
-              <div className="modal-footer">
-                <button 
-                  className="action-btn delete"
-                  onClick={handleDeleteList}
-                >
-                  Delete List
-                </button>
-                <button 
-                  className="action-btn"
-                  onClick={handleSaveChanges}
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
-        )}
+        </div>
+
+        {/* Community Tier Lists Button */}
+        <div className="community-tierlists-button-container">
+          <Link to="/community-tierlists">
+            <button className="community-tierlists-btn">
+              View Community Tier Lists
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );

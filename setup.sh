@@ -7,11 +7,41 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Function to check if Java 17 is installed
+check_java() {
+    if ! command_exists java; then
+        echo "❌ Java not found. Installing Java 17..."
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            if command_exists brew; then
+                brew install openjdk@17
+            else
+                echo "Homebrew is not installed. Please install Homebrew first:"
+                echo "Visit: https://brew.sh/"
+                exit 1
+            fi
+        elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+            sudo apt-get update
+            sudo apt-get install -y openjdk-17-jdk
+        else
+            echo "Unsupported operating system. Please install Java 17 manually."
+            echo "Visit: https://adoptium.net/"
+            exit 1
+        fi
+    else
+        JAVA_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+        if [[ ! $JAVA_VERSION =~ ^17 ]]; then
+            echo "❌ Java 17 is required. Current version: $JAVA_VERSION"
+            echo "Please install Java 17 from: https://adoptium.net/"
+            exit 1
+        fi
+    fi
+    echo "✅ Java 17 found"
+}
+
 # Function to install Node.js and npm
 install_nodejs() {
     echo "Installing Node.js and npm..."
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
         if command_exists brew; then
             brew install node
         else
@@ -20,7 +50,6 @@ install_nodejs() {
             exit 1
         fi
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        # Linux
         if command_exists apt; then
             curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
             sudo apt-get install -y nodejs
@@ -63,8 +92,11 @@ install_docker() {
     fi
 }
 
-# Check for required tools
+# Check system requirements
 echo "Checking system requirements..."
+
+# Check Java
+check_java
 
 # Check and install npm if needed
 if ! command_exists npm; then
@@ -72,6 +104,14 @@ if ! command_exists npm; then
     install_nodejs
 else
     echo "✅ npm found"
+fi
+
+# Check npm version
+NPM_VERSION=$(npm -v)
+if [[ ${NPM_VERSION%%.*} -lt 8 ]]; then
+    echo "❌ npm version 8 or higher is required. Current version: $NPM_VERSION"
+    echo "Please update npm: npm install -g npm@latest"
+    exit 1
 fi
 
 # Check and install Docker if needed
@@ -96,23 +136,19 @@ fi
 echo "Setting up frontend..."
 cd frontend
 
-# Check if node_modules exists and package.json has changed
-if [ ! -d "node_modules" ] || [ package.json -nt node_modules ]; then
-    echo "Installing frontend dependencies..."
-    npm install
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to install frontend dependencies"
-        exit 1
-    fi
-else
-    echo "✅ Frontend dependencies are up to date"
+# Install frontend dependencies
+echo "Installing frontend dependencies..."
+npm install
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to install frontend dependencies"
+    exit 1
 fi
 
 cd ../backend
 
-# Check if Gradle wrapper exists
+# Setup Gradle wrapper
+echo "Setting up Gradle wrapper..."
 if [ ! -f "gradlew" ]; then
-    echo "Initializing Gradle wrapper..."
     gradle wrapper
     if [ $? -ne 0 ]; then
         echo "❌ Failed to initialize Gradle wrapper"
@@ -123,19 +159,27 @@ fi
 # Make gradlew executable
 chmod +x gradlew
 
-# Check if build is needed
-if [ ! -d "build/libs" ] || [ build.gradle -nt build/libs/base-0.0.1-SNAPSHOT.jar ]; then
-    echo "Building backend..."
-    ./gradlew build -x test
-    if [ $? -ne 0 ]; then
-        echo "❌ Failed to build backend"
-        exit 1
-    fi
-else
-    echo "✅ Backend build is up to date"
+# Build backend
+echo "Building backend..."
+./gradlew build -x test
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to build backend"
+    exit 1
 fi
 
 cd ..
+
+# Create necessary directories
+echo "Creating necessary directories..."
+mkdir -p backend/logs
+mkdir -p frontend/build
+
+# Set up environment variables
+echo "Setting up environment variables..."
+if [ ! -f ".env" ]; then
+    cp .env.example .env 2>/dev/null || echo "No .env.example found, creating new .env"
+    echo "Created .env file. Please update it with your configuration."
+fi
 
 echo "✅ Setup completed successfully!"
 echo "You can now run ./start.sh to start the application" 
