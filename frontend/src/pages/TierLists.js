@@ -18,15 +18,28 @@ const TierLists = () => {
   };
 
   const handleLogout = () => {
-    // Call backend logout endpoint
+    // Try to call backend logout endpoint, but continue even if it fails
     fetch('http://localhost:8083/logout', {
       method: 'POST',
       credentials: 'include'
-    }).then(() => {
+    }).catch(() => {
+      // Ignore the error and continue with logout process
+    }).finally(() => {
       // Clear frontend session
       localStorage.clear();
       sessionStorage.clear();
-      window.location.href = '/login?logout=true';
+      
+      // Clear Google OAuth session
+      const googleLogoutUrl = 'https://accounts.google.com/logout';
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = googleLogoutUrl;
+      document.body.appendChild(iframe);
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+        // Redirect to welcome page after Google logout
+        window.location.href = '/';
+      }, 1000);
     });
   };
 
