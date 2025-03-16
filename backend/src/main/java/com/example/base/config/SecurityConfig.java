@@ -25,7 +25,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/admin/login").permitAll()
                 .requestMatchers("/oauth2/**", "/login/**", "/", "/error", "/auth/**").permitAll()
                 .requestMatchers("/db-test/**").permitAll()  // Temporarily allow database testing
                 .anyRequest().permitAll()

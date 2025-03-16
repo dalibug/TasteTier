@@ -85,9 +85,6 @@ public class UserController {
             if (user.getPictureUrl() != null) {
                 existingUser.setPictureUrl(user.getPictureUrl());
             }
-            if (user.getIsAdmin() != null) {
-                existingUser.setIsAdmin(user.getIsAdmin());
-            }
             if (user.getLastLogin() != null) {
                 existingUser.setLastLogin(user.getLastLogin());
             }
