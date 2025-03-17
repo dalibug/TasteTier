@@ -1,0 +1,92 @@
+---
+description: smw guidline
+globs: 
+alwaysApply: false
+---
+# Recipe Tier List Project Rules
+
+## Project Structure
+- **Repository Organization**:
+  - Separate repositories for frontend and backend
+  - Frontend: React application
+  - Backend: Spring Boot REST API
+
+## Technology Stack Requirements
+
+### Backend
+- **Framework**: Spring Boot 
+- **Language**: Java 
+- **REST API**: Must follow RESTful design principles
+- **Authentication**: Google OAuth2
+- **Database**: MySQL (JawsDB on Heroku)
+- **Containerization**: Docker
+- **Deployment**: Heroku or AWS
+
+### Frontend 
+- **Framework**: React.js
+- **State Management**: Context API or Redux
+- **UI Component Library**: Material-UI
+- **Routing**: React Router
+- **API Communication**: Axios
+- **Testing**: Jest + React Testing Library
+
+
+
+## Coding Standards
+
+### Java/Spring
+- Follow Google Java Style Guide
+- Use proper exception handling
+- Document all public methods with Javadoc
+- Use Spring's dependency injection
+- Implement proper validation for request parameters
+- Structure code in controller, service, repository layers
+
+### React
+- Use functional components with hooks
+- Break UI into small, reusable components
+- Use proper prop types
+- Implement responsive design
+- Handle loading and error states
+- Follow clean code principles
+
+## API Standards
+- All endpoints must be properly documented
+- Use consistent naming conventions:
+  - Resources in plural form (e.g., `/users`, `/tierlists`)
+  - Use kebab-case for multi-word resources
+- HTTP verbs match actions:
+  - GET for retrieval
+  - POST for creation
+  - PUT for full updates
+  - PATCH for partial updates
+  - DELETE for deletion
+- Proper error responses with appropriate status codes
+- CORS properly configured
+- Authentication headers properly handled
+
+## Deployment Requirements
+- CI/CD pipeline using GitHub Actions
+- Automatic testing before deployment
+- Database migrations handled properly
+- Environment variables for sensitive information
+- HTTPS for all traffic
+- Regular backups of database
+- Logging for all significant events
+- Monitoring for performance and errors
+
+## Security Requirements
+- No secrets in code or repositories
+- Proper CORS configuration
+- Input validation for all user inputs
+- Protection against common vulnerabilities (CSRF, XSS)
+- OAuth tokens properly managed and refreshed
+- HTTP Security headers configured
+
+
+
+ **Frontend Development**:
+   - User authentication flow
+   - Tier list creation interface
+   - Category and recipe management
+   - Admin dashboard

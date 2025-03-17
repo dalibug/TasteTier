@@ -96,12 +96,12 @@ public class TierlistItemController {
             }
             
             // Validate recipe exists
-            if (tierlistItem.getRecipe() != null && tierlistItem.getRecipe().getRecipeId() != null) {
-                Optional<Recipe> recipeData = recipeRepository.findById(tierlistItem.getRecipe().getRecipeId());
+            if (tierlistItem.getOriginalItem() != null && tierlistItem.getOriginalItem().getRecipeId() != null) {
+                Optional<Recipe> recipeData = recipeRepository.findById(tierlistItem.getOriginalItem().getRecipeId());
                 if (!recipeData.isPresent()) {
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 }
-                tierlistItem.setRecipe(recipeData.get());
+                tierlistItem.setOriginalItem(recipeData.get());
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
@@ -192,10 +192,10 @@ public class TierlistItemController {
                 }
                 
                 // Validate recipe exists
-                if (item.getRecipe() != null && item.getRecipe().getRecipeId() != null) {
-                    Optional<Recipe> recipeData = recipeRepository.findById(item.getRecipe().getRecipeId());
+                if (item.getOriginalItem() != null && item.getOriginalItem().getRecipeId() != null) {
+                    Optional<Recipe> recipeData = recipeRepository.findById(item.getOriginalItem().getRecipeId());
                     if (recipeData.isPresent()) {
-                        item.setRecipe(recipeData.get());
+                        item.setOriginalItem(recipeData.get());
                     } else {
                         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                     }

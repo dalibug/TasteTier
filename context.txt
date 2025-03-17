@@ -1,0 +1,206 @@
+# Recipe Tier List Application Context
+
+## Project Overview
+This is a full-stack web application that allows users to create tier lists for recipes. Users can rank recipes within different food categories on a weekly basis (S, A, B, C, D, F tiers). The system matches users with similar tastes and creates temporary chat rooms for them to discuss their rankings.
+
+## Technology Stack
+- **Backend**: Spring Boot REST API
+- **Frontend**: React.js
+- **Database**: MySQL (JawsDB on Heroku)
+- **Authentication**: Google OAuth2
+- **Deployment**: Heroku for backend API, separate deployment for frontend
+- **CICD**: GitHub Actions
+
+## Database Schema
+```sql
+-- Users Table (Google OAuth authentication)
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL,
+    oauth_id VARCHAR(255) NOT NULL COMMENT 'Google User ID',
+    picture_url VARCHAR(255) NULL COMMENT 'Profile picture URL',
+    is_admin BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL,
+    access_token VARCHAR(255) NULL COMMENT 'OAuth access token',
+    refresh_token VARCHAR(255) NULL COMMENT 'OAuth refresh token',
+    token_expires_at TIMESTAMP NULL COMMENT 'Token expiration time'
+);
+
+-- Categories Table (Food/Recipe Categories)
+CREATE TABLE categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL COMMENT 'E.g. Breakfast Foods, Italian Cuisine, Desserts, etc.',
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_by INT NULL COMMENT 'Admin who created this category',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
+-- Tiers Table (S, A, B, C, D, F rankings)
+CREATE TABLE tiers (
+    tier_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(10) NOT NULL,
+    rank_order INT NOT NULL
+);
+
+-- Items Table (Recipes to be ranked)
+CREATE TABLE items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL COMMENT 'Recipe name',
+    description TEXT COMMENT 'Recipe description',
+    category_id INT NOT NULL,
+    embedding_vector TEXT NULL COMMENT 'ML embedding for similarity matching',
+    created_by INT NULL COMMENT 'User who created this recipe',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
+-- Item Synonyms Table (for ML grouping of similar items)
+CREATE TABLE item_synonyms (
+    synonym_id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    synonym VARCHAR(255) NOT NULL,
+    similarity_score FLOAT NOT NULL COMMENT 'ML-based similarity score',
+    FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
+);
+
+-- Weekly Challenges Table
+CREATE TABLE weekly_challenges (
+    challenge_id INT AUTO_INCREMENT PRIMARY KEY,
+    week_number INT NOT NULL COMMENT 'Week number for the year',
+    year INT NOT NULL COMMENT 'Year of the challenge',
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL COMMENT 'active, completed, canceled',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Weekly Challenge Categories (multiple food categories per week)
+CREATE TABLE weekly_challenge_categories (
+    weekly_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    challenge_id INT NOT NULL,
+    category_id INT NOT NULL COMMENT 'Food category for this week',
+    FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(challenge_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Tier Lists Table
+CREATE TABLE tier_lists (
+    tierlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    challenge_id INT NOT NULL COMMENT 'Associated weekly challenge',
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_public BOOLEAN DEFAULT TRUE COMMENT 'Whether this tierlist is visible to others',
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(challenge_id)
+);
+
+-- Tierlist Items Table
+CREATE TABLE tierlist_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    tierlist_id INT NOT NULL,
+    original_item_id INT NOT NULL COMMENT 'Reference to items table',
+    tier_id INT NOT NULL,
+    position INT NOT NULL,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tierlist_id) REFERENCES tier_lists(tierlist_id) ON DELETE CASCADE,
+    FOREIGN KEY (original_item_id) REFERENCES items(item_id),
+    FOREIGN KEY (tier_id) REFERENCES tiers(tier_id)
+);
+
+-- Challenge Results Table (for storing matched users)
+CREATE TABLE challenge_results (
+    result_id INT AUTO_INCREMENT PRIMARY KEY,
+    challenge_id INT NOT NULL,
+    group_id INT NOT NULL COMMENT 'Identifies which group of similar tierlists',
+    similarity_score FLOAT NOT NULL,
+    is_most_similar BOOLEAN DEFAULT FALSE COMMENT 'Flag for most similar group',
+    is_most_unique BOOLEAN DEFAULT FALSE COMMENT 'Flag for most unique group',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(challenge_id) ON DELETE CASCADE
+);
+
+-- Challenge Group Members (users with similar tierlists)
+CREATE TABLE challenge_group_members (
+    group_member_id INT AUTO_INCREMENT PRIMARY KEY,
+    result_id INT NOT NULL,
+    user_id INT NOT NULL,
+    tierlist_id INT NOT NULL,
+    FOREIGN KEY (result_id) REFERENCES challenge_results(result_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (tierlist_id) REFERENCES tier_lists(tierlist_id) ON DELETE CASCADE
+);
+
+-- Chat Rooms for matched users
+CREATE TABLE chat_rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    result_id INT NOT NULL COMMENT 'Associated challenge result',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL COMMENT 'When this chat room will close',
+    FOREIGN KEY (result_id) REFERENCES challenge_results(result_id) ON DELETE CASCADE
+);
+
+-- Chat Messages
+CREATE TABLE chat_messages (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES chat_rooms(room_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+```
+
+## Core Features
+1. **User Authentication via Google OAuth**
+   - Users can sign up and login using their Google accounts
+   - Admin users have additional privileges
+
+2. **Weekly Challenge System**
+   - Each week features multiple food categories (e.g., Breakfast Foods, Italian Cuisine, Desserts)
+   - Users create tier lists for each category
+   - Users aim to create lists that match with others
+
+3. **Tier List Creation**
+   - Users can rank recipes in S, A, B, C, D, F tiers
+   - Each tier list is associated with a specific food category and weekly challenge
+   - Users can view, create, and edit their tier lists
+
+4. **Similarity Matching**
+   - ML embeddings are used to group similar recipe entries
+   - System matches users with similar rankings
+   - Rewards for both most similar and most unique tier lists
+
+5. **Discussion Rooms**
+   - Temporary chat rooms for users with similar tastes
+   - Rooms expire after one week
+
+## API Endpoints
+The REST API includes endpoints for:
+
+- User account management (login, logout, account deletion)
+- Tier list operations (create, view, edit)
+- Challenge management (view active challenges, categories)
+- Admin operations (user management, category creation)
+
+## Current Status
+- Database schema defined and created on Heroku
+- Google OAuth integration implemented
+- Working on REST API development
+- Front-end components being designed
+
+## Development Focus
+- Implement remaining API endpoints
+- Develop front-end components for tier list creation
+- Implement similarity matching algorithm
+- Create chat room functionality
+- Deploy full application to Heroku

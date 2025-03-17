@@ -1,20 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import backgroundImage from '../assets/background3.png';
+import Navbar from '../components/Navbar';
+import TierListCard from '../components/TierListCard';
+import TierListService from '../services/tierListService';
+import UserService from '../services/userService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 const TierLists = () => {
+  const [userTierLists, setUserTierLists] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  const [filter, setFilter] = useState('all'); // all, challenge, custom
   const [currentWeek, setCurrentWeek] = useState(1);
   const [tierListName, setTierListName] = useState('');
   const [selectedTiers, setSelectedTiers] = useState({});
   const [tierLists, setTierLists] = useState([]);
   const [isHovered, setIsHovered] = useState(false);
 
-  const backgroundStyle = {
-    background: `url(${backgroundImage}) no-repeat center center fixed`,
-    backgroundSize: 'cover',
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Get current user
+        const userResponse = await UserService.getCurrentUser();
+        setUser(userResponse.data);
+        
+        // Get user's tier lists
+        const tierListsResponse = await TierListService.getTierListsByUser(userResponse.data.userId);
+        setUserTierLists(tierListsResponse.data);
+        
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching tier lists:', err);
+        setError('Failed to load tier lists. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
   };
+
+  const getFilteredTierLists = () => {
+    switch (filter) {
+      case 'challenge':
+        return userTierLists.filter(tierList => tierList.challenge !== null);
+      case 'custom':
+        return userTierLists.filter(tierList => tierList.challenge === null);
+      default:
+        return userTierLists;
+    }
+  };
+
+  const filteredTierLists = getFilteredTierLists();
 
   const handleLogout = () => {
     // Try to call backend logout endpoint, but continue even if it fails
@@ -111,118 +156,75 @@ const TierLists = () => {
 
   const tiers = ['S Tier', 'A Tier', 'B Tier', 'C Tier'];
 
-  return (
-    <div className="tierlists-background" style={backgroundStyle}>
-      <div className="fixed-header">
-        <div className="nav-buttons">
-          <Link to="/">
-            <button className="nav-btn home-btn">Home</button>
-          </Link>
-          <button onClick={handleLogout} className="nav-btn">Logout</button>
-        </div>
-        <h1 className="page-title">Create Your Recipe Tier List</h1>
-        <div className="name-input-container">
-          <div className="input-row">
-            <input
-              type="text"
-              placeholder="Enter your tier list name"
-              value={tierListName}
-              onChange={(e) => setTierListName(e.target.value)}
-              className="tierlist-name-input"
-            />
-            <button 
-              className="create-tierlist-btn"
-              onClick={createTierList}
-            >
-              Create Tier List
-            </button>
-            <button 
-              className="cycle-week-btn"
-              onClick={cycleWeek}
-              title="Next Week's Recipes"
-            >
-              <FontAwesomeIcon icon={faArrowsRotate} />
-            </button>
-          </div>
+  if (loading) {
+    return (
+      <div className="tier-lists-page">
+        <Navbar />
+        <div className="content-wrapper">
+          <div className="loading">Loading tier lists...</div>
         </div>
       </div>
+    );
+  }
 
+  return (
+    <div className="tier-lists-page">
+      <Navbar />
       <div className="content-wrapper">
-        <div className="tierlists-container">
-          <div className="recipe-cards-container">
-            {getCurrentRecipes().map(recipe => (
-              <div key={recipe.id} className="tier-card">
-                <h2>{recipe.name}</h2>
-                <p>{recipe.description}</p>
-                <div className="tier-items">
-                  {tiers.map(tier => (
-                    <span
-                      key={tier}
-                      className={`tier-item ${selectedTiers[recipe.id] === tier ? 'selected' : ''}`}
-                      onClick={() => handleTierSelect(recipe.id, tier)}
-                    >
-                      {tier}
-                    </span>
-                  ))}
-                </div>
-              </div>
+        <div className="page-header">
+          <h1 className="page-title">My Tier Lists</h1>
+          <Link to="/tierlists/new" className="create-btn">
+            Create New Tier List
+          </Link>
+        </div>
+        
+        {error && <div className="error">{error}</div>}
+        
+        <div className="filter-controls">
+          <button 
+            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('all')}
+          >
+            All
+          </button>
+          <button 
+            className={`filter-btn ${filter === 'challenge' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('challenge')}
+          >
+            Challenge
+          </button>
+          <button 
+            className={`filter-btn ${filter === 'custom' ? 'active' : ''}`}
+            onClick={() => handleFilterChange('custom')}
+          >
+            Custom
+          </button>
+        </div>
+        
+        {filteredTierLists.length === 0 ? (
+          <div className="no-tier-lists">
+            <p>You haven't created any tier lists yet.</p>
+            <Link to="/tierlists/new" className="create-btn">
+              Create Your First Tier List
+            </Link>
+          </div>
+        ) : (
+          <div className="tier-lists-grid">
+            {filteredTierLists.map(tierList => (
+              <TierListCard 
+                key={tierList.tierListId} 
+                tierList={tierList} 
+                showUser={false}
+              />
             ))}
           </div>
-        </div>
-
-        {/* Display existing tier lists */}
-        <div className="existing-tierlists">
-          <h2>Your Created Tier Lists</h2>
-          <div className="tierlists-grid">
-            {tierLists.map(tierList => (
-              <div key={tierList.id} className="tierlist-card">
-                <div className="tierlist-header">
-                  <div className="header-content">
-                    <h3 className="tierlist-name">{tierList.name}</h3>
-                  </div>
-                </div>
-                <div className="tierlist-items">
-                  {tierList.items.map((item, index) => (
-                    <div key={index} className="tierlist-item">
-                      <span className="recipe-name">{item.recipeName}</span>
-                      <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
-                        {item.tier}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="tierlist-footer">
-                  <span className="similarity-badge">
-                    <i className="fas fa-heart"></i>
-                    {tierList.likedBy && tierList.likedBy.length > 0 
-                      ? tierList.likedBy.length === 1
-                        ? `Liked by ${tierList.likedBy[0]}`
-                        : `Liked by ${tierList.likedBy[0]} and ${tierList.likedBy.length - 1} others`
-                      : 'No likes yet'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Community Tier Lists Button */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-          <Link to="/community-tierlists">
-            <button 
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              style={{
-                backgroundColor: isHovered ? '#8FBC8F' : '#2c2c2c',
-                color: 'white',
-                padding: '8px 16px',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                transition: 'background-color 0.3s ease'
-              }}>
-              View Community Tier Lists
-            </button>
+        )}
+        
+        <div className="community-link-section">
+          <h2>Looking for inspiration?</h2>
+          <p>Check out tier lists created by the community.</p>
+          <Link to="/community-tierlists" className="community-link">
+            View Community Tier Lists
           </Link>
         </div>
       </div>

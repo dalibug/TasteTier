@@ -29,6 +29,9 @@ public class User {
     @Column(name = "picture_url", length = 255)
     private String pictureUrl;
 
+    @Column(name = "is_admin", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isAdmin = false;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -55,6 +58,7 @@ public class User {
         this.oauthProvider = oauthProvider;
         this.oauthId = oauthId;
         this.createdAt = LocalDateTime.now();
+        this.isAdmin = false;
     }
 
     // Getters and Setters
@@ -104,6 +108,14 @@ public class User {
 
     public void setPictureUrl(String pictureUrl) {
         this.pictureUrl = pictureUrl;
+    }
+
+    public Boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
     public LocalDateTime getCreatedAt() {

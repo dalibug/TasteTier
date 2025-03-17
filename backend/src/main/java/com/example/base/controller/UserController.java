@@ -5,12 +5,17 @@ import com.example.base.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -22,6 +27,7 @@ public class UserController {
 
     // Get all users
     @GetMapping
+    @Transactional(readOnly = true)
     public ResponseEntity<List<User>> getAllUsers() {
         try {
             List<User> users = userRepository.findAll();
@@ -33,6 +39,7 @@ public class UserController {
 
     // Get user by ID
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
         Optional<User> userData = userRepository.findById(id);
         
@@ -43,8 +50,68 @@ public class UserController {
         }
     }
 
+    // Get all admin users
+    @GetMapping("/admins")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<User>> getAllAdminUsers() {
+        try {
+            List<User> users = userRepository.findAll();
+            List<User> adminUsers = users.stream()
+                .filter(user -> user.getIsAdmin() != null && user.getIsAdmin())
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(adminUsers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Toggle admin status (admin only)
+    @PutMapping("/{id}/admin")
+    @Transactional
+    public ResponseEntity<?> toggleAdminStatus(@PathVariable("id") Long id) {
+        Optional<User> userData = userRepository.findById(id);
+        
+        if (userData.isPresent()) {
+            User user = userData.get();
+            
+            // Toggle admin status
+            boolean currentStatus = user.getIsAdmin() != null ? user.getIsAdmin() : false;
+            user.setIsAdmin(!currentStatus);
+            
+            User updatedUser = userRepository.save(user);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("userId", updatedUser.getUserId());
+            response.put("username", updatedUser.getUsername());
+            response.put("isAdmin", updatedUser.getIsAdmin());
+            response.put("message", "Admin status updated successfully");
+            
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Get current user
+    @GetMapping("/me")
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal().equals("anonymousUser"))) {
+            String email = auth.getName();
+            Optional<User> user = userRepository.findByEmail(email);
+            
+            if (user.isPresent()) {
+                return new ResponseEntity<>(user.get(), HttpStatus.OK);
+            }
+        }
+        
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
     // Create a new user
     @PostMapping
+    @Transactional
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
             // Check if username already exists
@@ -69,6 +136,7 @@ public class UserController {
 
     // Update a user
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
         Optional<User> userData = userRepository.findById(id);
         
@@ -106,6 +174,7 @@ public class UserController {
 
     // Delete a user
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Long id) {
         try {
             userRepository.deleteById(id);
@@ -117,6 +186,7 @@ public class UserController {
 
     // OAuth login/signup
     @PostMapping("/oauth")
+    @Transactional
     public ResponseEntity<User> oauthLogin(@RequestBody Map<String, String> oauthData) {
         try {
             String provider = oauthData.get("provider");

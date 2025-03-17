@@ -16,4 +16,16 @@ public interface TierListRepository extends JpaRepository<TierList, Long> {
     List<TierList> findByUserUserIdAndCategoryCategoryId(Long userId, Long categoryId);
     
     List<TierList> findByNameContainingIgnoreCase(String name);
+    
+    List<TierList> findByChallengeChallengeId(Long challengeId);
+    
+    List<TierList> findByUserUserIdAndChallengeChallengeId(Long userId, Long challengeId);
+    
+    List<TierList> findByCategoryCategoryIdAndChallengeChallengeId(Long categoryId, Long challengeId);
+    
+    List<TierList> findByUserUserIdAndCategoryCategoryIdAndChallengeChallengeId(Long userId, Long categoryId, Long challengeId);
+    
+    List<TierList> findByIsPublicTrue();
+    
+    List<TierList> findByUserUserIdAndIsPublicTrue(Long userId);
 } 

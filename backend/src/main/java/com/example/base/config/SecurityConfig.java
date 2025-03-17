@@ -4,6 +4,7 @@ import com.example.base.service.OAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,13 +26,21 @@ public class SecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Autowired
-    private com.example.base.service.OAuth2UserService customOAuth2UserService;
+    private OAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        logger.debug("Configuring SecurityFilterChain");
+        
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> {
+                logger.debug("Disabling CSRF protection");
+                csrf.disable();
+            })
+            .cors(cors -> {
+                logger.debug("Configuring CORS");
+                cors.configurationSource(corsConfigurationSource());
+            })
             .headers(headers -> headers
                 .httpStrictTransportSecurity(hsts -> hsts
                     .includeSubDomains(true)
@@ -39,29 +48,67 @@ public class SecurityConfig {
                     .disable() // Disable HSTS for local development
                 )
             )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/health").permitAll()
-                .requestMatchers("/api/test-entities/**").permitAll()
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().permitAll()
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfo -> userInfo
-                    .oidcUserService(customOAuth2UserService)
-                )
-                .successHandler((request, response, authentication) -> {
-                    logger.info("OAuth2 login successful, redirecting to frontend");
-                    response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-                    response.setHeader("Access-Control-Allow-Credentials", "true");
-                    response.sendRedirect("http://localhost:3000/tierlists");
-                })
-                .failureHandler((request, response, exception) -> {
-                    logger.error("OAuth2 login failed", exception);
-                    response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-                    response.setHeader("Access-Control-Allow-Credentials", "true");
-                    response.sendRedirect("http://localhost:3000/login?error=true");
-                })
-            );
+            .authorizeHttpRequests(auth -> {
+                logger.debug("Configuring authorization rules");
+                auth
+                    // Public endpoints
+                    .requestMatchers("/", "/error", "/h2-console/**").permitAll()
+                    .requestMatchers("/api/health").permitAll()
+                    .requestMatchers("/auth/login").permitAll()
+                    .requestMatchers("/auth/status").permitAll()
+                    .requestMatchers("/api/test-entities/**").permitAll()
+                    .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                    
+                    // Admin-only endpoints
+                    .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ADMIN")
+                    
+                    // Authenticated endpoints
+                    .requestMatchers("/api/**").hasAuthority("USER")
+                    .requestMatchers("/auth/user").hasAuthority("USER")
+                    .requestMatchers("/auth/logout").authenticated()
+                    
+                    // Allow all other requests
+                    .anyRequest().permitAll();
+            })
+            .oauth2Login(oauth2 -> {
+                logger.debug("Configuring OAuth2 login");
+                oauth2
+                    .userInfoEndpoint(userInfo -> {
+                        logger.debug("Configuring userInfoEndpoint with customOAuth2UserService");
+                        userInfo.oidcUserService(customOAuth2UserService);
+                    })
+                    .successHandler((request, response, authentication) -> {
+                        logger.info("OAuth2 login successful, redirecting to frontend");
+                        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+                        response.setHeader("Access-Control-Allow-Credentials", "true");
+                        response.sendRedirect("http://localhost:3000/tierlists");
+                    })
+                    .failureHandler((request, response, exception) -> {
+                        logger.error("OAuth2 login failed: {}", exception.getMessage(), exception);
+                        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+                        response.setHeader("Access-Control-Allow-Credentials", "true");
+                        response.sendRedirect("http://localhost:3000/login?error=true");
+                    });
+            })
+            .logout(logout -> {
+                logger.debug("Configuring logout");
+                logout
+                    .logoutUrl("/auth/logout")
+                    .logoutSuccessUrl("http://localhost:3000/login?logout=true")
+                    .invalidateHttpSession(true)
+                    .clearAuthentication(true)
+                    .deleteCookies("JSESSIONID");
+            })
+            .exceptionHandling(ex -> {
+                logger.debug("Configuring exception handling");
+                ex.authenticationEntryPoint((request, response, authException) -> {
+                    logger.error("Authentication error: {}", authException.getMessage(), authException);
+                    response.sendError(401, "Authentication required");
+                });
+            });
 
         return http.build();
     }
@@ -73,6 +120,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        logger.debug("Creating CORS configuration");
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

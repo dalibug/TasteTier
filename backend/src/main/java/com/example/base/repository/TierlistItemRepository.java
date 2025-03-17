@@ -13,7 +13,7 @@ public interface TierlistItemRepository extends JpaRepository<TierlistItem, Long
     
     List<TierlistItem> findByTierListTierlistIdAndTierTierId(Long tierlistId, Long tierId);
     
-    List<TierlistItem> findByRecipeRecipeId(Long recipeId);
+    List<TierlistItem> findByOriginalItemRecipeId(Long recipeId);
     
     void deleteByTierListTierlistId(Long tierlistId);
 } 

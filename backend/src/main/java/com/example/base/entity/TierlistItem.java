@@ -1,6 +1,7 @@
 package com.example.base.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tierlist_items")
@@ -16,8 +17,8 @@ public class TierlistItem {
     private TierList tierList;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipe_id", nullable = false)
-    private Recipe recipe;
+    @JoinColumn(name = "original_item_id", nullable = false)
+    private Recipe originalItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tier_id", nullable = false)
@@ -25,17 +26,21 @@ public class TierlistItem {
 
     @Column(name = "position", nullable = false)
     private Integer position;
+    
+    @Column(name = "added_at")
+    private LocalDateTime addedAt;
 
     // Default constructor
     public TierlistItem() {
     }
 
     // Constructor with required fields
-    public TierlistItem(TierList tierList, Recipe recipe, Tier tier, Integer position) {
+    public TierlistItem(TierList tierList, Recipe originalItem, Tier tier, Integer position) {
         this.tierList = tierList;
-        this.recipe = recipe;
+        this.originalItem = originalItem;
         this.tier = tier;
         this.position = position;
+        this.addedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -55,12 +60,12 @@ public class TierlistItem {
         this.tierList = tierList;
     }
 
-    public Recipe getRecipe() {
-        return recipe;
+    public Recipe getOriginalItem() {
+        return originalItem;
     }
 
-    public void setRecipe(Recipe recipe) {
-        this.recipe = recipe;
+    public void setOriginalItem(Recipe originalItem) {
+        this.originalItem = originalItem;
     }
 
     public Tier getTier() {
@@ -77,5 +82,20 @@ public class TierlistItem {
 
     public void setPosition(Integer position) {
         this.position = position;
+    }
+    
+    public LocalDateTime getAddedAt() {
+        return addedAt;
+    }
+    
+    public void setAddedAt(LocalDateTime addedAt) {
+        this.addedAt = addedAt;
+    }
+    
+    @PrePersist
+    protected void onCreate() {
+        if (addedAt == null) {
+            addedAt = LocalDateTime.now();
+        }
     }
 } 

@@ -22,6 +22,10 @@ public class TierList {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "challenge_id", nullable = false)
+    private WeeklyChallenge challenge;
+
     @Column(name = "name", length = 255, nullable = false)
     private String name;
 
@@ -31,6 +35,9 @@ public class TierList {
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
 
+    @Column(name = "is_public", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean isPublic = true;
+
     @OneToMany(mappedBy = "tierList", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TierlistItem> tierlistItems = new ArrayList<>();
 
@@ -39,12 +46,14 @@ public class TierList {
     }
 
     // Constructor with required fields
-    public TierList(User user, Category category, String name) {
+    public TierList(User user, Category category, WeeklyChallenge challenge, String name) {
         this.user = user;
         this.category = category;
+        this.challenge = challenge;
         this.name = name;
         this.createdAt = LocalDateTime.now();
         this.lastModified = LocalDateTime.now();
+        this.isPublic = true;
     }
 
     // Getters and Setters
@@ -72,6 +81,14 @@ public class TierList {
         this.category = category;
     }
 
+    public WeeklyChallenge getChallenge() {
+        return challenge;
+    }
+
+    public void setChallenge(WeeklyChallenge challenge) {
+        this.challenge = challenge;
+    }
+
     public String getName() {
         return name;
     }
@@ -94,6 +111,14 @@ public class TierList {
 
     public void setLastModified(LocalDateTime lastModified) {
         this.lastModified = lastModified;
+    }
+
+    public Boolean getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public List<TierlistItem> getTierlistItems() {
