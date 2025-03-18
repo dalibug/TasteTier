@@ -4,6 +4,7 @@ import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faCog } from '@fortawesome/free-solid-svg-icons';
 import DatabaseTablesModal from '../components/DatabaseTablesModal';
+import DatabaseTestModal from '../components/DatabaseTestModal';
 import '../styles/TierLists.css';
 
 const TierLists = () => {
@@ -14,6 +15,7 @@ const TierLists = () => {
   const [tierLists, setTierLists] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
+  const [showDatabaseTestModal, setShowDatabaseTestModal] = useState(false);
 
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
@@ -163,7 +165,7 @@ const TierLists = () => {
             <button id="settings-menu-item" onClick={() => setShowDatabaseModal(true)}>
               Database Tables
             </button>
-            <button id="settings-menu-item" onClick={() => navigate('/database-test')}>
+            <button id="settings-menu-item" onClick={() => setShowDatabaseTestModal(true)}>
               Database Testing
             </button>
           </div>
@@ -242,6 +244,11 @@ const TierLists = () => {
       <DatabaseTablesModal 
         isOpen={showDatabaseModal} 
         onClose={() => setShowDatabaseModal(false)} 
+      />
+
+      <DatabaseTestModal
+        isOpen={showDatabaseTestModal}
+        onClose={() => setShowDatabaseTestModal(false)}
       />
     </div>
   );
