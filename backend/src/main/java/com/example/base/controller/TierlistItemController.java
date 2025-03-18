@@ -34,6 +34,7 @@ public class TierlistItemController {
     private TierRepository tierRepository;
 
     // Get all tierlist items
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<TierlistItem>> getAllTierlistItems() {
         try {
@@ -45,6 +46,7 @@ public class TierlistItemController {
     }
 
     // Get tierlist items by tierlist ID
+    @SuppressWarnings("null")
     @GetMapping("/tierlist/{tierlistId}")
     public ResponseEntity<List<TierlistItem>> getTierlistItemsByTierlistId(@PathVariable("tierlistId") Long tierlistId) {
         try {
@@ -56,6 +58,7 @@ public class TierlistItemController {
     }
 
     // Get tierlist items by tierlist ID and tier ID
+    @SuppressWarnings("null")
     @GetMapping("/tierlist/{tierlistId}/tier/{tierId}")
     public ResponseEntity<List<TierlistItem>> getTierlistItemsByTierlistIdAndTierId(
             @PathVariable("tierlistId") Long tierlistId,
@@ -81,6 +84,7 @@ public class TierlistItemController {
     }
 
     // Create a new tierlist item
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<TierlistItem> createTierlistItem(@RequestBody TierlistItem tierlistItem) {
         try {
@@ -174,6 +178,7 @@ public class TierlistItemController {
     }
 
     // Batch create tierlist items
+    @SuppressWarnings("null")
     @PostMapping("/batch")
     public ResponseEntity<List<TierlistItem>> createTierlistItemsBatch(@RequestBody List<TierlistItem> items) {
         try {

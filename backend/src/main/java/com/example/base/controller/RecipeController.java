@@ -24,6 +24,7 @@ public class RecipeController {
     private CategoryRepository categoryRepository;
 
     // Get all recipes
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<Recipe>> getAllRecipes() {
         try {
@@ -35,6 +36,7 @@ public class RecipeController {
     }
 
     // Get recipes by category ID
+    @SuppressWarnings("null")
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<Recipe>> getRecipesByCategoryId(@PathVariable("categoryId") Long categoryId) {
         try {
@@ -58,6 +60,7 @@ public class RecipeController {
     }
 
     // Create a new recipe
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<Recipe> createRecipe(@RequestBody Recipe recipe) {
         try {
@@ -121,6 +124,7 @@ public class RecipeController {
     }
 
     // Search recipes by name
+    @SuppressWarnings("null")
     @GetMapping("/search")
     public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam("name") String name) {
         try {

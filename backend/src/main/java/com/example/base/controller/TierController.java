@@ -19,6 +19,7 @@ public class TierController {
     private TierRepository tierRepository;
 
     // Get all tiers
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<Tier>> getAllTiers() {
         try {
@@ -30,6 +31,7 @@ public class TierController {
     }
 
     // Get all tiers ordered by rank
+    @SuppressWarnings("null")
     @GetMapping("/ordered")
     public ResponseEntity<List<Tier>> getAllTiersOrdered() {
         try {
@@ -65,6 +67,7 @@ public class TierController {
     }
 
     // Create a new tier
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<Tier> createTier(@RequestBody Tier tier) {
         try {

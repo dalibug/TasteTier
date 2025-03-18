@@ -30,6 +30,7 @@ public class TierListController {
     private CategoryRepository categoryRepository;
 
     // Get all tier lists
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<TierList>> getAllTierLists() {
         try {
@@ -41,6 +42,7 @@ public class TierListController {
     }
 
     // Get tier lists by user ID
+    @SuppressWarnings("null")
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<TierList>> getTierListsByUserId(@PathVariable("userId") Long userId) {
         try {
@@ -52,6 +54,7 @@ public class TierListController {
     }
 
     // Get tier lists by category ID
+    @SuppressWarnings("null")
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<TierList>> getTierListsByCategoryId(@PathVariable("categoryId") Long categoryId) {
         try {
@@ -63,6 +66,7 @@ public class TierListController {
     }
 
     // Get tier lists by user ID and category ID
+    @SuppressWarnings("null")
     @GetMapping("/user/{userId}/category/{categoryId}")
     public ResponseEntity<List<TierList>> getTierListsByUserIdAndCategoryId(
             @PathVariable("userId") Long userId,
@@ -88,6 +92,7 @@ public class TierListController {
     }
 
     // Create a new tier list
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<TierList> createTierList(@RequestBody TierList tierList) {
         try {
@@ -166,6 +171,7 @@ public class TierListController {
     }
 
     // Search tier lists by name
+    @SuppressWarnings("null")
     @GetMapping("/search")
     public ResponseEntity<List<TierList>> searchTierLists(@RequestParam("name") String name) {
         try {
