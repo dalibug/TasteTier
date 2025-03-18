@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import TierLists from './pages/TierLists';
 import CommunityTierLists from './pages/CommunityTierLists';
-import './styles/App.css';
+import './App.css';
 
 function App() {
   return (

@@ -1,4 +1,4 @@
-.modal-overlay {
+.database-tables-modal-wrapper .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,7 +12,7 @@
   padding: 10px;
 }
 
-.modal-content {
+.database-tables-modal-wrapper .modal-content {
   background: white;
   border-radius: 8px;
   width: 100%;
@@ -25,7 +25,7 @@
   margin: 0;
 }
 
-.modal-header {
+.database-tables-modal-wrapper .modal-header {
   padding: 4px 8px;
   border-bottom: 1px solid #e0e0e0;
   display: flex;
@@ -35,13 +35,13 @@
   border-radius: 8px 8px 0 0;
 }
 
-.modal-header h2 {
+.database-tables-modal-wrapper .modal-header h2 {
   margin: 0;
   font-size: 0.9rem;
   color: #333;
 }
 
-.close-button {
+.database-tables-modal-wrapper .close-button {
   background: none;
   border: none;
   font-size: 0.9rem;
@@ -52,11 +52,11 @@
   transition: background-color 0.2s;
 }
 
-.close-button:hover {
+.database-tables-modal-wrapper .close-button:hover {
   background-color: #e0e0e0;
 }
 
-.modal-body {
+.database-tables-modal-wrapper .modal-body {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -64,17 +64,17 @@
   padding: 0;
 }
 
-.tables-list {
+.database-tables-modal-wrapper .tables-list {
   padding: 0;
   border-bottom: 1px solid #e0e0e0;
   background: #f8f9fa;
 }
 
-.tables-list h3 {
+.database-tables-modal-wrapper .tables-list h3 {
   display: none;
 }
 
-.tables-grid {
+.database-tables-modal-wrapper .tables-grid {
   display: flex;
   gap: 0;
   margin: 0;
@@ -83,7 +83,7 @@
   flex-wrap: wrap;
 }
 
-.table-button {
+.database-tables-modal-wrapper .table-button {
   padding: 4px 8px;
   border: 1px solid #e0e0e0;
   border-bottom: none;
@@ -101,12 +101,12 @@
   text-align: center;
 }
 
-.table-button:hover {
+.database-tables-modal-wrapper .table-button:hover {
   background: #f0f0f0;
   border-color: #ccc;
 }
 
-.table-button.selected {
+.database-tables-modal-wrapper .table-button.selected {
   background: white;
   color: #007bff;
   border-color: #e0e0e0;
@@ -114,27 +114,27 @@
   margin-bottom: -1px;
 }
 
-.table-data {
+.database-tables-modal-wrapper .table-data {
   flex: 1;
   padding: 8px;
   overflow: auto;
   background: white;
 }
 
-.table-data h3 {
+.database-tables-modal-wrapper .table-data h3 {
   margin: 0 0 8px 0;
   font-size: 0.8rem;
   color: #333;
 }
 
-.table-container {
+.database-tables-modal-wrapper .table-container {
   overflow-x: auto;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background: white;
 }
 
-table {
+.database-tables-modal-wrapper table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.65rem;
@@ -142,7 +142,8 @@ table {
   min-width: 100%;
 }
 
-th, td {
+.database-tables-modal-wrapper th, 
+.database-tables-modal-wrapper td {
   padding: 4px;
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
@@ -153,7 +154,7 @@ th, td {
   color: #333;
 }
 
-th {
+.database-tables-modal-wrapper th {
   background: #f8f9fa;
   font-weight: 600;
   color: #333;
@@ -164,18 +165,18 @@ th {
   padding: 4px;
 }
 
-tr:hover {
+.database-tables-modal-wrapper tr:hover {
   background-color: #f8f9fa;
 }
 
-.loading {
+.database-tables-modal-wrapper .loading {
   padding: 8px;
   text-align: center;
   color: #666;
   font-size: 0.65rem;
 }
 
-.error {
+.database-tables-modal-wrapper .error {
   padding: 8px;
   color: #dc3545;
   background: #fff5f5;
@@ -184,7 +185,7 @@ tr:hover {
   font-size: 0.65rem;
 }
 
-.admin-toggle {
+.database-tables-modal-wrapper .admin-toggle {
   padding: 4px 8px;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
@@ -195,41 +196,41 @@ tr:hover {
   transition: all 0.2s;
 }
 
-.admin-toggle:hover {
+.database-tables-modal-wrapper .admin-toggle:hover {
   background-color: #e9ecef;
 }
 
-.admin-toggle.admin {
+.database-tables-modal-wrapper .admin-toggle.admin {
   background-color: #dc3545;
   color: white;
   border-color: #dc3545;
 }
 
-.admin-toggle.admin:hover {
+.database-tables-modal-wrapper .admin-toggle.admin:hover {
   background-color: #c82333;
 }
 
 @media (max-width: 768px) {
-  .modal-overlay {
+  .database-tables-modal-wrapper .modal-overlay {
     padding: 0;
   }
   
-  .modal-content {
+  .database-tables-modal-wrapper .modal-content {
     width: 100%;
     height: 100vh;
     border-radius: 0;
   }
   
-  .modal-header {
+  .database-tables-modal-wrapper .modal-header {
     border-radius: 0;
   }
   
-  .tables-grid {
+  .database-tables-modal-wrapper .tables-grid {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
   
-  .table-button {
+  .database-tables-modal-wrapper .table-button {
     white-space: nowrap;
   }
 } 
