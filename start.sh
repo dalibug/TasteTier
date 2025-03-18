@@ -69,10 +69,10 @@ mkdir -p backend/logs frontend/logs
 # Check prerequisites
 echo "Checking prerequisites..."
 
-# Check if required tools are installed
+# Check if Docker and docker-compose are installed
 for tool in docker docker-compose; do
     if ! command_exists $tool; then
-        print_status 1 "$tool not found. Please run ./setup.sh first"
+        print_status 1 "$tool not found. Please install Docker Desktop from https://www.docker.com/products/docker-desktop"
         exit 1
     fi
 done
@@ -93,12 +93,6 @@ docker-compose down > /dev/null 2>&1
 
 # Build and start the containers
 echo "Building and starting Docker containers..."
-docker-compose build --no-cache
-if [ $? -ne 0 ]; then
-    print_status 1 "Failed to build Docker containers"
-    exit 1
-fi
-
 docker-compose up -d
 if [ $? -ne 0 ]; then
     print_status 1 "Failed to start Docker containers"
