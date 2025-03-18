@@ -1,0 +1,591 @@
+/* TierLists Page Background */
+.tierlists-background {
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  color: white;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Fixed Header */
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  background: transparent;
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-bottom: 0;
+  width: auto;
+  z-index: 1000;
+}
+
+.nav-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  text-transform: none;
+  font-size: 14px;
+}
+
+.nav-btn:hover {
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
+}
+
+/* Page Title */
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  margin: 0;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Name Input Container */
+.name-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  z-index: 10;
+  margin-bottom: 0;
+}
+
+.input-row {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  padding: 20px;
+  margin-bottom: 0;
+}
+
+.tierlist-name-input {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(44, 44, 44, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.tierlist-name-input::placeholder {
+  color: rgba(44, 44, 44, 0.6);
+}
+
+.tierlist-name-input:focus {
+  outline: none;
+  border-color: rgba(66, 133, 244, 0.5);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Create Tier List Button */
+.create-tierlist-btn {
+    background-color: rgba(44, 44, 44, 0.6);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Work Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-transform: none;
+    font-size: 14px;
+}
+
+.create-tierlist-btn:hover {
+    background-color: rgba(135, 162, 127, 0.8);
+    transform: translateY(-2px);
+}
+
+/* View Community Tier Lists Button */
+#view-community-tierlists-btn {
+    background-color: rgba(44, 44, 44, 0.6);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Work Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-transform: none;
+    font-size: 14px;
+}
+
+#view-community-tierlists-btn:hover {
+    background-color: #2c2c2c;
+    transform: translateY(-2px);
+}
+
+/* Content Wrapper */
+.content-wrapper {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  margin-top: 200px;
+}
+
+/* TierLists Container */
+.tierlists-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 2rem;
+  position: relative;
+  padding: 0 20px;
+}
+
+/* Recipe Cards Container */
+.recipe-cards-container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  overflow-x: auto;
+  padding: 20px 0;
+  scroll-behavior: smooth;
+  min-width: min-content;
+}
+
+/* Tier Card */
+.tier-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  width: 100%;
+  max-width: 500px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(44, 44, 44, 0.3);
+}
+
+.tier-card:hover {
+  transform: translateY(-5px);
+}
+
+.tier-card h2 {
+  color: #2c2c2c;
+  margin: 0 0 1rem 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.tier-card p {
+  color: #2c2c2c;
+  margin-bottom: 1rem;
+}
+
+/* Tier Items */
+.tier-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tier-item {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #2c2c2c;
+}
+
+.tier-item:hover {
+  background: rgba(44, 44, 44, 0.6);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.tier-item.selected {
+  background: #2c2c2c;
+  color: white;
+}
+
+/* Existing Tier Lists */
+.existing-tierlists {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+}
+
+.existing-tierlists h2 {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #2c2c2c;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid #2c2c2c;
+}
+
+.tierlists-grid {
+  display: flex;
+  gap: 20px;
+  padding: 20px 0;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  min-width: min-content;
+}
+
+/* Tierlist Card */
+.tierlist-card {
+  flex: 0 0 300px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(44, 44, 44, 0.3);
+  transition: transform 0.2s;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tierlist-card:hover {
+  transform: translateY(-5px);
+}
+
+.tierlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tierlist-name {
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.tierlist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.tierlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(44, 44, 44, 0.2);
+}
+
+.tierlist-item:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.recipe-name {
+  color: #2c2c2c;
+  font-family: 'Work Sans', sans-serif;
+}
+
+/* Tier Badges */
+.tier-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 500;
+  font-family: 'Work Sans', sans-serif;
+  color: white;
+  backdrop-filter: blur(5px);
+}
+
+.tier-badge.s {
+  background-color: rgba(255, 69, 69, 0.7);
+}
+
+.tier-badge.a {
+  background-color: rgba(255, 167, 38, 0.7);
+}
+
+.tier-badge.b {
+  background-color: rgba(102, 187, 106, 0.7);
+}
+
+.tier-badge.c {
+  background-color: rgba(66, 165, 245, 0.7);
+}
+
+/* Tierlist Footer */
+.tierlist-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(44, 44, 44, 0.2);
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Similarity Badge */
+.similarity-badge {
+  background: rgba(44, 44, 44, 0.6);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  font-family: 'Work Sans', sans-serif;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.similarity-badge i {
+  color: #ff6b6b;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Buttons */
+.cycle-week-btn {
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 15px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.cycle-week-btn i {
+  font-size: 20px;
+  color: white;
+  transition: transform 0.5s ease;
+}
+
+.cycle-week-btn:hover {
+  background-color: rgba(135, 162, 127, 0.8);
+  transform: translateY(-2px);
+}
+
+.cycle-week-btn:hover i {
+  transform: rotate(360deg);
+}
+
+/* Scrollbars */
+.recipe-cards-container::-webkit-scrollbar,
+.tierlists-grid::-webkit-scrollbar,
+.content-wrapper::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.recipe-cards-container::-webkit-scrollbar-track,
+.tierlists-grid::-webkit-scrollbar-track,
+.content-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.recipe-cards-container::-webkit-scrollbar-thumb,
+.tierlists-grid::-webkit-scrollbar-thumb,
+.content-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(44, 44, 44, 0.5);
+  border-radius: 10px;
+}
+
+.recipe-cards-container::-webkit-scrollbar-thumb:hover,
+.tierlists-grid::-webkit-scrollbar-thumb:hover,
+.content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 44, 44, 0.7);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .tierlists-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .tierlists-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .tierlists-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .input-row {
+    flex-direction: column;
+  }
+  
+  .create-tierlist-btn,
+  .cycle-week-btn {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}
+
+.settings-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+  color: #2c2c2c;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.settings-btn:hover {
+  color: #2c2c2c;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.settings-menu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 160px;
+  margin-left: 5px;
+  overflow: hidden;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+#settings-menu-item {
+  display: block;
+  width: 90%;
+  padding: 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(44, 44, 44, 0.6);
+  color: white;
+  text-align: center;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  font-size: 14px;
+  text-transform: none;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+#settings-menu-item:hover {
+  background-color: #2c2c2c;
+  transform: translateY(-2px);
+} 

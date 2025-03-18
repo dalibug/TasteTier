@@ -1,39 +1,30 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background.png';
-import '../App.css';
+import '../styles/Welcome.css';
 
 const Welcome = () => {
-  const navigate = useNavigate();
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
     backgroundSize: 'cover',
-    minHeight: '100vh',
-    width: '100%',
-    position: 'relative'
   };
 
   return (
-    <div className="auth-background" style={backgroundStyle}>
-      <header>
-        <div className="left-buttons">
-          <button 
-            className="auth-btn" 
-            onClick={() => navigate('/database-test')}
-          >
-            Database Testing
-          </button>
+    <div className="welcome-container" style={backgroundStyle}>
+      <header className="welcome-header">
+        <div className="welcome-left-buttons">
+          {/* Settings button removed */}
         </div>
-        <div className="auth-buttons">
+        <div className="welcome-auth-buttons">
           <Link to="/login">
-            <button className="auth-btn">Log In</button>
+            <button className="welcome-btn welcome-btn-login">Log In</button>
           </Link>
         </div>
       </header>
-      <main>
-        <h1 className="title">Welcome</h1>
-        <h1 className="title">to</h1>
-        <h1 className="title">Taste-Tiers</h1>
+      <main className="welcome-main">
+        <h1 className="welcome-title welcome-title-main">Welcome</h1>
+        <h1 className="welcome-title welcome-title-sub">to</h1>
+        <h1 className="welcome-title welcome-title-main">Taste-Tiers</h1>
       </main>
     </div>
   );

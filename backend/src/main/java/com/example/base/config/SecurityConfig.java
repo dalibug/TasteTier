@@ -42,6 +42,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/test-entities/**").permitAll()
+                .requestMatchers("/api/tables/**").permitAll() // Allow access to database tables endpoints
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )

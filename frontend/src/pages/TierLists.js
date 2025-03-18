@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCog } from '@fortawesome/free-solid-svg-icons';
+import DatabaseTablesModal from '../components/DatabaseTablesModal';
+import '../styles/TierLists.css';
 
 const TierLists = () => {
+  const navigate = useNavigate();
   const [currentWeek, setCurrentWeek] = useState(1);
   const [tierListName, setTierListName] = useState('');
   const [selectedTiers, setSelectedTiers] = useState({});
   const [tierLists, setTierLists] = useState([]);
-  const [isHovered, setIsHovered] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showDatabaseModal, setShowDatabaseModal] = useState(false);
 
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
@@ -147,6 +151,25 @@ const TierLists = () => {
         </div>
       </div>
 
+      <div className="settings-container">
+        <button 
+          className="settings-btn" 
+          onClick={() => setShowMenu(!showMenu)}
+        >
+          <FontAwesomeIcon icon={faCog} />
+        </button>
+        {showMenu && (
+          <div className="settings-menu">
+            <button id="settings-menu-item" onClick={() => setShowDatabaseModal(true)}>
+              Database Tables
+            </button>
+            <button id="settings-menu-item" onClick={() => navigate('/database-test')}>
+              Database Testing
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="content-wrapper">
         <div className="tierlists-container">
           <div className="recipe-cards-container">
@@ -209,23 +232,17 @@ const TierLists = () => {
         {/* Community Tier Lists Button */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
           <Link to="/community-tierlists">
-            <button 
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              style={{
-                backgroundColor: isHovered ? '#8FBC8F' : '#2c2c2c',
-                color: 'white',
-                padding: '8px 16px',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                transition: 'background-color 0.3s ease'
-              }}>
+            <button id="view-community-tierlists-btn">
               View Community Tier Lists
             </button>
           </Link>
         </div>
       </div>
+
+      <DatabaseTablesModal 
+        isOpen={showDatabaseModal} 
+        onClose={() => setShowDatabaseModal(false)} 
+      />
     </div>
   );
 };

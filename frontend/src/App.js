@@ -6,7 +6,7 @@ import Signup from './pages/Signup';
 import TierLists from './pages/TierLists';
 import CommunityTierLists from './pages/CommunityTierLists';
 import DatabaseTest from './pages/DatabaseTest';
-import './App.css';
+import './styles/App.css';
 
 function App() {
   return (
