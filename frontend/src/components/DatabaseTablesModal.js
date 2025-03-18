@@ -63,6 +63,29 @@ const DatabaseTablesModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleAdminToggle = async (userId, currentStatus) => {
+    try {
+      const response = await fetch(`http://localhost:8083/api/tables/users/${userId}/admin`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isAdmin: !currentStatus }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Failed to update admin status: ${errorData}`);
+      }
+
+      // Refresh the table data
+      fetchTableData('users');
+    } catch (err) {
+      console.error('Error updating admin status:', err);
+      setError(err.message);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -112,14 +135,25 @@ const DatabaseTablesModal = ({ isOpen, onClose }) => {
                         {tableData.length > 0 && Object.keys(tableData[0]).map((header) => (
                           <th key={header}>{header}</th>
                         ))}
+                        {selectedTable === 'users' && <th>Actions</th>}
                       </tr>
                     </thead>
                     <tbody>
                       {tableData.map((row, index) => (
                         <tr key={index}>
-                          {Object.values(row).map((value, i) => (
+                          {Object.entries(row).map(([key, value], i) => (
                             <td key={i}>{value?.toString() || 'null'}</td>
                           ))}
+                          {selectedTable === 'users' && (
+                            <td>
+                              <button
+                                className={`admin-toggle ${row.is_admin ? 'admin' : ''}`}
+                                onClick={() => handleAdminToggle(row.user_id, row.is_admin)}
+                              >
+                                {row.is_admin ? 'Remove Admin' : 'Make Admin'}
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

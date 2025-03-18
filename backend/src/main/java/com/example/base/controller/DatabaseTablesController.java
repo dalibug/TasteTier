@@ -11,6 +11,8 @@ import java.sql.Statement;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.HttpStatus;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -20,6 +22,9 @@ public class DatabaseTablesController {
 
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @GetMapping
     public ResponseEntity<List<String>> getAllTables() {
@@ -81,6 +86,23 @@ public class DatabaseTablesController {
         } catch (Exception e) {
             logger.error("Error getting data for table {}: {}", tableName, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/users/{userId}/admin")
+    public ResponseEntity<?> updateUserAdminStatus(@PathVariable Long userId, @RequestBody Map<String, Boolean> request) {
+        try {
+            Boolean isAdmin = request.get("isAdmin");
+            if (isAdmin == null) {
+                return ResponseEntity.badRequest().body("isAdmin field is required");
+            }
+
+            String sql = "UPDATE users SET is_admin = ? WHERE user_id = ?";
+            jdbcTemplate.update(sql, isAdmin, userId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("Error updating admin status for user {}: {}", userId, e.getMessage());
+            return ResponseEntity.internalServerError().body("Failed to update admin status: " + e.getMessage());
         }
     }
 } 
