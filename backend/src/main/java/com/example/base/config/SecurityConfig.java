@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/test-entities/**").permitAll()
                 .requestMatchers("/api/tables/**").permitAll() // Allow access to database tables endpoints
+                .requestMatchers("/api/recipe-cards/**").permitAll() // Allow access to recipe card endpoints
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
