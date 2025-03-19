@@ -18,6 +18,7 @@ import java.util.Set;
 /**
  * ItemSeeder class that populates the items table with data from recipes.
  */
+@SuppressWarnings("unused")
 @Configuration
 public class ItemSeeder {
 
@@ -27,6 +28,7 @@ public class ItemSeeder {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @SuppressWarnings("null")
     @Bean
     public CommandLineRunner seedItemsFromRecipes() {
         return args -> {
