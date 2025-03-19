@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.http.HttpStatus;
 
+@SuppressWarnings("unused")
 @CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000", "http://localhost"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/tables")
