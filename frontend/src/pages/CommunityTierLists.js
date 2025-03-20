@@ -15,7 +15,9 @@ const CommunityTierLists = () => {
       name: "Italian Cuisine Rankings",
       creator: "FoodLover123",
       likes: 24,
+      dislikes: 0,
       isLiked: false,
+      isDisliked: false,
       similarity: 85, // Percentage of similarity with user's tier lists
       items: [
         { recipeName: "Recipe 1", tier: "S Tier" },
@@ -28,7 +30,9 @@ const CommunityTierLists = () => {
       name: "Best Desserts",
       creator: "SweetTooth",
       likes: 15,
+      dislikes: 0,
       isLiked: false,
+      isDisliked: false,
       similarity: 92,
       items: [
         { recipeName: "Recipe 4", tier: "S Tier" },
@@ -49,6 +53,21 @@ const CommunityTierLists = () => {
         }
         return list;
       })
+    );
+  };
+
+  const handleDislike = (id) => {
+    setCommunityLists(prevLists =>
+        prevLists.map(list => {
+          if (list.id === id) {
+            return {
+              ...list,
+              dislikes: list.isDisliked ? list.dislikes - 1 : list.dislikes + 1,
+              isDisliked: !list.isDisliked
+            };
+          }
+          return list;
+        })
     );
   };
 
@@ -89,13 +108,20 @@ const CommunityTierLists = () => {
                 </div>
                 <div className="tierlist-footer">
                   <div className="like-container">
-                    <button 
+                    <button
                       className={`like-btn ${tierList.isLiked ? 'liked' : ''}`}
                       onClick={() => handleLike(tierList.id)}
                     >
                       <span className="thumbs-up">👍</span>
                     </button>
                     <span className="likes-count">{tierList.likes} Likes</span>
+                    <button
+                        className={`like-btn ${tierList.isDisliked ? 'liked' : ''}`}
+                        onClick={() => handleDislike(tierList.id)}
+                    >
+                      <span className="thumbs-up">👎</span>
+                    </button>
+                    <span className="likes-count">{tierList.dislikes} Dislikes</span>
                   </div>
                   <span className="similarity-badge">{tierList.similarity}% Match</span>
                 </div>
@@ -103,9 +129,10 @@ const CommunityTierLists = () => {
             ))}
           </div>
         </div>
+
       </div>
     </div>
   );
 };
 
-export default CommunityTierLists; 
+export default CommunityTierLists;
