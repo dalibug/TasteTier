@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import DatabaseTablesModal from '../components/DatabaseTablesModal';
 import DatabaseTestModal from '../components/DatabaseTestModal';
 import '../styles/TierLists.css';
@@ -13,6 +13,7 @@ const TierLists = () => {
   const [selectedTiers, setSelectedTiers] = useState({});
   const [tierLists, setTierLists] = useState([]);
   const [showMenu, setShowMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
   const [showDatabaseTestModal, setShowDatabaseTestModal] = useState(false);
   const [activeChallenge, setActiveChallenge] = useState(null);
@@ -502,16 +503,30 @@ const TierLists = () => {
         <div className="nav-buttons">
           <div className="user-profile">
             {currentUser && (
-              <Link to="/profile" className="user-greeting-link">
-                <div className="user-greeting">
-                  {currentUser.username}
-                </div>
-              </Link>
+              <button 
+                className="settings-btn user-btn" 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              >
+                <FontAwesomeIcon icon={faUser} />
+              </button>
             )}
-            <Link to="/">
-              <button className="nav-btn home-btn">Home</button>
-            </Link>
-            <button onClick={handleLogout} className="nav-btn">Logout</button>
+            {showUserMenu && (
+              <div className="settings-menu user-menu">
+                <Link to="/profile">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faUser} /> Account
+                  </button>
+                </Link>
+                <Link to="/">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faHome} /> Home
+                  </button>
+                </Link>
+                <button id="settings-menu-item" onClick={handleLogout}>
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <h1 className="page-title">Create Your Recipe Tier List</h1>

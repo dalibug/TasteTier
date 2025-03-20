@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faHome, faSignOutAlt, faListAlt } from '@fortawesome/free-solid-svg-icons';
 
 const CommunityTierLists = () => {
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
     backgroundSize: 'cover',
   };
+
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Example community tier lists with liked state and similarity percentage
   const [communityLists, setCommunityLists] = useState([
@@ -52,16 +56,55 @@ const CommunityTierLists = () => {
     );
   };
 
+  const handleLogout = () => {
+    // Call logout API
+    fetch('/api/v1/auth/logout', { 
+      method: 'POST',
+      credentials: 'include'
+    })
+    .then(() => {
+      // Redirect to welcome page after logout
+      window.location.href = '/';
+    })
+    .catch(error => {
+      console.error('Logout failed:', error);
+    });
+  };
+
   return (
     <div className="tierlists-background" style={backgroundStyle}>
       <div className="fixed-header">
         <div className="nav-buttons">
-          <Link to="/">
-            <button className="nav-btn home-btn">Home</button>
-          </Link>
-          <Link to="/tierlists">
-            <button className="nav-btn">My Tier Lists</button>
-          </Link>
+          <div className="user-profile">
+            <button 
+              className="settings-btn user-btn" 
+              onClick={() => setShowUserMenu(!showUserMenu)}
+            >
+              <FontAwesomeIcon icon={faUser} />
+            </button>
+            {showUserMenu && (
+              <div className="settings-menu user-menu">
+                <Link to="/profile">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faUser} /> Account
+                  </button>
+                </Link>
+                <Link to="/tierlists">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faListAlt} /> My Tier Lists
+                  </button>
+                </Link>
+                <Link to="/">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faHome} /> Home
+                  </button>
+                </Link>
+                <button id="settings-menu-item" onClick={handleLogout}>
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <h1 className="page-title">Community Tier Lists</h1>
       </div>

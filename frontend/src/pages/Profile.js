@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import '../styles/Profile.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faHome, faSignOutAlt, faListAlt } from '@fortawesome/free-solid-svg-icons';
 
 const Profile = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userTierLists, setUserTierLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
 
   const backgroundStyle = {
@@ -118,13 +121,34 @@ const Profile = () => {
     <div className="profile-background" style={backgroundStyle}>
       <div className="nav-buttons">
         <div className="user-profile">
-          <Link to="/tierlists">
-            <button className="nav-btn">Tier Lists</button>
-          </Link>
-          <Link to="/">
-            <button className="nav-btn home-btn">Home</button>
-          </Link>
-          <button onClick={handleLogout} className="nav-btn">Logout</button>
+          <button 
+            className="settings-btn user-btn" 
+            onClick={() => setShowUserMenu(!showUserMenu)}
+          >
+            <FontAwesomeIcon icon={faUser} />
+          </button>
+          {showUserMenu && (
+            <div className="settings-menu user-menu">
+              <Link to="/profile">
+                <button id="settings-menu-item">
+                  <FontAwesomeIcon icon={faUser} /> Account
+                </button>
+              </Link>
+              <Link to="/tierlists">
+                <button id="settings-menu-item">
+                  <FontAwesomeIcon icon={faListAlt} /> Tier Lists
+                </button>
+              </Link>
+              <Link to="/">
+                <button id="settings-menu-item">
+                  <FontAwesomeIcon icon={faHome} /> Home
+                </button>
+              </Link>
+              <button id="settings-menu-item" onClick={handleLogout}>
+                <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
