@@ -28,6 +28,7 @@ public class ItemSeeder {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @SuppressWarnings("null")
     @Bean
     public CommandLineRunner seedItemsFromRecipes() {
         return args -> {

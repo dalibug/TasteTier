@@ -123,7 +123,7 @@ const CommunityTierLists = () => {
                 <div className="tierlist-items">
                   {tierList.items.map((item, index) => (
                     <div key={index} className="tierlist-item">
-                      <span className="recipe-name">{item.recipeName}</span>
+                      <span className="recipe-name" title={item.recipeName}>{item.recipeName}</span>
                       <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
                         {item.tier}
                       </span>

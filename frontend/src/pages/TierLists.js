@@ -6,6 +6,7 @@ import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt } from '@fortawesom
 import DatabaseTablesModal from '../components/DatabaseTablesModal';
 import DatabaseTestModal from '../components/DatabaseTestModal';
 import '../styles/TierLists.css';
+import '../styles/FixTierCards.css';
 
 const TierLists = () => {
   const [currentCategory, setCurrentCategory] = useState('wings');
@@ -597,8 +598,8 @@ const TierLists = () => {
               ) : (
                 getCurrentRecipes().map(recipe => (
                   <div key={recipe.item_id} className="tier-card">
-                    <h2>{recipe.name}</h2>
-                    <p>{recipe.description}</p>
+                    <h2 title={recipe.name}>{recipe.name}</h2>
+                    <p title={recipe.description}>{recipe.description}</p>
                     <div className="tier-items">
                       {tiers.map(tier => (
                         <span
@@ -631,7 +632,7 @@ const TierLists = () => {
                 <div className="tierlist-items">
                   {tierList.items.map((item, index) => (
                     <div key={index} className="tierlist-item">
-                      <span className="recipe-name">{item.recipeName}</span>
+                      <span className="recipe-name" title={item.recipeName}>{item.recipeName}</span>
                       <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
                         {item.tier}
                       </span>

@@ -1,0 +1,117 @@
+/* Fixed Tier Card Styles - Will override all other styles */
+
+/* Category Heading - Styled to match "Your Created Tier Lists" title */
+.category-heading {
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid #2c2c2c !important;
+  border-radius: 8px !important;
+  color: #2c2c2c !important;
+  font-family: 'Playfair Display', serif !important;
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  margin-bottom: 20px !important;
+  padding: 10px 20px !important;
+  position: relative !important;
+  text-align: center !important;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2) !important;
+  text-transform: uppercase !important;
+  width: 100% !important;
+  z-index: 2 !important;
+}
+
+.recipe-cards-container {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  gap: 8px !important; /* Consistent spacing between cards */
+  width: 100% !important;
+  padding: 10px 0 !important;
+  overflow-x: auto !important; /* Allow horizontal scrolling if needed */
+}
+
+.tier-card {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.2s !important;
+  width: 200px !important; /* Fixed width for all categories */
+  min-width: 200px !important;
+  height: 220px !important; /* Fixed height for all categories */
+  display: flex !important;
+  flex-direction: column !important;
+  border: 1px solid rgba(44, 44, 44, 0.3) !important;
+  overflow: hidden !important;
+  margin: 0 2px !important; /* Consistent margin */
+}
+
+.tier-card:hover {
+  transform: translateY(-5px) !important;
+}
+
+.tier-card h2 {
+  color: #2c2c2c !important;
+  margin: 0 0 0.3rem 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding-bottom: 0.3rem !important;
+  font-size: 1.2rem !important;
+  white-space: nowrap !important; /* Prevents text from wrapping */
+  overflow: hidden !important; /* Hides overflow text */
+  text-overflow: ellipsis !important; /* Adds ellipsis (...) for overflow text */
+  text-align: center !important;
+  max-width: 100% !important;
+}
+
+.tier-card p {
+  color: #2c2c2c !important;
+  margin-bottom: 0.3rem !important;
+  font-size: 14px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 4 !important; /* Limits text to 4 lines before truncating */
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-height: 70px !important; /* Fixed height for description */
+  text-align: center !important;
+}
+
+.tier-items {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important; /* Two columns for tier buttons */
+  grid-gap: 0.25rem !important;
+  margin-top: auto !important; /* Pushes tier items to bottom of card */
+  margin-bottom: 0.25rem !important;
+  width: 100% !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.tier-item {
+  background: rgba(255, 255, 255, 0.2) !important;
+  padding: 0.15rem 0.2rem !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  color: #2c2c2c !important;
+  font-size: 0.8rem !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  height: 22px !important;
+}
+
+.tier-item:hover {
+  background: rgba(44, 44, 44, 0.6) !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+}
+
+.tier-item.selected {
+  background: #2c2c2c !important;
+  color: white !important;
+} 
