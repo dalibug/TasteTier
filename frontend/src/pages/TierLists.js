@@ -15,6 +15,7 @@ const TierLists = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
   const [showDatabaseTestModal, setShowDatabaseTestModal] = useState(false);
+  const [activeChallenge, setActiveChallenge] = useState(null);
   const [recipeCategories, setRecipeCategories] = useState({
     wings: [],
     pasta: [],
@@ -23,16 +24,136 @@ const TierLists = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
     backgroundSize: 'cover',
   };
 
+  // Fetch current user information
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        // Determine the API URL based on the environment
+        const isDocker = window.location.hostname !== 'localhost';
+        const apiUrl = isDocker 
+          ? 'http://api:8083/auth/current-user'
+          : 'http://localhost:8083/auth/current-user';
+        
+        const response = await fetch(apiUrl, {
+          credentials: 'include' // Important: include cookies for authentication
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch user data: ${response.status}`);
+        }
+        
+        const userData = await response.json();
+        
+        if (userData.authenticated) {
+          setCurrentUser(userData);
+          // Fetch the user's tier lists after getting the user data
+          fetchUserTierLists(userData.userId);
+        } else {
+          // Not authenticated, redirect to login
+          window.location.href = '/login';
+        }
+      } catch (err) {
+        console.error('Error fetching current user:', err);
+        // We don't redirect here to avoid potential redirect loops if the API is down
+      }
+    };
+    
+    fetchCurrentUser();
+  }, []);
+
+  // Fetch active challenge
+  useEffect(() => {
+    fetchActiveChallenge();
+  }, []);
+
   // Fetch recipe data from our API
   useEffect(() => {
     fetchRecipeData();
   }, []);
+
+  // Function to fetch the current active challenge
+  const fetchActiveChallenge = async () => {
+    try {
+      // Determine the API URL based on the environment
+      const isDocker = window.location.hostname !== 'localhost';
+      const apiUrl = isDocker 
+        ? 'http://api:8083/api/weekly-challenges/active'
+        : 'http://localhost:8083/api/weekly-challenges/active';
+      
+      const response = await fetch(apiUrl, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          console.log('No active challenge found.');
+          // Create a fallback challenge for testing if none exists
+          setActiveChallenge({
+            challengeId: 1,
+            weekNumber: getWeekNumber(new Date()),
+            year: new Date().getFullYear(),
+            status: 'active'
+          });
+          return null;
+        }
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
+      const challenge = await response.json();
+      console.log('Active challenge:', challenge);
+      setActiveChallenge(challenge);
+      return challenge;
+    } catch (err) {
+      console.error('Error fetching active challenge:', err);
+      // Create a fallback challenge for testing
+      const fallbackChallenge = {
+        challengeId: 1,
+        weekNumber: getWeekNumber(new Date()),
+        year: new Date().getFullYear(),
+        status: 'active'
+      };
+      setActiveChallenge(fallbackChallenge);
+      return fallbackChallenge;
+    }
+  };
+
+  // Helper function to get week number
+  const getWeekNumber = (date) => {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  };
+
+  // Helper function to get category ID from name
+  const getCategoryId = (categoryName) => {
+    // This is a simplified mapping - ideally this would come from backend
+    const categoryMap = {
+      'wings': 1,
+      'pasta': 2,
+      'steak': 3,
+      'soup': 4
+    };
+    return categoryMap[categoryName] || 1; // Default to 1 if not found
+  };
+
+  // Helper function to get tier ID from name
+  const getTierId = (tierName) => {
+    // This is a simplified mapping - ideally this would come from backend
+    const tierMap = {
+      'S Tier': 1,
+      'A Tier': 2,
+      'B Tier': 3,
+      'C Tier': 4
+    };
+    return tierMap[tierName] || 1; // Default to 1 if not found
+  };
 
   const fetchRecipeData = async () => {
     try {
@@ -151,41 +272,143 @@ const TierLists = () => {
     }));
   };
 
-  const createTierList = () => {
+  const createTierList = async () => {
     if (!tierListName.trim()) {
+      alert("Please enter a tier list name");
       return;
     }
 
-    // Get all recipes from all categories for reference
-    const allRecipes = [
-      ...recipeCategories.wings,
-      ...recipeCategories.pasta, 
-      ...recipeCategories.steak, 
-      ...recipeCategories.soup
-    ];
+    if (Object.keys(selectedTiers).length === 0) {
+      alert("Please select at least one tier for an item");
+      return;
+    }
 
-    const selectedRecipes = Object.entries(selectedTiers).map(([recipeId, tier]) => {
-      const recipe = allRecipes.find(r => r.item_id === parseInt(recipeId));
-      return {
-        recipeName: recipe?.name || `Recipe ${recipeId}`,
-        tier: tier
+    try {
+      // Check for current user
+      if (!currentUser || !currentUser.userId) {
+        alert("You must be logged in to create a tier list");
+        return;
+      }
+
+      // Make sure we have an active challenge
+      let challenge = activeChallenge;
+      if (!challenge) {
+        challenge = await fetchActiveChallenge();
+        if (!challenge) {
+          alert("No active challenge available. Please try again later.");
+          return;
+        }
+      }
+
+      // Determine the API URL based on the environment
+      const isDocker = window.location.hostname !== 'localhost';
+      const apiUrl = isDocker 
+        ? 'http://api:8083/api/tierlists'
+        : 'http://localhost:8083/api/tierlists';
+      
+      console.log('Creating tier list with category:', currentCategory);
+      
+      // Prepare tier list data
+      const tierListData = {
+        name: tierListName,
+        user: { userId: currentUser.userId },
+        category: { categoryId: getCategoryId(currentCategory) },
+        challenge: { challengeId: challenge.challengeId },
+        isPublic: true
       };
-    });
+      
+      console.log('Sending tier list data:', tierListData);
+      
+      // Save the tier list to the database
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(tierListData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('Error response:', errorData);
+        throw new Error(`Failed to create tier list: ${response.status}`);
+      }
+      
+      const savedTierList = await response.json();
+      console.log('Tier list created successfully:', savedTierList);
+      
+      // Now save the tier list items
+      const itemsApiUrl = isDocker 
+        ? `http://api:8083/api/tierlist-items/batch/${savedTierList.tierlistId}`
+        : `http://localhost:8083/api/tierlist-items/batch/${savedTierList.tierlistId}`;
+      
+      // Get all recipes from all categories for reference
+      const allRecipes = [
+        ...recipeCategories.wings,
+        ...recipeCategories.pasta, 
+        ...recipeCategories.steak, 
+        ...recipeCategories.soup
+      ];
 
-    if (selectedRecipes.length === 0) {
-      return;
+      // Create the items to be saved
+      const tierlistItems = Object.entries(selectedTiers).map(([recipeId, tierName], index) => {
+        const recipe = allRecipes.find(r => r.item_id === parseInt(recipeId));
+        return {
+          originalItemId: parseInt(recipeId),
+          tierId: getTierId(tierName),
+          position: index,
+          tierlistId: savedTierList.tierlistId,
+          recipeName: recipe?.name || `Recipe ${recipeId}`
+        };
+      });
+      
+      console.log('Sending tierlist items:', tierlistItems);
+      
+      const itemsResponse = await fetch(itemsApiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(tierlistItems)
+      });
+      
+      if (!itemsResponse.ok) {
+        const errorData = await itemsResponse.json().catch(() => null);
+        console.error('Error saving items:', errorData);
+        throw new Error(`Failed to add items to tier list: ${itemsResponse.status}`);
+      }
+      
+      // Create a formatted tier list for the UI
+      const uiTierList = {
+        id: savedTierList.tierlistId,
+        name: savedTierList.name,
+        items: tierlistItems.map(item => {
+          // Map tier ID back to tier name
+          let tierName = 'S Tier'; // Default
+          if (item.tierId === 1) tierName = 'S Tier';
+          else if (item.tierId === 2) tierName = 'A Tier';
+          else if (item.tierId === 3) tierName = 'B Tier';
+          else if (item.tierId === 4) tierName = 'C Tier';
+          
+          return {
+            recipeName: item.recipeName,
+            tier: tierName
+          };
+        }),
+        likedBy: []
+      };
+      
+      // Update the local state with the newly created tier list
+      setTierLists(prev => [...prev, uiTierList]);
+      
+      // Reset the form
+      setTierListName('');
+      setSelectedTiers({});
+      
+      alert('Tier list created successfully!');
+      
+    } catch (error) {
+      console.error('Error creating tier list:', error);
+      alert(`Failed to create tier list: ${error.message}`);
     }
-
-    const newTierList = {
-      id: tierLists.length + 1,
-      name: tierListName,
-      items: selectedRecipes,
-      likedBy: []
-    };
-
-    setTierLists(prev => [...prev, newTierList]);
-    setTierListName('');
-    setSelectedTiers({});
   };
 
   const tiers = ['S Tier', 'A Tier', 'B Tier', 'C Tier'];
@@ -201,14 +424,95 @@ const TierLists = () => {
     return nameMap[currentCategory] || 'Recipes';
   };
 
+  // Function to fetch user's tier lists
+  const fetchUserTierLists = async (userId) => {
+    if (!userId) return;
+    
+    try {
+      // Determine the API URL based on the environment
+      const isDocker = window.location.hostname !== 'localhost';
+      const apiUrl = isDocker 
+        ? `http://api:8083/api/tierlists/user/${userId}`
+        : `http://localhost:8083/api/tierlists/user/${userId}`;
+      
+      const response = await fetch(apiUrl, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch tier lists: ${response.status}`);
+      }
+      
+      const fetchedTierLists = await response.json();
+      console.log('Fetched tier lists:', fetchedTierLists);
+      
+      // Process and format the tier lists for UI display
+      const formattedTierLists = await Promise.all(fetchedTierLists.map(async (list) => {
+        // Fetch the items for each tier list
+        const itemsResponse = await fetch(
+          isDocker 
+            ? `http://api:8083/api/tierlist-items/tierlist/${list.tierlistId}`
+            : `http://localhost:8083/api/tierlist-items/tierlist/${list.tierlistId}`,
+          { credentials: 'include' }
+        );
+        
+        if (!itemsResponse.ok) {
+          console.error(`Failed to fetch items for tier list ${list.tierlistId}`);
+          return {
+            id: list.tierlistId,
+            name: list.name,
+            items: [],
+            likedBy: []
+          };
+        }
+        
+        const items = await itemsResponse.json();
+        
+        // Format the items with tier names
+        const formattedItems = items.map(item => {
+          let tierName = 'S Tier'; // Default
+          if (item.tier.tierId === 1) tierName = 'S Tier';
+          else if (item.tier.tierId === 2) tierName = 'A Tier';
+          else if (item.tier.tierId === 3) tierName = 'B Tier';
+          else if (item.tier.tierId === 4) tierName = 'C Tier';
+          
+          return {
+            recipeName: item.item ? item.item.name : `Item ${item.originalItemId}`,
+            tier: tierName
+          };
+        });
+        
+        return {
+          id: list.tierlistId,
+          name: list.name,
+          items: formattedItems,
+          likedBy: []
+        };
+      }));
+      
+      setTierLists(formattedTierLists);
+    } catch (err) {
+      console.error('Error fetching user tier lists:', err);
+    }
+  };
+
   return (
     <div className="tierlists-background" style={backgroundStyle}>
       <div className="fixed-header">
         <div className="nav-buttons">
-          <Link to="/">
-            <button className="nav-btn home-btn">Home</button>
-          </Link>
-          <button onClick={handleLogout} className="nav-btn">Logout</button>
+          <div className="user-profile">
+            {currentUser && (
+              <Link to="/profile" className="user-greeting-link">
+                <div className="user-greeting">
+                  {currentUser.username}
+                </div>
+              </Link>
+            )}
+            <Link to="/">
+              <button className="nav-btn home-btn">Home</button>
+            </Link>
+            <button onClick={handleLogout} className="nav-btn">Logout</button>
+          </div>
         </div>
         <h1 className="page-title">Create Your Recipe Tier List</h1>
         <div className="name-input-container">
@@ -238,21 +542,25 @@ const TierLists = () => {
       </div>
 
       <div className="settings-container">
-        <button 
-          className="settings-btn" 
-          onClick={() => setShowMenu(!showMenu)}
-        >
-          <FontAwesomeIcon icon={faCog} />
-        </button>
-        {showMenu && (
-          <div className="settings-menu">
-            <button id="settings-menu-item" onClick={() => setShowDatabaseModal(true)}>
-              Database Tables
+        {currentUser && currentUser.isAdmin && (
+          <>
+            <button 
+              className="settings-btn" 
+              onClick={() => setShowMenu(!showMenu)}
+            >
+              <FontAwesomeIcon icon={faCog} />
             </button>
-            <button id="settings-menu-item" onClick={() => setShowDatabaseTestModal(true)}>
-              Database Testing
-            </button>
-          </div>
+            {showMenu && (
+              <div className="settings-menu">
+                <button id="settings-menu-item" onClick={() => setShowDatabaseModal(true)}>
+                  Database Tables
+                </button>
+                <button id="settings-menu-item" onClick={() => setShowDatabaseTestModal(true)}>
+                  Database Testing
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -1,5 +1,5 @@
-# Use OpenJDK 17 as the base image
-FROM openjdk:17-jdk-slim
+# Use OpenJDK 17 as the base image with platform compatibility
+FROM --platform=linux/amd64 eclipse-temurin:17-jdk-focal
 
 # Set the working directory inside the container
 WORKDIR /app

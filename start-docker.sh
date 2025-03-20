@@ -15,20 +15,34 @@ echo ""
 echo "Stopping any running Docker containers..."
 docker-compose down
 
+# Clean any existing Docker cache to prevent platform issues
+echo "Cleaning Docker cache..."
+docker system prune -f
+
 # Build the backend
 echo "Building the backend..."
-cd backend && ./gradlew build -x test
+cd backend && ./gradlew clean build -x test
 
 # Return to root directory
 cd ..
 
-# Rebuild containers
+# Rebuild containers with platform specification
 echo "Rebuilding Docker containers..."
-docker-compose build
+docker-compose build --no-cache
 
 # Start everything
 echo "Starting the Docker containers..."
 docker-compose up -d
+
+# Wait for services to be up
+echo "Waiting for services to start..."
+echo "This may take a minute..."
+sleep 15
+
+# Check if services are running
+echo ""
+echo "Checking service status:"
+docker-compose ps
 
 # Display status
 echo ""

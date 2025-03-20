@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import TierLists from './pages/TierLists';
 import CommunityTierLists from './pages/CommunityTierLists';
+import Profile from './pages/Profile';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/tierlists" element={<TierLists />} />
       <Route path="/community-tierlists" element={<CommunityTierLists />} />
+      <Route path="/profile" element={<Profile />} />
     </Routes>
   );
 }

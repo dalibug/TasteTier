@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
+    platform: linux/amd64
+    container_name: backend
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
@@ -21,11 +23,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    networks:
+      - tastetier-network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    platform: linux/amd64
+    container_name: frontend
     ports:
       - "3000:3000"
     environment:
@@ -34,4 +40,10 @@ services:
     volumes:
       - ./frontend/logs:/app/logs
     depends_on:
-      - backend 
+      - backend
+    networks:
+      - tastetier-network
+
+networks:
+  tastetier-network:
+    driver: bridge 
