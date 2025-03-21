@@ -43,6 +43,9 @@ public class User {
 
     @Column(name = "token_expires_at")
     private LocalDateTime tokenExpiresAt;
+    
+    @Column(name = "is_admin", nullable = false)
+    private boolean isAdmin = false; // Default to false
 
     // Default constructor
     public User() {
@@ -144,6 +147,14 @@ public class User {
 
     public void setTokenExpiresAt(LocalDateTime tokenExpiresAt) {
         this.tokenExpiresAt = tokenExpiresAt;
+    }
+    
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
     @PrePersist

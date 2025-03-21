@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background.png';
 import '../styles/Welcome.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 
 const Welcome = () => {
   const backgroundStyle = {
@@ -17,7 +19,9 @@ const Welcome = () => {
         </div>
         <div className="welcome-auth-buttons">
           <Link to="/login">
-            <button className="welcome-btn welcome-btn-login">Log In</button>
+            <button className="welcome-btn welcome-btn-login">
+              <FontAwesomeIcon icon={faSignInAlt} />
+            </button>
           </Link>
         </div>
       </header>

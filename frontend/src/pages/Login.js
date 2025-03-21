@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background2.png';
 import googleLogo from '../assets/google-logo.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 const Login = () => {
   const location = useLocation();
@@ -53,9 +55,14 @@ const Login = () => {
         <Link to="/signup" className="auth-link signup-link">
           Don't have an account? Sign up
         </Link>
-        <Link to="/" className="auth-link">
-          <button className="form-btn">Home</button>
-        </Link>
+        <div className="home-button-container" style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+          <Link to="/" style={{ width: '100%', textDecoration: 'none' }}>
+            <button className="form-btn">
+              <FontAwesomeIcon icon={faHome} style={{ marginRight: '8px' }} />
+              Home
+            </button>
+          </Link>
+        </div>
       </main>
     </div>
   );

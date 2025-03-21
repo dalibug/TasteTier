@@ -89,6 +89,7 @@ public class ItemSeeder {
             
             // Count how many items we now have
             String countSql = "SELECT COUNT(*) FROM items";
+            @SuppressWarnings("null")
             int itemCount = jdbcTemplate.queryForObject(countSql, Integer.class);
             
             System.out.println("Finished seeding items table from recipes. Added " + newItemsAdded + " new items. Total items: " + itemCount);
