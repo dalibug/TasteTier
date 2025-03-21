@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faHome, faSignOutAlt, faListAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHome, faSignOutAlt, faListAlt, faThumbsUp, faThumbsDown, faPercentage } from '@fortawesome/free-solid-svg-icons';
+import '../styles/TierLists.css';
 
 const CommunityTierLists = () => {
   const backgroundStyle = {
@@ -20,11 +21,14 @@ const CommunityTierLists = () => {
       creator: "FoodLover123",
       likes: 24,
       isLiked: false,
+      isDisliked: false,
       similarity: 85, // Percentage of similarity with user's tier lists
       items: [
         { recipeName: "Recipe 1", tier: "S Tier" },
         { recipeName: "Recipe 2", tier: "A Tier" },
         { recipeName: "Recipe 3", tier: "B Tier" },
+        { recipeName: "Recipe 6", tier: "C Tier" },
+        { recipeName: "Recipe 7", tier: "A Tier" },
       ]
     },
     {
@@ -33,10 +37,30 @@ const CommunityTierLists = () => {
       creator: "SweetTooth",
       likes: 15,
       isLiked: false,
+      isDisliked: false,
       similarity: 92,
       items: [
         { recipeName: "Recipe 4", tier: "S Tier" },
         { recipeName: "Recipe 5", tier: "A Tier" },
+        { recipeName: "Recipe 8", tier: "B Tier" },
+        { recipeName: "Recipe 9", tier: "C Tier" },
+        { recipeName: "Recipe 10", tier: "S Tier" },
+      ]
+    },
+    {
+      id: 3,
+      name: "Top Seafood Dishes",
+      creator: "OceanFlavor",
+      likes: 18,
+      isLiked: false,
+      isDisliked: false,
+      similarity: 78,
+      items: [
+        { recipeName: "Grilled Salmon", tier: "S Tier" },
+        { recipeName: "Shrimp Scampi", tier: "A Tier" },
+        { recipeName: "Fish Tacos", tier: "B Tier" },
+        { recipeName: "Crab Cakes", tier: "S Tier" },
+        { recipeName: "Tuna Steak", tier: "A Tier" },
       ]
     }
   ]);
@@ -45,11 +69,64 @@ const CommunityTierLists = () => {
     setCommunityLists(prevLists =>
       prevLists.map(list => {
         if (list.id === id) {
-          return {
-            ...list,
-            likes: list.isLiked ? list.likes - 1 : list.likes + 1,
-            isLiked: !list.isLiked
-          };
+          // If already liked, unlike it
+          if (list.isLiked) {
+            return {
+              ...list,
+              likes: list.likes - 1,
+              isLiked: false
+            };
+          }
+          // If disliked, remove dislike and add like
+          else if (list.isDisliked) {
+            return {
+              ...list,
+              likes: list.likes + 1,
+              isLiked: true,
+              isDisliked: false
+            };
+          }
+          // Otherwise, just like it
+          else {
+            return {
+              ...list,
+              likes: list.likes + 1,
+              isLiked: true
+            };
+          }
+        }
+        return list;
+      })
+    );
+  };
+
+  const handleDislike = (id) => {
+    setCommunityLists(prevLists =>
+      prevLists.map(list => {
+        if (list.id === id) {
+          // If already disliked, remove dislike
+          if (list.isDisliked) {
+            return {
+              ...list,
+              isDisliked: false
+            };
+          }
+          // If liked, remove like and add dislike
+          else if (list.isLiked) {
+            return {
+              ...list,
+              likes: list.likes - 1,
+              isLiked: false,
+              isDisliked: true
+            };
+          }
+          // Otherwise, just dislike it
+          else {
+            return {
+              ...list,
+              isDisliked: true
+            };
+          }
         }
         return list;
       })
@@ -104,9 +181,9 @@ const CommunityTierLists = () => {
         <h1 className="page-title">Community Tier Lists</h1>
       </div>
 
-      <div className="content-wrapper">
+      <div className="community-content-wrapper">
         <div className="existing-tierlists">
-          <div className="tierlists-grid">
+          <div className="community-tierlists-grid">
             {communityLists.map(tierList => (
               <div key={tierList.id} className="tierlist-card">
                 <div className="tierlist-header">
@@ -126,16 +203,27 @@ const CommunityTierLists = () => {
                   ))}
                 </div>
                 <div className="tierlist-footer">
-                  <div className="like-container">
-                    <button 
-                      className={`like-btn ${tierList.isLiked ? 'liked' : ''}`}
-                      onClick={() => handleLike(tierList.id)}
-                    >
-                      <span className="thumbs-up">👍</span>
-                    </button>
-                    <span className="likes-count">{tierList.likes} Likes</span>
+                  <div className="likes-container">
+                    <div className="like-buttons">
+                      <button 
+                        className={`like-btn ${tierList.isLiked ? 'active' : ''}`}
+                        onClick={() => handleLike(tierList.id)}
+                      >
+                        <FontAwesomeIcon icon={faThumbsUp} />
+                      </button>
+                      <button 
+                        className={`dislike-btn ${tierList.isDisliked ? 'active' : ''}`}
+                        onClick={() => handleDislike(tierList.id)}
+                      >
+                        <FontAwesomeIcon icon={faThumbsDown} />
+                      </button>
+                    </div>
+                    <span className="likes-count">{tierList.likes} {tierList.likes === 1 ? 'Like' : 'Likes'}</span>
                   </div>
-                  <span className="similarity-badge">{tierList.similarity}% Match</span>
+                  <div className="similarity-badge">
+                    <span>{tierList.similarity}</span>
+                    <FontAwesomeIcon icon={faPercentage} />
+                  </div>
                 </div>
               </div>
             ))}

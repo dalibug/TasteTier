@@ -148,7 +148,7 @@ const Profile = () => {
       </div>
 
       <div className="profile-container">
-        <h1 className="profile-title">My Profile</h1>
+        <h1 className="category-heading">My Profile</h1>
 
         {loading ? (
           <div className="loading-indicator">Loading profile data...</div>
@@ -184,46 +184,6 @@ const Profile = () => {
                   <span className="detail-value">{userTierLists.length}</span>
                 </div>
               </div>
-            </div>
-
-            <div className="user-tierlists-section">
-              <h2>My Tier Lists</h2>
-              
-              {userTierLists.length === 0 ? (
-                <div className="no-tierlists">
-                  <p>You haven't created any tier lists yet.</p>
-                  <Link to="/tierlists">
-                    <button className="create-btn">Create Your First Tier List</button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="tierlists-grid">
-                  {userTierLists.map(tierlist => (
-                    <div key={tierlist.id} className="tierlist-card">
-                      <div className="tierlist-header">
-                        <div className="header-content">
-                          <h3 className="tierlist-name">{tierlist.name}</h3>
-                        </div>
-                      </div>
-                      <div className="tierlist-items">
-                        {tierlist.items && tierlist.items.map((item, index) => (
-                          <div key={index} className="tierlist-item">
-                            <span className="recipe-name">{item.recipeName}</span>
-                            <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
-                              {item.tier}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="tierlist-footer">
-                        <span className="tierlist-date">
-                          Created: {formatDate(tierlist.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         )}

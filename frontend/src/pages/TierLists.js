@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt, faImage } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt, faImage, faEdit, faTrash, faTrashAlt, faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import DatabaseTablesModal from '../components/DatabaseTablesModal';
 import DatabaseTestModal from '../components/DatabaseTestModal';
 import '../styles/TierLists.css';
@@ -20,6 +20,8 @@ const TierLists = () => {
   const [activeChallenge, setActiveChallenge] = useState(null);
   const [showImagePopout, setShowImagePopout] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTierList, setSelectedTierList] = useState(null);
   const [recipeCategories, setRecipeCategories] = useState({
     wings: [],
     pasta: [],
@@ -284,6 +286,16 @@ const TierLists = () => {
   const closeImagePopout = () => {
     setShowImagePopout(false);
     setSelectedRecipeId(null);
+  };
+
+  const handleEditClick = (tierList) => {
+    setSelectedTierList(tierList);
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setSelectedTierList(null);
   };
 
   const createTierList = async () => {
@@ -634,35 +646,89 @@ const TierLists = () => {
         <div className="existing-tierlists">
           <h2>My Created Tier Lists</h2>
           <div className="tierlists-grid">
-            {tierLists.map(tierList => (
-              <div key={tierList.id} className="tierlist-card">
+            {tierLists.length === 0 ? (
+              <div className="tierlist-card">
                 <div className="tierlist-header">
                   <div className="header-content">
-                    <h3 className="tierlist-name">{tierList.name}</h3>
+                    <h3 className="tierlist-name">Sample Tier List</h3>
                   </div>
                 </div>
                 <div className="tierlist-items">
-                  {tierList.items.map((item, index) => (
-                    <div key={index} className="tierlist-item">
-                      <span className="recipe-name" title={item.recipeName}>{item.recipeName}</span>
-                      <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
-                        {item.tier}
-                      </span>
-                    </div>
-                  ))}
+                  <div className="tierlist-item">
+                    <span className="recipe-name">Buffalo Wings</span>
+                    <span className="tier-badge s">S Tier</span>
+                  </div>
+                  <div className="tierlist-item">
+                    <span className="recipe-name">BBQ Wings</span>
+                    <span className="tier-badge a">A Tier</span>
+                  </div>
+                  <div className="tierlist-item">
+                    <span className="recipe-name">Honey Garlic Wings</span>
+                    <span className="tier-badge b">B Tier</span>
+                  </div>
+                  <div className="tierlist-item">
+                    <span className="recipe-name">Plain Wings</span>
+                    <span className="tier-badge c">C Tier</span>
+                  </div>
+                  <div className="tierlist-item">
+                    <span className="recipe-name">Lemon Pepper Wings</span>
+                    <span className="tier-badge a">A Tier</span>
+                  </div>
                 </div>
                 <div className="tierlist-footer">
                   <span className="similarity-badge">
-                    <i className="fas fa-heart"></i>
-                    {tierList.likedBy && tierList.likedBy.length > 0 
-                      ? tierList.likedBy.length === 1
-                        ? `Liked by ${tierList.likedBy[0]}`
-                        : `Liked by ${tierList.likedBy[0]} and ${tierList.likedBy.length - 1} others`
-                      : 'No likes yet'}
+                    <FontAwesomeIcon icon={faThumbsUp} />
+                    5 Likes
                   </span>
                 </div>
+                <button className="edit-tierlist-btn" onClick={() => handleEditClick({
+                  id: 'sample',
+                  name: 'Sample Tier List',
+                  items: [
+                    { recipeName: 'Buffalo Wings', tier: 'S Tier' },
+                    { recipeName: 'BBQ Wings', tier: 'A Tier' },
+                    { recipeName: 'Honey Garlic Wings', tier: 'B Tier' },
+                    { recipeName: 'Plain Wings', tier: 'C Tier' },
+                    { recipeName: 'Lemon Pepper Wings', tier: 'A Tier' }
+                  ]
+                })}>
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
               </div>
-            ))}
+            ) : (
+              tierLists.map(tierList => (
+                <div key={tierList.id} className="tierlist-card">
+                  <div className="tierlist-header">
+                    <div className="header-content">
+                      <h3 className="tierlist-name">{tierList.name}</h3>
+                    </div>
+                  </div>
+                  <div className="tierlist-items">
+                    {tierList.items.map((item, index) => (
+                      <div key={index} className="tierlist-item">
+                        <span className="recipe-name" title={item.recipeName}>{item.recipeName}</span>
+                        <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
+                          {item.tier}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="tierlist-footer">
+                    <span className="similarity-badge">
+                      <FontAwesomeIcon icon={faThumbsUp} />
+                      {tierList.likedBy && tierList.likedBy.length > 0 
+                        ? tierList.likedBy.length === 1
+                          ? `${tierList.likedBy.length} Like`
+                          : `${tierList.likedBy.length} Likes`
+                        : 'No Likes'}
+                    </span>
+                  </div>
+                  <button className="edit-tierlist-btn" onClick={() => handleEditClick(tierList)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -693,6 +759,99 @@ const TierLists = () => {
             <div className="image-container">
               {/* Image will be added here later */}
               <div className="placeholder-text">Image will be displayed here</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && selectedTierList && (
+        <div className="edit-modal-overlay" onClick={closeEditModal}>
+          <div className="edit-modal-card" onClick={(e) => e.stopPropagation()}>
+            <button className="close-modal-btn" onClick={closeEditModal}>×</button>
+            <h2 className="edit-modal-title">Edit Tier List</h2>
+            
+            <div className="edit-form">
+              <div className="form-group">
+                <label>Tier List Name</label>
+                <input 
+                  type="text" 
+                  className="edit-tierlist-input" 
+                  value={selectedTierList.name}
+                  onChange={(e) => setSelectedTierList({
+                    ...selectedTierList,
+                    name: e.target.value
+                  })}
+                />
+              </div>
+              
+              <div className="form-group items-list">
+                <label>Recipes</label>
+                {selectedTierList.items.map((item, index) => (
+                  <div key={index} className="edit-item-row">
+                    <div className="item-name">{item.recipeName}</div>
+                    <div className="item-actions">
+                      <select 
+                        value={item.tier} 
+                        onChange={(e) => {
+                          const updatedItems = [...selectedTierList.items];
+                          updatedItems[index] = {
+                            ...item,
+                            tier: e.target.value
+                          };
+                          setSelectedTierList({
+                            ...selectedTierList,
+                            items: updatedItems
+                          });
+                        }}
+                        className="tier-select"
+                      >
+                        <option value="S Tier">S Tier</option>
+                        <option value="A Tier">A Tier</option>
+                        <option value="B Tier">B Tier</option>
+                        <option value="C Tier">C Tier</option>
+                      </select>
+                      <button 
+                        className="delete-item-btn"
+                        onClick={() => {
+                          const updatedItems = [...selectedTierList.items];
+                          updatedItems.splice(index, 1);
+                          setSelectedTierList({
+                            ...selectedTierList,
+                            items: updatedItems
+                          });
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="modal-footer">
+                <button 
+                  className="delete-tierlist-btn" 
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete this tier list?')) {
+                      // Handle tier list deletion
+                      alert('Tier list deleted!');
+                      closeEditModal();
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faTrashAlt} /> Delete List
+                </button>
+                <button 
+                  className="save-btn" 
+                  onClick={() => {
+                    // Here you would implement saving the edited tier list
+                    alert('Changes saved!');
+                    closeEditModal();
+                  }}
+                >
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
         </div>
