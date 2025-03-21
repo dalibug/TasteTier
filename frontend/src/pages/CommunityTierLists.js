@@ -209,13 +209,13 @@ const CommunityTierLists = () => {
                         className={`like-btn ${tierList.isLiked ? 'active' : ''}`}
                         onClick={() => handleLike(tierList.id)}
                       >
-                        <FontAwesomeIcon icon={faThumbsUp} />
+                        <FontAwesomeIcon icon={faThumbsUp} size="sm" fixedWidth />
                       </button>
                       <button 
                         className={`dislike-btn ${tierList.isDisliked ? 'active' : ''}`}
                         onClick={() => handleDislike(tierList.id)}
                       >
-                        <FontAwesomeIcon icon={faThumbsDown} />
+                        <FontAwesomeIcon icon={faThumbsDown} size="sm" fixedWidth />
                       </button>
                     </div>
                     <span className="likes-count">{tierList.likes} {tierList.likes === 1 ? 'Like' : 'Likes'}</span>

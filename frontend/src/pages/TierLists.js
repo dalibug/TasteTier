@@ -565,13 +565,15 @@ const TierLists = () => {
             >
               Create Tier List
             </button>
-            <button 
-              className="cycle-week-btn"
-              onClick={cycleCategory}
-              title="Next Category of Recipes"
-            >
-              <FontAwesomeIcon icon={faArrowsRotate} />
-            </button>
+            {currentUser && currentUser.isAdmin && (
+              <button 
+                className="cycle-week-btn"
+                onClick={cycleCategory}
+                title="Next Category of Recipes"
+              >
+                <FontAwesomeIcon icon={faArrowsRotate} />
+              </button>
+            )}
           </div>
         </div>
       </div>

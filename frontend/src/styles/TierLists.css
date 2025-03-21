@@ -584,6 +584,8 @@
   border: none;
   width: 28px;
   height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -591,6 +593,8 @@
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .like-btn svg, .dislike-btn svg {
