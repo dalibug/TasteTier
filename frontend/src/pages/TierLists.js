@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt, faImage } from '@fortawesome/free-solid-svg-icons';
 import DatabaseTablesModal from '../components/DatabaseTablesModal';
 import DatabaseTestModal from '../components/DatabaseTestModal';
 import '../styles/TierLists.css';
@@ -18,6 +18,8 @@ const TierLists = () => {
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
   const [showDatabaseTestModal, setShowDatabaseTestModal] = useState(false);
   const [activeChallenge, setActiveChallenge] = useState(null);
+  const [showImagePopout, setShowImagePopout] = useState(false);
+  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [recipeCategories, setRecipeCategories] = useState({
     wings: [],
     pasta: [],
@@ -274,6 +276,16 @@ const TierLists = () => {
     }));
   };
 
+  const handleImageClick = (recipeId) => {
+    setSelectedRecipeId(recipeId);
+    setShowImagePopout(true);
+  };
+
+  const closeImagePopout = () => {
+    setShowImagePopout(false);
+    setSelectedRecipeId(null);
+  };
+
   const createTierList = async () => {
     if (!tierListName.trim()) {
       alert("Please enter a tier list name");
@@ -518,11 +530,6 @@ const TierLists = () => {
                     <FontAwesomeIcon icon={faUser} /> Account
                   </button>
                 </Link>
-                <Link to="/">
-                  <button id="settings-menu-item">
-                    <FontAwesomeIcon icon={faHome} /> Home
-                  </button>
-                </Link>
                 <button id="settings-menu-item" onClick={handleLogout}>
                   <FontAwesomeIcon icon={faSignOutAlt} /> Logout
                 </button>
@@ -600,16 +607,21 @@ const TierLists = () => {
                   <div key={recipe.item_id} className="tier-card">
                     <h2 title={recipe.name}>{recipe.name}</h2>
                     <p title={recipe.description}>{recipe.description}</p>
-                    <div className="tier-items">
-                      {tiers.map(tier => (
-                        <span
-                          key={tier}
-                          className={`tier-item ${selectedTiers[recipe.item_id] === tier ? 'selected' : ''}`}
-                          onClick={() => handleTierSelect(recipe.item_id, tier)}
-                        >
-                          {tier}
-                        </span>
-                      ))}
+                    <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto' }}>
+                      <button className="recipe-image-btn" onClick={() => handleImageClick(recipe.item_id)}>
+                        <FontAwesomeIcon icon={faImage} />
+                      </button>
+                      <div className="tier-items">
+                        {tiers.map(tier => (
+                          <span
+                            key={tier}
+                            className={`tier-item ${selectedTiers[recipe.item_id] === tier ? 'selected' : ''}`}
+                            onClick={() => handleTierSelect(recipe.item_id, tier)}
+                          >
+                            {tier}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ))
@@ -673,6 +685,18 @@ const TierLists = () => {
         isOpen={showDatabaseTestModal}
         onClose={() => setShowDatabaseTestModal(false)}
       />
+
+      {showImagePopout && (
+        <div className="image-popout-overlay" onClick={closeImagePopout}>
+          <div className="image-popout-card" onClick={(e) => e.stopPropagation()}>
+            <button className="close-popout-btn" onClick={closeImagePopout}>×</button>
+            <div className="image-container">
+              {/* Image will be added here later */}
+              <div className="placeholder-text">Image will be displayed here</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

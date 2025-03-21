@@ -139,11 +139,6 @@ const Profile = () => {
                   <FontAwesomeIcon icon={faListAlt} /> Tier Lists
                 </button>
               </Link>
-              <Link to="/">
-                <button id="settings-menu-item">
-                  <FontAwesomeIcon icon={faHome} /> Home
-                </button>
-              </Link>
               <button id="settings-menu-item" onClick={handleLogout}>
                 <FontAwesomeIcon icon={faSignOutAlt} /> Logout
               </button>
