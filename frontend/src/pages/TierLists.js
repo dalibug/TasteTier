@@ -591,7 +591,7 @@ const TierLists = () => {
         <div className="tierlists-container">
           <h2 className="category-heading">{getCategoryDisplayName()}</h2>
           {loading ? (
-            <div className="loading-indicator">Loading recipes from API...</div>
+            <div className="loading-indicator">Loading recipes...</div>
           ) : error ? (
             <div className="error-message">
               {error}
@@ -632,7 +632,7 @@ const TierLists = () => {
 
         {/* Display existing tier lists */}
         <div className="existing-tierlists">
-          <h2>Your Created Tier Lists</h2>
+          <h2>My Created Tier Lists</h2>
           <div className="tierlists-grid">
             {tierLists.map(tierList => (
               <div key={tierList.id} className="tierlist-card">
