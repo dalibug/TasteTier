@@ -49,6 +49,91 @@ const TierListService = {
     }
   },
 
+  // Get all tier lists for community page
+  getAllTierLists: async () => {
+    console.log('[DEBUG TierListService] Getting all tier lists for community page');
+    
+    try {
+      const apiUrl = `${API_BASE_URL}/tierlists`;
+      console.log('[DEBUG TierListService] Community API URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        credentials: 'include', // Include credentials for authentication
+      });
+      
+      console.log('[DEBUG TierListService] Community response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[DEBUG TierListService] Error response body:', errorText);
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      
+      // Get the response as text first to inspect it
+      const responseText = await response.text();
+      console.log('[DEBUG TierListService] Community response text (first 100 chars):', 
+        responseText.length > 100 ? responseText.substring(0, 100) + '...' : responseText);
+      
+      let tierLists;
+      try {
+        // Parse the text as JSON
+        tierLists = JSON.parse(responseText);
+        console.log('[DEBUG TierListService] Successfully parsed JSON');
+        console.log('[DEBUG TierListService] Data type:', typeof tierLists);
+        console.log('[DEBUG TierListService] Is array?', Array.isArray(tierLists));
+        console.log('[DEBUG TierListService] Data length:', Array.isArray(tierLists) ? tierLists.length : 'N/A');
+        
+        // Fetch items for each tier list
+        const tierListsWithItems = await Promise.all(
+          tierLists.map(async (tierList) => {
+            try {
+              // Fetch tier list items
+              const itemsUrl = `${API_BASE_URL}/tierlists/${tierList.tierlistId}/items`;
+              console.log(`[DEBUG TierListService] Fetching items for tier list ${tierList.tierlistId}:`, itemsUrl);
+              
+              const itemsResponse = await fetch(itemsUrl, {
+                credentials: 'include',
+              });
+              
+              if (!itemsResponse.ok) {
+                console.error(`[DEBUG TierListService] Failed to fetch items for tier list ${tierList.tierlistId}: ${itemsResponse.status}`);
+                return { ...tierList, items: [] };
+              }
+              
+              const items = await itemsResponse.json();
+              console.log(`[DEBUG TierListService] Got ${Array.isArray(items) ? items.length : 0} items for tier list ${tierList.tierlistId}`);
+              
+              return {
+                id: tierList.tierlistId,
+                name: tierList.name || 'Unnamed Tier List',
+                username: tierList.userName || 'Anonymous', 
+                categoryName: tierList.categoryName,
+                createdAt: tierList.createdAt,
+                lastModified: tierList.lastModified,
+                isPublic: tierList.isPublic,
+                likeCount: 0, // Default until we implement likes
+                items: Array.isArray(items) ? items : []
+              };
+            } catch (err) {
+              console.error(`[DEBUG TierListService] Error fetching items for tier list ${tierList.tierlistId}:`, err);
+              return { ...tierList, items: [] };
+            }
+          })
+        );
+        
+        console.log('[DEBUG TierListService] All tier lists with items:', tierListsWithItems);
+        return tierListsWithItems;
+      } catch (parseError) {
+        console.error('[DEBUG TierListService] JSON parse error:', parseError);
+        console.error('[DEBUG TierListService] Problem with response text:', responseText);
+        throw new Error('Invalid JSON response from server');
+      }
+    } catch (error) {
+      console.error("[DEBUG TierListService] Failed to fetch community tier lists:", error);
+      throw error;
+    }
+  },
+
   // Get details of a specific tier list
   getTierList: async (tierlistId) => {
     console.log('[DEBUG TierListService] Getting tier list details for ID:', tierlistId);

@@ -148,9 +148,10 @@
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-height: 70vh;
+  max-height: 75vh;
   overflow-y: auto;
   position: relative;
+  padding-bottom: 40px;
 }
 
 /* Add scroll indicator */
@@ -175,7 +176,7 @@
 
 /* Custom scrollbar for tier lists section */
 .user-tierlists-section::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .user-tierlists-section::-webkit-scrollbar-track {
@@ -229,8 +230,11 @@
 
 .tierlists-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  padding-right: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .tierlist-card {
@@ -239,6 +243,11 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 15px;
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .tierlist-card:hover {
@@ -249,51 +258,73 @@
 .tierlist-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+  align-items: flex-start;
+  margin-bottom: 10px;
   border-bottom: 1px solid #f0f0f0;
   padding-bottom: 10px;
 }
 
 .header-content {
   flex: 1;
+  overflow: hidden;
 }
 
 .tierlist-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0 0 5px 0;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tierlist-category {
   display: inline-block;
   background: #f0f0f0;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 11px;
   margin-right: 5px;
   color: #555;
 }
 
 .tierlist-date {
-  font-size: 12px;
+  display: block;
+  font-size: 11px;
   color: #888;
+  margin-top: 2px;
 }
 
 .tierlist-items {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 180px;
+  padding: 10px 0;
+}
+
+.items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 8px;
 }
 
 .tierlist-item {
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 8px;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.recipe-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 8px;
+  font-size: 14px;
 }
 
 .empty-item {
@@ -305,13 +336,16 @@
 }
 
 .tier-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
   text-align: center;
-  width: fit-content;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .tier-badge.s {
@@ -332,14 +366,6 @@
 .tier-badge.c {
   background-color: #989898;
   color: white;
-}
-
-.recipe-name {
-  font-size: 14px;
-  color: #333;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .retry-btn {
@@ -534,4 +560,35 @@
 
 .user-menu #settings-menu-item svg {
   width: 16px;
+}
+
+.edit-btn {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: #0d8bf2;
+}
+
+@media (max-width: 1200px) {
+  .tierlists-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .tierlists-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .user-tierlists-section {
+    max-height: 80vh;
+  }
 } 

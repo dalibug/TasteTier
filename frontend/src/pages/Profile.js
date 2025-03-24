@@ -542,7 +542,11 @@ const Profile = () => {
             </div>
 
             {/* User Tier Lists Section */}
-            <div className="user-tierlists-section">
+            <div className="user-tierlists-section" style={{ 
+              maxHeight: '75vh', 
+              overflowY: 'auto',
+              paddingBottom: '40px' 
+            }}>
               <h2>My Recipe Tier Lists</h2>
               
               {getTierListsStatus() === 'loading' && (
@@ -577,7 +581,7 @@ const Profile = () => {
               )}
               
               {getTierListsStatus() === 'success' && (
-                <div className="tierlists-grid">
+                <div className="tierlists-grid" style={{ paddingRight: '10px', minHeight: '100px' }}>
                   {userTierLists.map(tierList => (
                     <div key={tierList.id} className="tierlist-card">
                       <div className="tierlist-header">
@@ -622,7 +626,7 @@ const Profile = () => {
                 </div>
               )}
               
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', paddingBottom: '15px' }}>
                 <Link to="/tierlists">
                   <button className="create-btn">
                     <FontAwesomeIcon icon={faPlus} /> Create a New Tier List

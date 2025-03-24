@@ -200,16 +200,45 @@
 
 /* Community Content Wrapper - wider for 3 columns */
 .community-content-wrapper {
+  padding: 100px 2rem 2rem;
   max-width: 1200px;
-  width: 100%;
   margin: 0 auto;
-  padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: calc(100vh - 100px);
-  overflow-y: auto;
-  margin-top: 180px;
+  max-height: 80vh; /* Set max height for scroll container */
+  overflow-y: auto; /* Enable vertical scrolling */
+  scrollbar-width: thin; /* For Firefox */
+  position: relative;
+}
+
+/* Add a fade effect at the bottom to indicate more content */
+.community-content-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Customize the scrollbar for Webkit browsers */
+.community-content-wrapper::-webkit-scrollbar {
+  width: 10px;
+}
+
+.community-content-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.community-content-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(44, 44, 44, 0.5);
+  border-radius: 10px;
+}
+
+.community-content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 44, 44, 0.7);
 }
 
 /* TierLists Container */
@@ -456,12 +485,35 @@
   width: 100%;
 }
 
+.tierlist-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 5px;
+}
+
 .creator-name {
   color: #2c2c2c;
   font-family: 'Work Sans', sans-serif;
   font-size: 0.85em;
-  opacity: 0.7;
-  margin-top: 3px;
+  margin-right: 5px;
+}
+
+.tierlist-category {
+  display: inline-block;
+  background: rgba(44, 44, 44, 0.1);
+  color: #2c2c2c;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+}
+
+.tierlist-date {
+  color: #666;
+  font-size: 0.75em;
+  font-style: italic;
 }
 
 /* Container for created tier lists items */
@@ -476,8 +528,15 @@
 
 /* Community tierlist items - don't show scrollbar */
 .community-tierlists-grid .tierlist-items {
-  overflow-y: visible;
-  padding-right: 0;
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 180px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
 /* Individual item in a created tier list */
@@ -485,41 +544,28 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 8px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 8px;
-  border: 1px solid rgba(44, 44, 44, 0.1);
-  transition: all 0.2s ease;
-  overflow: hidden;
-  margin-bottom: 5px;
-  min-height: 32px; /* Smaller height */
-}
-
-/* Community tier list items with reduced padding for better fit */
-.community-tierlists-grid .tierlist-item {
-  padding: 4px 8px;
-  margin-bottom: 4px;
-  min-height: 30px;
+  padding: 8px 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  transition: transform 0.15s ease;
 }
 
 .tierlist-item:hover {
   transform: translateY(-2px);
-  border-color: rgba(44, 44, 44, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Recipe name in created tier lists with text truncation */
 .recipe-name {
-  font-weight: 500;
-  color: #2c2c2c;
-  font-family: 'Work Sans', sans-serif;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 0.9em;
-  white-space: nowrap; /* Prevents text wrapping */
-  overflow: hidden; /* Hides overflow text */
-  text-overflow: ellipsis; /* Adds ellipsis for overflow */
-  max-width: 65%; /* Limits width to make room for tier badge */
-  display: inline-block;
+  color: #333;
+  margin-right: 10px;
 }
 
 /* Tier Badges - Styled badges for S, A, B, C tiers */
@@ -679,27 +725,49 @@
 /* Community TierLists Grid */
 .community-tierlists-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* Exactly 3 columns */
   gap: 20px;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding-bottom: 30px; /* Add padding at bottom for scrolling */
 }
 
-.community-tierlists-grid .tierlist-card {
-  height: 420px;
+.tierlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  margin-bottom: 8px;
 }
 
-@media (max-width: 1200px) {
-  .community-tierlists-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.tierlist-item:last-child {
+  margin-bottom: 0;
 }
 
-@media (max-width: 768px) {
-  .community-tierlists-grid {
-    grid-template-columns: 1fr;
-  }
+.tierlist-item .recipe-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.tierlist-item .tier-badge {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+  min-width: 40px;
+}
+
+.tierlist-card p.no-items {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-style: italic;
 }
 
 /* Buttons */
@@ -1599,4 +1667,158 @@
   color: #ea4335;
   cursor: pointer;
   font-size: 16px;
+}
+
+/* Loading, error, and empty states */
+.loading-container, 
+.error-container,
+.no-lists-message {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  margin: 50px auto;
+  max-width: 500px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.loading-container p {
+  font-size: 18px;
+  color: #555;
+  margin: 0;
+}
+
+.error-container {
+  color: #721c24;
+  background-color: rgba(248, 215, 218, 0.9);
+}
+
+.error-container p {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.retry-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-btn:hover {
+  background-color: #c82333;
+}
+
+.no-lists-message {
+  color: #383d41;
+  background-color: rgba(226, 227, 229, 0.9);
+}
+
+.no-lists-message p {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.no-lists-message .create-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.no-lists-message .create-btn:hover {
+  background-color: #0069d9;
+}
+
+.scroll-to-top-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(44, 44, 44, 0.8);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.scroll-to-top-btn:hover {
+  background-color: rgba(44, 44, 44, 1);
+  transform: translateY(-2px);
+}
+
+.community-tierlists-grid .tierlist-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(44, 44, 44, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 350px; /* Fixed height for uniform grid */
+  width: 100%;
+  overflow: hidden;
+}
+
+.community-tierlists-grid .tierlist-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(44, 44, 44, 0.3);
+}
+
+/* Make sure media queries work with our new 3-column layout */
+@media (max-width: 1100px) {
+  .community-tierlists-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+  }
+}
+
+@media (max-width: 700px) {
+  .community-tierlists-grid {
+    grid-template-columns: 1fr; /* 1 column on small screens */
+  }
+}
+
+.empty-tierlist-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  text-align: center;
+}
+
+.no-items {
+  color: #999;
+  font-style: italic;
+  font-size: 0.9em;
+  padding: 15px;
+  margin: 0;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+  width: 100%;
 } 
