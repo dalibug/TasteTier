@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
@@ -15,4 +16,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByActiveFromLessThanEqualAndActiveUntilGreaterThanEqual(LocalDate date, LocalDate sameDate);
     
     List<Category> findByNameContainingIgnoreCase(String name);
+    
+    Optional<Category> findByName(String name);
 } 

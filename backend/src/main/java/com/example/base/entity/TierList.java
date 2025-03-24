@@ -22,6 +22,10 @@ public class TierList {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "challenge_id", nullable = true)
+    private WeeklyChallenge challenge;
+
     @Column(name = "name", length = 255, nullable = false)
     private String name;
 
@@ -70,6 +74,14 @@ public class TierList {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public WeeklyChallenge getChallenge() {
+        return challenge;
+    }
+
+    public void setChallenge(WeeklyChallenge challenge) {
+        this.challenge = challenge;
     }
 
     public String getName() {

@@ -1,0 +1,164 @@
+-- Users Table
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL,
+    oauth_id VARCHAR(255) NOT NULL COMMENT 'Google User ID',
+    picture_url VARCHAR(255) NULL COMMENT 'Profile picture URL',
+    is_admin BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL,
+    access_token VARCHAR(255) NULL COMMENT 'OAuth access token',
+    refresh_token VARCHAR(255) NULL COMMENT 'OAuth refresh token',
+    token_expires_at TIMESTAMP NULL COMMENT 'Token expiration time'
+);
+
+-- Categories Table
+CREATE TABLE categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL COMMENT 'E.g. Breakfast Foods, Italian Cuisine, Desserts, etc.',
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_by INT NULL COMMENT 'Admin who created this category',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
+-- Tiers Table (S, A, B, C rankings)
+CREATE TABLE tiers (
+    tier_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(10) NOT NULL,
+    rank_order INT NOT NULL
+);
+
+-- Recipes Table
+CREATE TABLE recipes (
+    recipe_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL COMMENT 'Recipe title',
+    description TEXT NULL COMMENT 'Recipe description',
+    category_id INT NULL,
+    image_url VARCHAR(255) NULL COMMENT 'URL to recipe image',
+    ingredients TEXT NULL COMMENT 'List of ingredients',
+    instructions TEXT NULL COMMENT 'Cooking instructions',
+    embedding_vector TEXT NULL COMMENT 'ML embedding for similarity matching',
+    created_by INT NULL COMMENT 'User who created this recipe',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    name VARCHAR(255) NULL,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
+-- Recipe Synonyms Table
+CREATE TABLE recipe_synonyms (
+    synonym_id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id INT NOT NULL,
+    synonym VARCHAR(255) NOT NULL,
+    similarity_score FLOAT NOT NULL COMMENT 'ML-based similarity score',
+    FOREIGN KEY (recipe_id) REFERENCES recipes(recipe_id) ON DELETE CASCADE
+);
+
+-- Weekly Challenges Table
+CREATE TABLE weekly_challenges (
+    challenge_id INT AUTO_INCREMENT PRIMARY KEY,
+    week_number INT NOT NULL COMMENT 'Week number for the year',
+    year INT NOT NULL COMMENT 'Year of the challenge',
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL COMMENT 'active, completed, canceled',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Weekly Challenge Categories
+CREATE TABLE weekly_challenge_categories (
+    weekly_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    challenge_id INT NOT NULL,
+    category_id INT NOT NULL COMMENT 'Food category for this week',
+    FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(challenge_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Tier Lists Table
+CREATE TABLE tier_lists (
+    tierlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    challenge_id INT NULL COMMENT 'Associated weekly challenge', -- Now nullable
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_public BOOLEAN DEFAULT TRUE COMMENT 'Whether this tierlist is visible to others',
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
+    FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(challenge_id)
+);
+
+-- IMPORTANT: You have both of these tables in your database
+-- Tierlist Recipes Table (new structure)
+CREATE TABLE tierlist_recipes (
+    id INT AUTO_INCREMENT PRIMARY KEY, -- Note this is "id", not "item_id"
+    tierlist_id INT NOT NULL,
+    recipe_id INT NOT NULL COMMENT 'Reference to recipes table',
+    tier_id INT NOT NULL,
+    position INT NOT NULL,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tierlist_id) REFERENCES tier_lists(tierlist_id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(recipe_id),
+    FOREIGN KEY (tier_id) REFERENCES tiers(tier_id)
+);
+
+-- Tierlist Items Table (old structure - still exists in your DB)
+CREATE TABLE tierlist_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    tierlist_id INT NOT NULL,
+    original_item_id INT NOT NULL COMMENT 'Reference to non-existent items table',
+    tier_id INT NOT NULL,
+    position INT NOT NULL,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tierlist_id) REFERENCES tier_lists(tierlist_id) ON DELETE CASCADE,
+    -- This foreign key is likely broken since items table doesn't exist
+    -- FOREIGN KEY (original_item_id) REFERENCES items(item_id),
+    FOREIGN KEY (tier_id) REFERENCES tiers(tier_id)
+);
+
+-- Challenge Results Table
+CREATE TABLE challenge_results (
+    result_id INT AUTO_INCREMENT PRIMARY KEY,
+    challenge_id INT NOT NULL,
+    group_id INT NOT NULL COMMENT 'Identifies which group of similar tierlists',
+    similarity_score FLOAT NOT NULL,
+    is_most_similar BOOLEAN DEFAULT FALSE COMMENT 'Flag for most similar group',
+    is_most_unique BOOLEAN DEFAULT FALSE COMMENT 'Flag for most unique group',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(challenge_id) ON DELETE CASCADE
+);
+
+-- Challenge Group Members
+CREATE TABLE challenge_group_members (
+    group_member_id INT AUTO_INCREMENT PRIMARY KEY,
+    result_id INT NOT NULL,
+    user_id INT NOT NULL,
+    tierlist_id INT NOT NULL,
+    FOREIGN KEY (result_id) REFERENCES challenge_results(result_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (tierlist_id) REFERENCES tier_lists(tierlist_id) ON DELETE CASCADE
+);
+
+-- Chat Rooms
+CREATE TABLE chat_rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    result_id INT NOT NULL COMMENT 'Associated challenge result',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL COMMENT 'When this chat room will close',
+    FOREIGN KEY (result_id) REFERENCES challenge_results(result_id) ON DELETE CASCADE
+);
+
+-- Chat Messages
+CREATE TABLE chat_messages (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES chat_rooms(room_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);

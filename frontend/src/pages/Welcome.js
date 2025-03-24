@@ -15,7 +15,7 @@ const Welcome = () => {
     <div className="welcome-container" style={backgroundStyle}>
       <header className="welcome-header">
         <div className="welcome-left-buttons">
-          {/* Settings button removed */}
+          {/* Settings or other buttons can be placed here */}
         </div>
         <div className="welcome-auth-buttons">
           <Link to="/login">

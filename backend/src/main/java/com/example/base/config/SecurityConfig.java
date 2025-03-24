@@ -45,6 +45,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/test-entities/**").permitAll()
                 .requestMatchers("/api/tables/**").permitAll() // Allow access to database tables endpoints
                 .requestMatchers("/api/recipe-cards/**").permitAll() // Allow access to recipe card endpoints
+                .requestMatchers("/api/admin/**").permitAll() // Allow access to admin endpoints for testing
+                .requestMatchers("/api/tierlists/**").permitAll() // Allow unrestricted access to tier lists for testing
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )

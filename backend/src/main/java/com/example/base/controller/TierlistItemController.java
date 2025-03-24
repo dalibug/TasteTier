@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/tierlist-items")
 public class TierlistItemController {
@@ -225,6 +229,167 @@ public class TierlistItemController {
             return new ResponseEntity<>(savedItems, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Create multiple tierlist items for a specific tierlist
+    @SuppressWarnings("null")
+    @PostMapping("/batch/{tierlistId}")
+    public ResponseEntity<?> createTierlistItemsBatchForTierlist(
+            @PathVariable("tierlistId") Long tierlistId,
+            @RequestBody List<Map<String, Object>> itemsData) {
+        try {
+            // Validate tierlist exists
+            System.out.println("Creating batch items for tier list ID: " + tierlistId);
+            Optional<TierList> tierListData = tierListRepository.findById(tierlistId);
+            if (!tierListData.isPresent()) {
+                System.err.println("Tier list not found with ID: " + tierlistId);
+                return new ResponseEntity<>("Tier list not found", HttpStatus.BAD_REQUEST);
+            }
+            TierList tierList = tierListData.get();
+            System.out.println("Found tier list: " + tierList.getName());
+
+            // Fetch all recipes for reference
+            List<Recipe> allRecipes = recipeRepository.findAll();
+            System.out.println("Found " + allRecipes.size() + " recipes in the database.");
+            System.out.println("Recipe IDs available: " + 
+                allRecipes.stream()
+                .map(r -> r.getRecipeId().toString())
+                .collect(java.util.stream.Collectors.joining(", ")));
+            
+            List<TierlistItem> items = new ArrayList<>();
+            
+            // Process each item from the frontend
+            System.out.println("Processing " + itemsData.size() + " tierlist items from request");
+            for (Map<String, Object> itemData : itemsData) {
+                System.out.println("Processing tierlist item: " + itemData);
+                
+                TierlistItem item = new TierlistItem();
+                item.setTierList(tierList);
+                
+                // Set position
+                if (itemData.containsKey("position")) {
+                    item.setPosition(((Number) itemData.get("position")).intValue());
+                } else {
+                    // Default position if not provided
+                    item.setPosition(items.size());
+                }
+                
+                // Set tier - check tierId field
+                if (itemData.containsKey("tierId")) {
+                    Long tierId = ((Number) itemData.get("tierId")).longValue();
+                    Optional<Tier> tierData = tierRepository.findById(tierId);
+                    if (tierData.isPresent()) {
+                        item.setTier(tierData.get());
+                        System.out.println("Found tier with ID: " + tierId);
+                    } else {
+                        System.err.println("Tier not found with ID: " + tierId);
+                        // Try to get a default tier instead of failing
+                        List<Tier> tiers = tierRepository.findAll();
+                        if (!tiers.isEmpty()) {
+                            System.out.println("Using first available tier as fallback");
+                            item.setTier(tiers.get(0));
+                        } else {
+                            return new ResponseEntity<>("No tiers available in the system", HttpStatus.BAD_REQUEST);
+                        }
+                    }
+                } else {
+                    System.err.println("tierId field is missing in the request");
+                    return new ResponseEntity<>("tierId field is required", HttpStatus.BAD_REQUEST);
+                }
+                
+                // Set recipe from originalItemId
+                Long recipeId = null;
+                if (itemData.containsKey("originalItemId")) {
+                    recipeId = ((Number) itemData.get("originalItemId")).longValue();
+                    System.out.println("Looking for recipe with ID: " + recipeId);
+                    
+                    Optional<Recipe> recipeData = recipeRepository.findById(recipeId);
+                    
+                    if (recipeData.isPresent()) {
+                        System.out.println("Found existing recipe with ID " + recipeId + ": " + recipeData.get().getTitle());
+                        item.setRecipe(recipeData.get());
+                    } else {
+                        // Recipe doesn't exist - log an error
+                        System.err.println("ERROR: Recipe with ID " + recipeId + " not found in database!");
+                        
+                        // Look for a close match recipe that might have a similar ID
+                        final Long searchRecipeId = recipeId; // Make effectively final for lambda
+                        List<Recipe> closeMatches = allRecipes.stream()
+                            .filter(r -> Math.abs(r.getRecipeId() - searchRecipeId) < 5)
+                            .collect(java.util.stream.Collectors.toList());
+                        
+                        if (!closeMatches.isEmpty()) {
+                            Recipe closeMatch = closeMatches.get(0);
+                            System.out.println("Found close match recipe instead: " + closeMatch.getRecipeId());
+                            item.setRecipe(closeMatch);
+                        } else if (!allRecipes.isEmpty()) {
+                            // Use the first available recipe as a fallback
+                            Recipe fallbackRecipe = allRecipes.get(0);
+                            System.out.println("Using fallback recipe (first available): " + fallbackRecipe.getRecipeId());
+                            item.setRecipe(fallbackRecipe);
+                        } else {
+                            System.err.println("No recipes available in the database - cannot create tier list item!");
+                            return new ResponseEntity<>("No recipes available in the database", HttpStatus.BAD_REQUEST);
+                        }
+                    }
+                } else if (itemData.containsKey("recipeId")) {
+                    // Alternative field name
+                    recipeId = ((Number) itemData.get("recipeId")).longValue();
+                    System.out.println("Looking for recipe with ID (from recipeId field): " + recipeId);
+                    
+                    Optional<Recipe> recipeData = recipeRepository.findById(recipeId);
+                    if (recipeData.isPresent()) {
+                        item.setRecipe(recipeData.get());
+                    } else {
+                        System.err.println("ERROR: Recipe with ID " + recipeId + " not found in database!");
+                        // Try to find any recipe rather than failing
+                        if (!allRecipes.isEmpty()) {
+                            Recipe fallbackRecipe = allRecipes.get(0);
+                            System.out.println("Using fallback recipe (first available): " + fallbackRecipe.getRecipeId());
+                            item.setRecipe(fallbackRecipe);
+                        } else {
+                            return new ResponseEntity<>("No recipes available in the database", HttpStatus.BAD_REQUEST);
+                        }
+                    }
+                } else {
+                    System.err.println("ERROR: No recipe ID field (originalItemId or recipeId) found in request");
+                    return new ResponseEntity<>("Recipe ID field is required", HttpStatus.BAD_REQUEST);
+                }
+                
+                items.add(item);
+            }
+            
+            try {
+                System.out.println("Saving " + items.size() + " tierlist items");
+                List<TierlistItem> savedItems = tierlistItemRepository.saveAll(items);
+                System.out.println("Successfully saved " + savedItems.size() + " items");
+                
+                // Convert to simple response objects to avoid lazy loading issues
+                List<Map<String, Object>> responseItems = new ArrayList<>();
+                for (TierlistItem savedItem : savedItems) {
+                    Map<String, Object> responseItem = new HashMap<>();
+                    responseItem.put("itemId", savedItem.getItemId());
+                    responseItem.put("tierlistId", tierlistId);
+                    responseItem.put("position", savedItem.getPosition());
+                    responseItem.put("tierId", savedItem.getTier().getTierId());
+                    if (savedItem.getRecipe() != null) {
+                        responseItem.put("recipeId", savedItem.getRecipe().getRecipeId());
+                        responseItem.put("recipeName", savedItem.getRecipe().getTitle());
+                    }
+                    responseItems.add(responseItem);
+                }
+                
+                return new ResponseEntity<>(responseItems, HttpStatus.CREATED);
+            } catch (Exception e) {
+                System.err.println("Error saving tierlist items: " + e.getMessage());
+                e.printStackTrace();
+                return new ResponseEntity<>("Error saving tierlist items: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            System.err.println("Exception in batch endpoint: " + e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<>("Server error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 } 

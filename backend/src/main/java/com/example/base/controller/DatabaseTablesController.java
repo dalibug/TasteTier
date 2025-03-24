@@ -91,19 +91,33 @@ public class DatabaseTablesController {
     }
 
     @PutMapping("/users/{userId}/admin")
-    public ResponseEntity<?> updateUserAdminStatus(@PathVariable Long userId, @RequestBody Map<String, Boolean> request) {
+    public ResponseEntity<?> toggleUserAdminStatus(
+            @PathVariable Long userId, 
+            @RequestBody Map<String, Boolean> requestBody) {
+        
         try {
-            Boolean isAdmin = request.get("isAdmin");
+            logger.info("Toggling admin status for user ID: {}", userId);
+            
+            // Extract isAdmin value from request body
+            Boolean isAdmin = requestBody.get("isAdmin");
             if (isAdmin == null) {
-                return ResponseEntity.badRequest().body("isAdmin field is required");
+                return ResponseEntity.badRequest().body("Missing isAdmin field in request body");
             }
-
+            
+            // Update the user's admin status in the database
             String sql = "UPDATE users SET is_admin = ? WHERE user_id = ?";
-            jdbcTemplate.update(sql, isAdmin, userId);
-            return ResponseEntity.ok().build();
+            int updatedRows = jdbcTemplate.update(sql, isAdmin, userId);
+            
+            if (updatedRows > 0) {
+                logger.info("Admin status updated successfully for user ID: {}", userId);
+                return ResponseEntity.ok().build();
+            } else {
+                logger.error("User not found with ID: {}", userId);
+                return ResponseEntity.notFound().build();
+            }
         } catch (Exception e) {
-            logger.error("Error updating admin status for user {}: {}", userId, e.getMessage());
-            return ResponseEntity.internalServerError().body("Failed to update admin status: " + e.getMessage());
+            logger.error("Error updating admin status for user ID {}: {}", userId, e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 } 

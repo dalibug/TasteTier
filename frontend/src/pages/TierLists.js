@@ -31,6 +31,12 @@ const TierLists = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [preloadedImages, setPreloadedImages] = useState({});
+  const [creatingTierList, setCreatingTierList] = useState(false);
+  const [creatingTierListSuccess, setCreatingTierListSuccess] = useState(false);
+  const [loadingTierLists, setLoadingTierLists] = useState(false);
+  const [tierListsError, setTierListsError] = useState(null);
 
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
@@ -60,7 +66,7 @@ const TierLists = () => {
         if (userData.authenticated) {
           setCurrentUser(userData);
           // Fetch the user's tier lists after getting the user data
-          fetchUserTierLists(userData.userId);
+          fetchUserTierLists();
         } else {
           // Not authenticated, redirect to login
           window.location.href = '/login';
@@ -194,32 +200,32 @@ const TierLists = () => {
       // Fallback to some sample data if API call fails
       setRecipeCategories({
         wings: [
-          { item_id: 29, name: 'Lemon Pepper Wings', description: 'Crispy wings with a tangy, zesty flavor.' },
-          { item_id: 30, name: 'Mango Habanero Wings', description: 'Sweet and spicy wings with a tropical kick.' },
-          { item_id: 31, name: 'Garlic Parmesan Wings', description: 'Savory wings with garlic and cheese.' },
-          { item_id: 32, name: 'BBQ Wings', description: 'Classic smoky BBQ wings.' },
-          { item_id: 33, name: 'Spicy Korean Wings', description: 'Bold wings with Korean chili paste.' }
+          { recipe_id: 29, title: 'Lemon Pepper Wings', description: 'Crispy wings with a tangy, zesty flavor.', image_url: '' },
+          { recipe_id: 30, title: 'Mango Habanero Wings', description: 'Sweet and spicy wings with a tropical kick.', image_url: '' },
+          { recipe_id: 31, title: 'Garlic Parmesan Wings', description: 'Savory wings with garlic and cheese.', image_url: '' },
+          { recipe_id: 32, title: 'BBQ Wings', description: 'Classic smoky BBQ wings.', image_url: '' },
+          { recipe_id: 33, title: 'Spicy Korean Wings', description: 'Bold wings with Korean chili paste.', image_url: '' }
         ],
         pasta: [
-          { item_id: 34, name: 'Shrimp Alfredo', description: 'Creamy pasta with succulent shrimp.' },
-          { item_id: 35, name: 'Spaghetti Bolognese', description: 'Traditional Italian pasta with meat sauce.' },
-          { item_id: 36, name: 'Pesto Chicken Pasta', description: 'Pasta with basil pesto and chicken.' },
-          { item_id: 37, name: 'Penne Arrabbiata', description: 'Spicy penne pasta in tomato sauce.' },
-          { item_id: 38, name: 'Fettuccine Carbonara', description: 'Classic pasta with eggs and pancetta.' }
+          { recipe_id: 34, title: 'Shrimp Alfredo', description: 'Creamy pasta with succulent shrimp.', image_url: '' },
+          { recipe_id: 35, title: 'Spaghetti Bolognese', description: 'Traditional Italian pasta with meat sauce.', image_url: '' },
+          { recipe_id: 36, title: 'Pesto Chicken Pasta', description: 'Pasta with basil pesto and chicken.', image_url: '' },
+          { recipe_id: 37, title: 'Penne Arrabbiata', description: 'Spicy penne pasta in tomato sauce.', image_url: '' },
+          { recipe_id: 38, title: 'Fettuccine Carbonara', description: 'Classic pasta with eggs and pancetta.', image_url: '' }
         ],
         steak: [
-          { item_id: 39, name: 'Ribeye Steak', description: 'Juicy ribeye with garlic butter.' },
-          { item_id: 40, name: 'Filet Mignon', description: 'Tender steak with red wine sauce.' },
-          { item_id: 41, name: 'NY Strip Steak', description: 'Classic steak with peppercorn sauce.' },
-          { item_id: 42, name: 'T-bone Steak', description: 'Impressive cut with herb butter.' },
-          { item_id: 43, name: 'Sirloin Steak', description: 'Flavorful sirloin with mashed potatoes.' }
+          { recipe_id: 39, title: 'Ribeye Steak', description: 'Juicy ribeye with garlic butter.', image_url: '' },
+          { recipe_id: 40, title: 'Filet Mignon', description: 'Tender steak with red wine sauce.', image_url: '' },
+          { recipe_id: 41, title: 'NY Strip Steak', description: 'Classic steak with peppercorn sauce.', image_url: '' },
+          { recipe_id: 42, title: 'T-bone Steak', description: 'Impressive cut with herb butter.', image_url: '' },
+          { recipe_id: 43, title: 'Sirloin Steak', description: 'Flavorful sirloin with mashed potatoes.', image_url: '' }
         ],
         soup: [
-          { item_id: 44, name: 'Chicken Soup', description: 'Comforting soup with vegetables.' },
-          { item_id: 45, name: 'Beef Soup', description: 'Hearty soup with tender beef.' },
-          { item_id: 46, name: 'Tomato Soup', description: 'Classic creamy tomato soup.' },
-          { item_id: 47, name: 'Vegetable Soup', description: 'Healthy soup with seasonal vegetables.' },
-          { item_id: 48, name: 'Minestrone', description: 'Italian vegetable soup with pasta.' }
+          { recipe_id: 44, title: 'Chicken Soup', description: 'Comforting soup with vegetables.', image_url: '' },
+          { recipe_id: 45, title: 'Beef Soup', description: 'Hearty soup with tender beef.', image_url: '' },
+          { recipe_id: 46, title: 'Tomato Soup', description: 'Classic creamy tomato soup.', image_url: '' },
+          { recipe_id: 47, title: 'Vegetable Soup', description: 'Healthy soup with seasonal vegetables.', image_url: '' },
+          { recipe_id: 48, title: 'Minestrone', description: 'Italian vegetable soup with pasta.', image_url: '' }
         ]
       });
     } finally {
@@ -280,12 +286,163 @@ const TierLists = () => {
 
   const handleImageClick = (recipeId) => {
     setSelectedRecipeId(recipeId);
+    setImageLoading(true);
     setShowImagePopout(true);
+    
+    // Force reload the image for the popup
+    const recipe = getCurrentRecipes().find(recipe => recipe.recipe_id === recipeId);
+    if (recipe && recipe.image_url) {
+      const imageObj = getImageUrl(recipe.image_url);
+      if (imageObj && !preloadedImages[recipeId]) {
+        preloadImage(imageObj, recipeId);
+      }
+    }
   };
 
   const closeImagePopout = () => {
     setShowImagePopout(false);
     setSelectedRecipeId(null);
+    setImageLoading(true);
+  };
+
+  // Utility function to convert Google Drive links to proper image URLs
+  const getImageUrl = (driveUrl) => {
+    if (!driveUrl) return null;
+    
+    console.log('Processing image URL:', driveUrl);
+    
+    // Check if it's a Google Drive URL
+    if (driveUrl.includes('drive.google.com/file/d/')) {
+      try {
+        // Extract the file ID from the Google Drive URL
+        const fileId = driveUrl.match(/\/file\/d\/([^\/]+)/)[1];
+        console.log('Extracted file ID:', fileId);
+        
+        // Return an array of potential URLs to try in order
+        return {
+          fileId,
+          // First try direct access using Google's content delivery network
+          directUrl: `https://lh3.googleusercontent.com/d/${fileId}`,
+          // Then try the export/view method
+          exportUrl: `https://drive.google.com/uc?export=view&id=${fileId}`,
+          // Finally try the thumbnail method
+          thumbnailUrl: `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`
+        };
+      } catch (error) {
+        console.error('Error extracting file ID from Google Drive URL:', error);
+        return null;
+      }
+    }
+    
+    // If not a Google Drive URL or couldn't extract ID, return original
+    return driveUrl;
+  };
+
+  // A function to preload images for better Google Drive compatibility
+  const preloadImage = (imageObj, recipeId) => {
+    if (!imageObj || preloadedImages[recipeId]) return;
+    
+    // If it's a string (direct URL), just try that
+    if (typeof imageObj === 'string') {
+      const img = new Image();
+      img.onload = () => {
+        setPreloadedImages(prev => ({
+          ...prev,
+          [recipeId]: imageObj
+        }));
+      };
+      img.onerror = () => {};
+      img.src = imageObj;
+      return;
+    }
+
+    // For Google Drive images, try each URL format in order
+    console.log(`Preloading image for recipe ${recipeId}:`, imageObj);
+    
+    // Try direct URL first
+    const tryDirectUrl = () => {
+      const img = new Image();
+      img.onload = () => {
+        console.log(`Direct URL successful for recipe ${recipeId}`);
+        setPreloadedImages(prev => ({
+          ...prev,
+          [recipeId]: imageObj.directUrl
+        }));
+      };
+      img.onerror = () => {
+        console.log(`Direct URL failed for recipe ${recipeId}, trying export URL...`);
+        // If direct URL fails, try export URL
+        setTimeout(tryExportUrl, 100);
+      };
+      img.src = imageObj.directUrl;
+    };
+    
+    // Then try export URL
+    const tryExportUrl = () => {
+      const img = new Image();
+      img.onload = () => {
+        console.log(`Export URL successful for recipe ${recipeId}`);
+        setPreloadedImages(prev => ({
+          ...prev,
+          [recipeId]: imageObj.exportUrl
+        }));
+      };
+      img.onerror = () => {
+        console.log(`Export URL failed for recipe ${recipeId}, trying thumbnail URL...`);
+        // If export URL fails, try thumbnail URL
+        setTimeout(tryThumbnailUrl, 100);
+      };
+      img.src = imageObj.exportUrl;
+    };
+    
+    // Finally try thumbnail URL
+    const tryThumbnailUrl = () => {
+      const img = new Image();
+      img.onload = () => {
+        console.log(`Thumbnail URL successful for recipe ${recipeId}`);
+        setPreloadedImages(prev => ({
+          ...prev,
+          [recipeId]: imageObj.thumbnailUrl
+        }));
+      };
+      img.onerror = () => {
+        console.log(`All URL formats failed for recipe ${recipeId}`);
+      };
+      img.src = imageObj.thumbnailUrl;
+    };
+    
+    // Start the chain of attempts
+    tryDirectUrl();
+  };
+
+  // Update to preload images when recipes are fetched
+  useEffect(() => {
+    if (!loading && recipeCategories) {
+      // Preload images for all recipes
+      Object.values(recipeCategories).flat().forEach(recipe => {
+        if (recipe.image_url) {
+          const imageObj = getImageUrl(recipe.image_url);
+          if (imageObj) { // Only preload if we got a valid URL or URL object back
+            preloadImage(imageObj, recipe.recipe_id);
+          }
+        }
+      });
+    }
+  }, [loading, recipeCategories]);
+
+  // Helper to get the image source for a recipe
+  const getRecipeImageSrc = (recipe) => {
+    if (!recipe.image_url) return null;
+    if (preloadedImages[recipe.recipe_id]) return preloadedImages[recipe.recipe_id];
+    
+    const imageObj = getImageUrl(recipe.image_url);
+    if (!imageObj) return null;
+    
+    // If it's a string, use that directly
+    if (typeof imageObj === 'string') return imageObj;
+    
+    // Otherwise use the direct URL by default and let the preloader update it later
+    return imageObj.directUrl;
   };
 
   const handleEditClick = (tierList) => {
@@ -316,15 +473,25 @@ const TierLists = () => {
         return;
       }
 
+      setCreatingTierList(true);
+      setCreatingTierListSuccess(false);
+      setTierListsError(null);
+      console.log("Starting tier list creation process");
+
       // Make sure we have an active challenge
       let challenge = activeChallenge;
       if (!challenge) {
+        console.log("No active challenge in state, fetching one...");
         challenge = await fetchActiveChallenge();
         if (!challenge) {
-          alert("No active challenge available. Please try again later.");
-          return;
+          console.warn("No active challenge available");
+          challenge = {
+            challengeId: 1, // Fallback challenge ID
+            title: "Default Challenge"
+          };
         }
       }
+      console.log("Using challenge:", challenge);
 
       // Determine the API URL based on the environment
       const isDocker = window.location.hostname !== 'localhost';
@@ -333,17 +500,19 @@ const TierLists = () => {
         : 'http://localhost:8083/api/tierlists';
       
       console.log('Creating tier list with category:', currentCategory);
+      const categoryId = getCategoryId(currentCategory);
+      console.log('Category ID:', categoryId);
       
       // Prepare tier list data
       const tierListData = {
         name: tierListName,
         user: { userId: currentUser.userId },
-        category: { categoryId: getCategoryId(currentCategory) },
+        category: { categoryId: categoryId },
         challenge: { challengeId: challenge.challengeId },
         isPublic: true
       };
       
-      console.log('Sending tier list data:', tierListData);
+      console.log('Sending tier list data:', JSON.stringify(tierListData));
       
       // Save the tier list to the database
       const response = await fetch(apiUrl, {
@@ -353,19 +522,35 @@ const TierLists = () => {
         body: JSON.stringify(tierListData)
       });
       
+      // Log the raw response text first
+      const responseText = await response.text();
+      console.log('Raw tier list response:', responseText);
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error('Error response:', errorData);
-        throw new Error(`Failed to create tier list: ${response.status}`);
+        throw new Error(`Failed to create tier list: ${response.status} - ${responseText}`);
       }
       
-      const savedTierList = await response.json();
+      // Parse the response text to JSON (if possible)
+      let savedTierList;
+      try {
+        savedTierList = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Could not parse tier list response as JSON:', e);
+        throw new Error('Invalid response format from server');
+      }
+      
       console.log('Tier list created successfully:', savedTierList);
+      
+      if (!savedTierList || !savedTierList.tierlistId) {
+        throw new Error('Server returned a tier list without an ID');
+      }
       
       // Now save the tier list items
       const itemsApiUrl = isDocker 
         ? `http://api:8083/api/tierlist-items/batch/${savedTierList.tierlistId}`
         : `http://localhost:8083/api/tierlist-items/batch/${savedTierList.tierlistId}`;
+      
+      console.log('Items API URL:', itemsApiUrl);
       
       // Get all recipes from all categories for reference
       const allRecipes = [
@@ -375,20 +560,32 @@ const TierLists = () => {
         ...recipeCategories.soup
       ];
 
-      // Create the items to be saved
+      console.log('Total recipes available:', allRecipes.length);
+      console.log('Selected recipes:', Object.keys(selectedTiers));
+
+      // Create the items to be saved - ensuring we use the correct recipe IDs
       const tierlistItems = Object.entries(selectedTiers).map(([recipeId, tierName], index) => {
-        const recipe = allRecipes.find(r => r.item_id === parseInt(recipeId));
+        const recipeIdInt = parseInt(recipeId);
+        console.log(`Processing recipe ID ${recipeIdInt} for tier ${tierName}`);
+        
+        // Find the full recipe object
+        const recipe = allRecipes.find(r => r.recipe_id === recipeIdInt);
+        if (!recipe) {
+          console.warn(`Warning: Recipe with ID ${recipeIdInt} not found in local data`);
+        }
+        
         return {
-          originalItemId: parseInt(recipeId),
+          originalItemId: recipeIdInt,  // This is the key ID that must match what's in the DB
           tierId: getTierId(tierName),
           position: index,
           tierlistId: savedTierList.tierlistId,
-          recipeName: recipe?.name || `Recipe ${recipeId}`
+          recipeName: recipe?.title || `Recipe ${recipeIdInt}`
         };
       });
       
-      console.log('Sending tierlist items:', tierlistItems);
+      console.log('Sending tierlist items:', JSON.stringify(tierlistItems));
       
+      // Send the tier list items to the backend
       const itemsResponse = await fetch(itemsApiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -396,44 +593,32 @@ const TierLists = () => {
         body: JSON.stringify(tierlistItems)
       });
       
+      // Log the raw response text
+      const itemsResponseText = await itemsResponse.text();
+      console.log('Raw items response:', itemsResponseText);
+      
       if (!itemsResponse.ok) {
-        const errorData = await itemsResponse.json().catch(() => null);
-        console.error('Error saving items:', errorData);
-        throw new Error(`Failed to add items to tier list: ${itemsResponse.status}`);
+        throw new Error(`Failed to create tier list items: ${itemsResponse.status} - ${itemsResponseText}`);
       }
       
-      // Create a formatted tier list for the UI
-      const uiTierList = {
-        id: savedTierList.tierlistId,
-        name: savedTierList.name,
-        items: tierlistItems.map(item => {
-          // Map tier ID back to tier name
-          let tierName = 'S Tier'; // Default
-          if (item.tierId === 1) tierName = 'S Tier';
-          else if (item.tierId === 2) tierName = 'A Tier';
-          else if (item.tierId === 3) tierName = 'B Tier';
-          else if (item.tierId === 4) tierName = 'C Tier';
-          
-          return {
-            recipeName: item.recipeName,
-            tier: tierName
-          };
-        }),
-        likedBy: []
-      };
-      
-      // Update the local state with the newly created tier list
-      setTierLists(prev => [...prev, uiTierList]);
-      
-      // Reset the form
+      // All successful - refresh tier lists and show success message
+      console.log('Tier list and items saved successfully!');
       setTierListName('');
       setSelectedTiers({});
+      setCreatingTierListSuccess(true);
       
-      alert('Tier list created successfully!');
+      // Set a timer to hide success message after 3 seconds
+      setTimeout(() => setCreatingTierListSuccess(false), 3000);
+      
+      // Refresh user's tier lists
+      console.log('Refreshing tier lists after successful creation');
+      await fetchUserTierLists();
       
     } catch (error) {
       console.error('Error creating tier list:', error);
-      alert(`Failed to create tier list: ${error.message}`);
+      setTierListsError(`Failed to create tier list: ${error.message}`);
+    } finally {
+      setCreatingTierList(false);
     }
   };
 
@@ -450,76 +635,220 @@ const TierLists = () => {
     return nameMap[currentCategory] || 'Recipes';
   };
 
-  // Function to fetch user's tier lists
-  const fetchUserTierLists = async (userId) => {
-    if (!userId) return;
+  // Fetch user's tier lists
+  const fetchUserTierLists = async () => {
+    if (!currentUser || !currentUser.userId) {
+      console.warn('Cannot fetch tier lists: No logged-in user');
+      setTierListsError('You must be logged in to view your tier lists');
+      return;
+    }
     
     try {
+      console.log('[DEBUG] === FETCH TIER LISTS ===');
+      console.log(`[DEBUG] Fetching tier lists for user ID: ${currentUser.userId}`);
+      setLoadingTierLists(true);
+      setTierListsError(null);
+      
       // Determine the API URL based on the environment
       const isDocker = window.location.hostname !== 'localhost';
       const apiUrl = isDocker 
-        ? `http://api:8083/api/tierlists/user/${userId}`
-        : `http://localhost:8083/api/tierlists/user/${userId}`;
+        ? `http://api:8083/api/tierlists/user/${currentUser.userId}`
+        : `http://localhost:8083/api/tierlists/user/${currentUser.userId}`;
+      
+      console.log(`[DEBUG] Using API URL: ${apiUrl}`);
       
       const response = await fetch(apiUrl, {
-        credentials: 'include'
+        credentials: 'include', // Important for authentication cookies
+        headers: {
+          'Accept': 'application/json'
+        }
       });
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch tier lists: ${response.status}`);
+      console.log(`[DEBUG] API response status: ${response.status}`);
+      
+      if (response.status === 302) {
+        console.warn('[DEBUG] Redirect detected - authentication issue');
+        throw new Error('Authentication required. Please log in again.');
       }
       
-      const fetchedTierLists = await response.json();
-      console.log('Fetched tier lists:', fetchedTierLists);
+      if (!response.ok) {
+        console.error(`[DEBUG] Failed to fetch tier lists: HTTP ${response.status}`);
+        const errorText = await response.text();
+        console.error(`[DEBUG] Error response: ${errorText}`);
+        throw new Error(`API request failed: ${response.statusText || 'Unknown error'}`);
+      }
       
-      // Process and format the tier lists for UI display
-      const formattedTierLists = await Promise.all(fetchedTierLists.map(async (list) => {
-        // Fetch the items for each tier list
-        const itemsResponse = await fetch(
-          isDocker 
-            ? `http://api:8083/api/tierlist-items/tierlist/${list.tierlistId}`
-            : `http://localhost:8083/api/tierlist-items/tierlist/${list.tierlistId}`,
-          { credentials: 'include' }
-        );
+      const responseText = await response.text();
+      console.log('[DEBUG] Raw tier lists response length:', responseText.length);
+      console.log('[DEBUG] Response text begins with:', responseText.substring(0, 100) + '...');
+      
+      if (!responseText || responseText.trim() === '') {
+        console.warn('[DEBUG] Empty response from server');
+        setTierLists([]);
+        return;
+      }
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log('[DEBUG] Successfully parsed JSON response');
+      } catch (e) {
+        console.error('[DEBUG] Failed to parse tier lists response as JSON:', e);
+        console.error('[DEBUG] Problematic responseText:', responseText);
+        throw new Error('Invalid response format from server');
+      }
+      
+      console.log('[DEBUG] Parsed tier lists data type:', typeof data);
+      console.log('[DEBUG] Is array?', Array.isArray(data));
+      console.log('[DEBUG] Data length:', Array.isArray(data) ? data.length : 'N/A');
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('[DEBUG] First item keys:', Object.keys(data[0]));
+        console.log('[DEBUG] First item sample:', JSON.stringify(data[0]).substring(0, 200) + '...');
+      }
+      
+      if (!Array.isArray(data)) {
+        console.error('[DEBUG] Expected array of tier lists but got:', typeof data);
+        console.log('[DEBUG] Data content:', data);
         
-        if (!itemsResponse.ok) {
-          console.error(`Failed to fetch items for tier list ${list.tierlistId}`);
-          return {
-            id: list.tierlistId,
-            name: list.name,
-            items: [],
-            likedBy: []
-          };
+        // If we got a single object instead of an array, try to convert it
+        if (data && typeof data === 'object' && (data.id || data.tierlistId)) {
+          data = [data];
+          console.log('[DEBUG] Converted single object to array');
+        } else {
+          throw new Error('Unexpected response format');
         }
+      }
+      
+      // Format the tier lists data for display
+      const formattedTierLists = data.map((tierList, index) => {
+        console.log(`[DEBUG] Processing tier list ${index + 1}/${data.length}:`, tierList);
         
-        const items = await itemsResponse.json();
-        
-        // Format the items with tier names
-        const formattedItems = items.map(item => {
-          let tierName = 'S Tier'; // Default
-          if (item.tier.tierId === 1) tierName = 'S Tier';
-          else if (item.tier.tierId === 2) tierName = 'A Tier';
-          else if (item.tier.tierId === 3) tierName = 'B Tier';
-          else if (item.tier.tierId === 4) tierName = 'C Tier';
-          
-          return {
-            recipeName: item.item ? item.item.name : `Item ${item.originalItemId}`,
-            tier: tierName
-          };
-        });
-        
-        return {
-          id: list.tierlistId,
-          name: list.name,
-          items: formattedItems,
+        // Extract the base tier list information
+        const formattedTierList = {
+          id: tierList.id || tierList.tierlistId,
+          name: tierList.name || 'Unnamed Tier List',
+          categoryName: tierList.categoryName,
+          createdAt: tierList.createdAt,
+          items: [],
           likedBy: []
         };
-      }));
+        
+        console.log(`[DEBUG] Base tier list info: ID=${formattedTierList.id}, Name=${formattedTierList.name}`);
+        
+        // Process items if they exist
+        if (tierList.items && Array.isArray(tierList.items)) {
+          console.log(`[DEBUG] Processing ${tierList.items.length} items for tier list "${tierList.name}"`);
+          formattedTierList.items = tierList.items.map((item, idx) => {
+            console.log(`[DEBUG] Processing tier list item ${idx + 1}/${tierList.items.length}:`, item);
+            
+            // Get the tier name - handle multiple possible formats
+            let tierName = 'S Tier'; // Default
+            if (typeof item.tier === 'string') {
+              // Direct tier name as string
+              tierName = item.tier;
+              console.log(`[DEBUG] Using direct tier name: ${tierName}`);
+            } else if (item.tier && item.tier.tierId) {
+              // Map nested tier.tierId to name
+              const tierId = item.tier.tierId;
+              if (tierId === 1 || tierId === '1') tierName = 'S Tier';
+              else if (tierId === 2 || tierId === '2') tierName = 'A Tier';
+              else if (tierId === 3 || tierId === '3') tierName = 'B Tier';
+              else if (tierId === 4 || tierId === '4') tierName = 'C Tier';
+              console.log(`[DEBUG] Derived tier name from nested tier.tierId ${tierId}: ${tierName}`);
+            } else if (item.tierId) {
+              // Map direct tierId to name
+              const tierId = item.tierId;
+              if (tierId === 1 || tierId === '1') tierName = 'S Tier';
+              else if (tierId === 2 || tierId === '2') tierName = 'A Tier';
+              else if (tierId === 3 || tierId === '3') tierName = 'B Tier';
+              else if (tierId === 4 || tierId === '4') tierName = 'C Tier';
+              console.log(`[DEBUG] Derived tier name from direct tierId ${tierId}: ${tierName}`);
+            } else if (item.tier && item.tier.name) {
+              // Tier as an object with name property
+              tierName = item.tier.name;
+              console.log(`[DEBUG] Using tier.name: ${tierName}`);
+            }
+            
+            // Get the recipe name - handle multiple possible formats
+            let recipeName = 'Unknown Recipe';
+            if (item.recipe && item.recipe.title) {
+              recipeName = item.recipe.title;
+              console.log(`[DEBUG] Using recipe.title: ${recipeName}`);
+            } else if (item.recipeName) {
+              recipeName = item.recipeName;
+              console.log(`[DEBUG] Using recipeName: ${recipeName}`);
+            } else if (item.item && item.item.title) {
+              recipeName = item.item.title;
+              console.log(`[DEBUG] Using item.title: ${recipeName}`);
+            } else if (item.recipeId) {
+              recipeName = `Recipe ${item.recipeId}`;
+              console.log(`[DEBUG] Using recipeId: ${recipeName}`);
+            } else if (item.originalItemId) {
+              recipeName = `Recipe ${item.originalItemId}`;
+              console.log(`[DEBUG] Using originalItemId: ${recipeName}`);
+            } else if (item.recipe && item.recipe.recipeId) {
+              recipeName = `Recipe ${item.recipe.recipeId}`;
+              console.log(`[DEBUG] Using recipe.recipeId: ${recipeName}`);
+            }
+            
+            const formattedItem = {
+              id: item.id || item.itemId,
+              recipeName,
+              tier: tierName,
+              position: item.position || 0
+            };
+            
+            console.log(`[DEBUG] Formatted item: ${JSON.stringify(formattedItem)}`);
+            return formattedItem;
+          });
+        } else {
+          console.log(`[DEBUG] No items found for tier list "${tierList.name}" or items is not an array`);
+          console.log(`[DEBUG] tierList.items:`, tierList.items);
+        }
+        
+        return formattedTierList;
+      });
       
+      console.log('[DEBUG] Formatted tier lists for display:', formattedTierLists);
       setTierLists(formattedTierLists);
+      setLoadingTierLists(false);
+      setTierListsError(null);
+      console.log('[DEBUG] === END FETCH TIER LISTS ===');
+      
     } catch (err) {
-      console.error('Error fetching user tier lists:', err);
+      console.error('[DEBUG] Error fetching user tier lists:', err);
+      setTierListsError(err.message || 'Failed to load tier lists');
+      setLoadingTierLists(false);
     }
+  };
+
+  useEffect(() => {
+    // Fetch user tier lists when the component mounts or when the user changes
+    if (currentUser && currentUser.userId) {
+      console.log('Fetching tier lists for user:', currentUser.userId);
+      fetchUserTierLists();
+    }
+  }, [currentUser]);
+
+  // Helper utility to check if a tier list has valid items
+  const hasTierListValidItems = (tierList) => {
+    return tierList.items && 
+           Array.isArray(tierList.items) && 
+           tierList.items.length > 0 &&
+           tierList.items.some(item => item.recipeName && item.tier);
+  };
+
+  // Helper function to get status of tier lists
+  const getTierListsStatus = () => {
+    if (loadingTierLists) return 'loading';
+    if (tierListsError) return 'error';
+    if (!tierLists || tierLists.length === 0) return 'empty';
+    
+    // Check if there are tier lists but none have items
+    const hasAnyValidItems = tierLists.some(tierList => hasTierListValidItems(tierList));
+    if (!hasAnyValidItems) return 'no-items';
+    
+    return 'success';
   };
 
   return (
@@ -552,19 +881,33 @@ const TierLists = () => {
         <h1 className="page-title">Create Your Recipe Tier List</h1>
         <div className="name-input-container">
           <div className="input-row">
-            <input
-              type="text"
-              placeholder="Enter your tier list name"
-              value={tierListName}
-              onChange={(e) => setTierListName(e.target.value)}
-              className="tierlist-name-input"
-            />
-            <button 
-              className="create-tierlist-btn"
-              onClick={createTierList}
-            >
-              Create Tier List
-            </button>
+            <div className="create-tierlist">
+              <input
+                type="text"
+                placeholder="Enter Name for Your Tier List"
+                value={tierListName}
+                onChange={(e) => setTierListName(e.target.value)}
+                className="tierlist-name-input"
+              />
+              <button 
+                className={`create-tierlist-btn ${Object.keys(selectedTiers).length > 0 ? 'active' : 'disabled'}`}
+                disabled={Object.keys(selectedTiers).length === 0 || creatingTierList}
+                onClick={createTierList}
+              >
+                {creatingTierList ? 'Creating...' : 'Create Tier List'}
+              </button>
+              {creatingTierListSuccess && (
+                <div className="success-message">
+                  <span>Tier List Created Successfully!</span>
+                </div>
+              )}
+              {tierListsError && (
+                <div className="error-message">
+                  <span>{tierListsError}</span>
+                  <button onClick={() => setTierListsError(null)} className="dismiss-btn">×</button>
+                </div>
+              )}
+            </div>
             {currentUser && currentUser.isAdmin && (
               <button 
                 className="cycle-week-btn"
@@ -618,19 +961,38 @@ const TierLists = () => {
                 <div className="error-message">No recipes found for {getCategoryDisplayName()}</div>
               ) : (
                 getCurrentRecipes().map(recipe => (
-                  <div key={recipe.item_id} className="tier-card">
-                    <h2 title={recipe.name}>{recipe.name}</h2>
+                  <div key={recipe.recipe_id} className="tier-card">
+                    <h2 title={recipe.title}>{recipe.title}</h2>
                     <p title={recipe.description}>{recipe.description}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto' }}>
-                      <button className="recipe-image-btn" onClick={() => handleImageClick(recipe.item_id)}>
-                        <FontAwesomeIcon icon={faImage} />
+                      <button 
+                        className="recipe-image-btn" 
+                        onClick={() => handleImageClick(recipe.recipe_id)}
+                        style={{
+                          backgroundImage: getRecipeImageSrc(recipe) ? 
+                            `url(${getRecipeImageSrc(recipe)})` : 
+                            'none',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundColor: 'rgba(240, 240, 240, 0.8)' // Light background for better visibility
+                        }}
+                      >
+                        {!getRecipeImageSrc(recipe) && 
+                          <FontAwesomeIcon icon={faImage} />
+                        }
+                        {recipe.image_url && !preloadedImages[recipe.recipe_id] && 
+                          <div className="image-loading-overlay">
+                            <div className="loading-spinner"></div>
+                          </div>
+                        }
                       </button>
                       <div className="tier-items">
                         {tiers.map(tier => (
                           <span
                             key={tier}
-                            className={`tier-item ${selectedTiers[recipe.item_id] === tier ? 'selected' : ''}`}
-                            onClick={() => handleTierSelect(recipe.item_id, tier)}
+                            className={`tier-item ${selectedTiers[recipe.recipe_id] === tier ? 'selected' : ''}`}
+                            onClick={() => handleTierSelect(recipe.recipe_id, tier)}
                           >
                             {tier}
                           </span>
@@ -645,93 +1007,97 @@ const TierLists = () => {
         </div>
 
         {/* Display existing tier lists */}
-        <div className="existing-tierlists">
-          <h2>My Created Tier Lists</h2>
-          <div className="tierlists-grid">
-            {tierLists.length === 0 ? (
-              <div className="tierlist-card">
-                <div className="tierlist-header">
-                  <div className="header-content">
-                    <h3 className="tierlist-name">Sample Tier List</h3>
-                  </div>
-                </div>
-                <div className="tierlist-items">
-                  <div className="tierlist-item">
-                    <span className="recipe-name">Buffalo Wings</span>
-                    <span className="tier-badge s">S Tier</span>
-                  </div>
-                  <div className="tierlist-item">
-                    <span className="recipe-name">BBQ Wings</span>
-                    <span className="tier-badge a">A Tier</span>
-                  </div>
-                  <div className="tierlist-item">
-                    <span className="recipe-name">Honey Garlic Wings</span>
-                    <span className="tier-badge b">B Tier</span>
-                  </div>
-                  <div className="tierlist-item">
-                    <span className="recipe-name">Plain Wings</span>
-                    <span className="tier-badge c">C Tier</span>
-                  </div>
-                  <div className="tierlist-item">
-                    <span className="recipe-name">Lemon Pepper Wings</span>
-                    <span className="tier-badge a">A Tier</span>
-                  </div>
-                </div>
-                <div className="tierlist-footer">
-                  <span className="similarity-badge">
-                    <FontAwesomeIcon icon={faThumbsUp} />
-                    5 Likes
-                  </span>
-                </div>
-                <button className="edit-tierlist-btn" onClick={() => handleEditClick({
-                  id: 'sample',
-                  name: 'Sample Tier List',
-                  items: [
-                    { recipeName: 'Buffalo Wings', tier: 'S Tier' },
-                    { recipeName: 'BBQ Wings', tier: 'A Tier' },
-                    { recipeName: 'Honey Garlic Wings', tier: 'B Tier' },
-                    { recipeName: 'Plain Wings', tier: 'C Tier' },
-                    { recipeName: 'Lemon Pepper Wings', tier: 'A Tier' }
-                  ]
-                })}>
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-              </div>
-            ) : (
-              tierLists.map(tierList => (
+        <div className="saved-tierlists">
+          <h2>Your Saved Tier Lists</h2>
+          
+          {getTierListsStatus() === 'loading' && (
+            <div className="loading-indicator">Loading your tier lists...</div>
+          )}
+          
+          {getTierListsStatus() === 'error' && (
+            <div className="error-message">
+              <p>{tierListsError}</p>
+              <button onClick={fetchUserTierLists} className="retry-btn">Retry</button>
+            </div>
+          )}
+          
+          {getTierListsStatus() === 'empty' && (
+            <div className="no-tierlists">
+              <p>You haven't created any tier lists yet. Start by selecting tiers for recipes above!</p>
+              <button className="refresh-btn" onClick={fetchUserTierLists}>
+                <FontAwesomeIcon icon={faArrowsRotate} /> Refresh
+              </button>
+            </div>
+          )}
+          
+          {getTierListsStatus() === 'no-items' && (
+            <div className="no-tierlists">
+              <p>Your tier lists were found, but they don't have any items in them. This might be an issue with data loading.</p>
+              <button className="refresh-btn" onClick={fetchUserTierLists}>
+                <FontAwesomeIcon icon={faArrowsRotate} /> Refresh Data
+              </button>
+            </div>
+          )}
+          
+          {getTierListsStatus() === 'success' && (
+            <div className="tierlists-grid">
+              {tierLists.map(tierList => (
                 <div key={tierList.id} className="tierlist-card">
                   <div className="tierlist-header">
                     <div className="header-content">
-                      <h3 className="tierlist-name">{tierList.name}</h3>
+                      <h3 className="tierlist-name">{tierList.name || 'Unnamed Tier List'}</h3>
+                      {tierList.categoryName && (
+                        <span className="tierlist-category">{tierList.categoryName}</span>
+                      )}
+                      {tierList.createdAt && (
+                        <span className="tierlist-date">
+                          {new Date(tierList.createdAt).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="tierlist-actions">
+                      <button 
+                        className="edit-btn"
+                        onClick={() => handleEditClick(tierList)}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="delete-btn"
+                        onClick={() => {
+                          if (window.confirm('Are you sure you want to delete this tier list?')) {
+                            // We don't have delete functionality implemented yet
+                            alert('Delete functionality will be added in a future update.');
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
+                  
                   <div className="tierlist-items">
-                    {tierList.items.map((item, index) => (
-                      <div key={index} className="tierlist-item">
-                        <span className="recipe-name" title={item.recipeName}>{item.recipeName}</span>
-                        <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
-                          {item.tier}
-                        </span>
+                    {hasTierListValidItems(tierList) ? (
+                      <div className="items-grid">
+                        {tierList.items.map((item, index) => (
+                          <div key={`${tierList.id}-item-${index}`} className="tierlist-item">
+                            <span className={`tier-badge ${item.tier ? item.tier.split(' ')[0].toLowerCase() : 's'}`}>
+                              {item.tier || 'S Tier'}
+                            </span>
+                            <span className="recipe-name" title={item.recipeName}>
+                              {item.recipeName || 'Unknown Recipe'}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <p className="no-items">No items in this tier list</p>
+                    )}
                   </div>
-                  <div className="tierlist-footer">
-                    <span className="similarity-badge">
-                      <FontAwesomeIcon icon={faThumbsUp} />
-                      {tierList.likedBy && tierList.likedBy.length > 0 
-                        ? tierList.likedBy.length === 1
-                          ? `${tierList.likedBy.length} Like`
-                          : `${tierList.likedBy.length} Likes`
-                        : 'No Likes'}
-                    </span>
-                  </div>
-                  <button className="edit-tierlist-btn" onClick={() => handleEditClick(tierList)}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Community Tier Lists Button */}
@@ -759,8 +1125,56 @@ const TierLists = () => {
           <div className="image-popout-card" onClick={(e) => e.stopPropagation()}>
             <button className="close-popout-btn" onClick={closeImagePopout}>×</button>
             <div className="image-container">
-              {/* Image will be added here later */}
-              <div className="placeholder-text">Image will be displayed here</div>
+              {selectedRecipeId && getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.image_url ? (
+                preloadedImages[selectedRecipeId] ? (
+                  // If we have a preloaded image, use an img tag
+                  <img 
+                    src={preloadedImages[selectedRecipeId]} 
+                    alt={getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.title}
+                    className="recipe-image"
+                    onLoad={() => {
+                      console.log('Popup image loaded');
+                      setImageLoading(false);
+                    }}
+                    onError={(e) => {
+                      console.error('Image failed to load in popup:', e);
+                      setImageLoading(false);
+                      e.target.onerror = null;
+                      e.target.src = "https://placehold.co/300x300/gray/white?text=No+Image";
+                    }}
+                    style={{
+                      maxWidth: "100%", 
+                      maxHeight: "300px", 
+                      objectFit: "cover",
+                      display: imageLoading ? "none" : "block" // Hide while loading
+                    }}
+                  />
+                ) : (
+                  // If we don't have a preloaded image yet, use a div with background-image
+                  // This approach sometimes works better with Google Drive
+                  <div 
+                    className="image-container-direct"
+                    style={{
+                      backgroundImage: `url(${getRecipeImageSrc(getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId))})`,
+                      backgroundSize: "contain",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      width: "100%",
+                      height: "300px"
+                    }}
+                    onLoad={() => setImageLoading(false)}
+                  ></div>
+                )
+              ) : (
+                <div className="placeholder-text">No image available for this recipe</div>
+              )}
+              {imageLoading && (
+                <div className="loading-spinner" style={{margin: "auto"}}></div>
+              )}
+            </div>
+            <div className="recipe-details">
+              <h3>{getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.title}</h3>
+              <p>{getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.description}</p>
             </div>
           </div>
         </div>

@@ -243,8 +243,10 @@
   justify-content: space-between;
   gap: 8px; /* Consistent spacing between cards */
   width: 100%;
+  height: 240px; /* Fixed height for the container */
   padding: 10px 0;
   overflow-x: auto; /* Allow horizontal scrolling if needed */
+  margin-bottom: 20px;
 }
 
 /* Tier Card - Individual recipe cards with consistent dimensions for all categories */
@@ -994,32 +996,50 @@
 }
 
 .recipe-image-btn {
-  margin: 0 auto 3px;
-  padding: 4px 4px;
-  background-color: rgba(44, 44, 44, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  color: white;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 0.75em;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 24px;
-  width: 24px;
-  height: 24px;
-  text-align: center;
   display: flex;
-  justify-content: center;
   align-items: center;
-  align-self: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+  margin-bottom: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(44, 44, 44, 0.2);
+  border-radius: 5px;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
   position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-image-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   bottom: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+}
+
+.recipe-image-btn:hover::before {
+  opacity: 1;
+}
+
+.recipe-image-btn svg {
+  position: relative;
+  z-index: 2;
+  color: #2c2c2c;
 }
 
 .recipe-image-btn:hover {
-  background-color: rgba(44, 44, 44, 0.8);
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Image Popout Styles */
@@ -1035,6 +1055,7 @@
   align-items: center;
   z-index: 2000;
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
 .image-popout-card {
@@ -1076,6 +1097,7 @@
   transform: scale(1.1);
 }
 
+/* Image Container with Loading State */
 .image-container {
   width: 300px;
   height: 300px;
@@ -1085,6 +1107,83 @@
   background-color: rgba(44, 44, 44, 0.1);
   border-radius: 8px;
   overflow: hidden;
+  position: relative;
+}
+
+/* Direct image container for Google Drive images */
+.image-container-direct {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 300px;
+  max-height: 300px;
+  margin: 0 auto;
+  border-radius: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Loading overlay for images */
+.image-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Update the selector to work with our new placeholder URL */
+.recipe-image:not([src*="placehold.co"]):not([src=""]):not([src="null"]) + .image-loading-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(44, 44, 44, 0.3);
+  border-radius: 50%;
+  border-top: 4px solid #2c2c2c;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.recipe-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+  z-index: 2;
+}
+
+.recipe-details {
+  margin-top: 15px;
+  text-align: center;
+  color: #2c2c2c;
+}
+
+.recipe-details h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.recipe-details p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.8;
 }
 
 .placeholder-text {
@@ -1108,21 +1207,21 @@
   align-items: center;
   z-index: 2000;
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
 .edit-modal-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  max-width: 90%;
-  max-height: 90%;
-  width: 500px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  overflow: auto;
 }
 
 .close-modal-btn {
@@ -1290,4 +1389,214 @@
 .save-btn:hover {
   background-color: rgba(135, 162, 127, 0.8);
   transform: translateY(-2px);
+}
+
+/* Saved Tier Lists Section */
+.saved-tierlists {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.saved-tierlists h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.tierlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tierlist-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tierlist-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.tierlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.tierlist-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.tierlist-category {
+  display: inline-block;
+  background: #f0f0f0;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-right: 5px;
+  color: #555;
+}
+
+.tierlist-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.tierlist-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.edit-btn, .delete-btn, .refresh-btn, .retry-btn {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn {
+  background-color: #4285f4;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #3367d6;
+}
+
+.delete-btn {
+  background-color: #ea4335;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #d33426;
+}
+
+.refresh-btn, .retry-btn {
+  background-color: #0f9d58;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.refresh-btn:hover, .retry-btn:hover {
+  background-color: #0b8043;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.tierlist-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tier-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  width: fit-content;
+}
+
+.tier-badge.s {
+  background-color: #ffd700;
+  color: #333;
+}
+
+.tier-badge.a {
+  background-color: #c0c0c0;
+  color: #333;
+}
+
+.tier-badge.b {
+  background-color: #cd7f32;
+  color: white;
+}
+
+.tier-badge.c {
+  background-color: #989898;
+  color: white;
+}
+
+.recipe-name {
+  font-size: 14px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.no-items {
+  color: #888;
+  font-style: italic;
+  padding: 10px;
+}
+
+.no-tierlists {
+  text-align: center;
+  padding: 20px;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: #555;
+}
+
+.success-message {
+  background-color: #e6f4ea;
+  color: #0b8043;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.error-message {
+  background-color: #fce8e6;
+  color: #ea4335;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.dismiss-btn {
+  float: right;
+  background: none;
+  border: none;
+  color: #ea4335;
+  cursor: pointer;
+  font-size: 16px;
 } 
