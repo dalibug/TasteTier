@@ -11,8 +11,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.HashMap;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000", "http://localhost"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -160,6 +161,42 @@ public class UserController {
             }
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Get user tier list count
+    @GetMapping("/{id}/tierlist-count")
+    public ResponseEntity<Map<String, Object>> getUserTierListCount(@PathVariable("id") Long id) {
+        try {
+            // Check if user exists
+            Optional<User> userData = userRepository.findById(id);
+            if (!userData.isPresent()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            
+            // Get count of tier lists for this user using JPA EntityManager
+            javax.persistence.EntityManager entityManager = 
+                ((org.springframework.orm.jpa.JpaTransactionManager) org.springframework.transaction.support.TransactionSynchronizationManager
+                    .getResourceMap().keySet().stream()
+                    .filter(o -> o instanceof org.springframework.orm.jpa.JpaTransactionManager)
+                    .findFirst().orElse(null))
+                .getEntityManagerFactory().createEntityManager();
+            
+            // Count tier lists for this user
+            @SuppressWarnings("unchecked")
+            Long count = (Long) entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM tier_lists WHERE user_id = ?")
+                .setParameter(1, id)
+                .getSingleResult();
+            
+            entityManager.close();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("count", count);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 } 

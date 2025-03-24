@@ -1,9 +1,7 @@
 package com.example.base.controller;
 
 import com.example.base.entity.WeeklyChallenge;
-import com.example.base.entity.Category;
 import com.example.base.repository.WeeklyChallengeRepository;
-import com.example.base.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +18,6 @@ public class WeeklyChallengeController {
 
     @Autowired
     private WeeklyChallengeRepository challengeRepository;
-    
-    @Autowired
-    private CategoryRepository categoryRepository;
 
     // Get all challenges
     @GetMapping
@@ -51,7 +46,7 @@ public class WeeklyChallengeController {
     @GetMapping("/active")
     public ResponseEntity<List<WeeklyChallenge>> getActiveChallenges() {
         try {
-            List<WeeklyChallenge> challenges = challengeRepository.findByIsActiveTrue();
+            List<WeeklyChallenge> challenges = challengeRepository.findByStatusEquals("active");
             return new ResponseEntity<>(challenges, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -62,7 +57,7 @@ public class WeeklyChallengeController {
     @GetMapping("/active/latest")
     public ResponseEntity<WeeklyChallenge> getLatestActiveChallenge() {
         try {
-            Optional<WeeklyChallenge> challenge = challengeRepository.findMostRecentActiveChallenge();
+            Optional<WeeklyChallenge> challenge = challengeRepository.findFirstByStatusEqualsOrderByStartDateDesc("active");
             if (challenge.isPresent()) {
                 return new ResponseEntity<>(challenge.get(), HttpStatus.OK);
             } else {
@@ -72,38 +67,19 @@ public class WeeklyChallengeController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    // Get challenges by category
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<WeeklyChallenge>> getChallengesByCategory(@PathVariable("categoryId") Long categoryId) {
-        try {
-            List<WeeklyChallenge> challenges = challengeRepository.findByCategoryCategoryId(categoryId);
-            return new ResponseEntity<>(challenges, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     // Create a new challenge
     @PostMapping
     public ResponseEntity<WeeklyChallenge> createChallenge(@RequestBody WeeklyChallenge challenge) {
         try {
-            // Validate category exists if provided
-            if (challenge.getCategory() != null && challenge.getCategory().getCategoryId() != null) {
-                Optional<Category> categoryData = categoryRepository.findById(challenge.getCategory().getCategoryId());
-                if (!categoryData.isPresent()) {
-                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                }
-                challenge.setCategory(categoryData.get());
-            }
-            
+            challenge.setCreatedAt(LocalDateTime.now());
             WeeklyChallenge savedChallenge = challengeRepository.save(challenge);
             return new ResponseEntity<>(savedChallenge, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     // Update a challenge
     @PutMapping("/{id}")
     public ResponseEntity<WeeklyChallenge> updateChallenge(@PathVariable("id") Long id, @RequestBody WeeklyChallenge challenge) {
@@ -112,29 +88,24 @@ public class WeeklyChallengeController {
         if (challengeData.isPresent()) {
             WeeklyChallenge existingChallenge = challengeData.get();
             
-            // Update basic fields
-            if (challenge.getTitle() != null) {
-                existingChallenge.setTitle(challenge.getTitle());
+            if (challenge.getWeekNumber() != null) {
+                existingChallenge.setWeekNumber(challenge.getWeekNumber());
             }
-            if (challenge.getDescription() != null) {
-                existingChallenge.setDescription(challenge.getDescription());
+            
+            if (challenge.getYear() != null) {
+                existingChallenge.setYear(challenge.getYear());
             }
+            
             if (challenge.getStartDate() != null) {
                 existingChallenge.setStartDate(challenge.getStartDate());
             }
+            
             if (challenge.getEndDate() != null) {
                 existingChallenge.setEndDate(challenge.getEndDate());
             }
-            if (challenge.getIsActive() != null) {
-                existingChallenge.setIsActive(challenge.getIsActive());
-            }
             
-            // Update category if provided
-            if (challenge.getCategory() != null && challenge.getCategory().getCategoryId() != null) {
-                Optional<Category> categoryData = categoryRepository.findById(challenge.getCategory().getCategoryId());
-                if (categoryData.isPresent()) {
-                    existingChallenge.setCategory(categoryData.get());
-                }
+            if (challenge.getStatus() != null) {
+                existingChallenge.setStatus(challenge.getStatus());
             }
             
             return new ResponseEntity<>(challengeRepository.save(existingChallenge), HttpStatus.OK);
@@ -142,7 +113,7 @@ public class WeeklyChallengeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
+    
     // Delete a challenge
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteChallenge(@PathVariable("id") Long id) {

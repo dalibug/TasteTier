@@ -5,11 +5,18 @@ import com.example.base.entity.User;
 import com.example.base.entity.Category;
 import com.example.base.entity.WeeklyChallenge;
 import com.example.base.entity.TierlistItem;
+import com.example.base.entity.Recipe;
+import com.example.base.entity.Tier;
 import com.example.base.repository.TierListRepository;
 import com.example.base.repository.UserRepository;
 import com.example.base.repository.CategoryRepository;
 import com.example.base.repository.WeeklyChallengeRepository;
 import com.example.base.repository.TierlistItemRepository;
+import com.example.base.repository.RecipeRepository;
+import com.example.base.repository.TierRepository;
+import com.example.base.dto.TierListCreateDto;
+import com.example.base.dto.TierListCreateDto.RecipeItem;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +50,12 @@ public class TierListController {
     @Autowired
     private TierlistItemRepository tierlistItemRepository;
 
+    @Autowired
+    private RecipeRepository recipeRepository;
+    
+    @Autowired
+    private TierRepository tierRepository;
+
     // Get all tier lists
     @SuppressWarnings("null")
     @GetMapping
@@ -58,19 +71,20 @@ public class TierListController {
     // Get tier lists by user id
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Map<String, Object>>> getTierListsByUserId(@PathVariable Long userId) {
-        System.out.println("TIER LIST DEBUGGING: Getting tier lists for user ID: " + userId);
+        System.out.println("DEBUG TIER LIST: Getting tier lists for user ID: " + userId);
         try {
             // Check if user exists
             Optional<User> userOpt = userRepository.findById(userId);
             if (!userOpt.isPresent()) {
-                System.out.println("TIER LIST DEBUGGING: User with ID: " + userId + " not found");
+                System.out.println("DEBUG TIER LIST: User with ID: " + userId + " not found");
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+            
+            System.out.println("DEBUG TIER LIST: Found user: " + userOpt.get().getUsername());
             
             // Use SQL queries directly to get tier lists - bypassing Hibernate's date conversion issues
             List<Map<String, Object>> tierListsResponse = new ArrayList<>();
             
-            // Get tier lists using the tables API approach (which works)
             try {
                 // Build tier list data using direct entity manager queries to avoid zero date issues
                 javax.persistence.EntityManager entityManager = 
@@ -81,6 +95,7 @@ public class TierListController {
                     .getEntityManagerFactory().createEntityManager();
                     
                 // First get all tier lists
+                System.out.println("DEBUG TIER LIST: Executing tier lists query for user ID: " + userId);
                 @SuppressWarnings("unchecked")
                 List<Object[]> tierLists = entityManager.createNativeQuery(
                     "SELECT tl.tierlist_id, tl.name, tl.created_at, tl.last_modified, " +
@@ -94,10 +109,44 @@ public class TierListController {
                     .setParameter(1, userId)
                     .getResultList();
                     
+                System.out.println("DEBUG TIER LIST: Found " + tierLists.size() + " tier lists");
+                
+                // Debug the tier lists query results
+                if (tierLists.isEmpty()) {
+                    System.out.println("DEBUG TIER LIST: No tier lists found in database for user " + userId);
+                    
+                    // Check if there are any tier lists in the database at all
+                    @SuppressWarnings("unchecked")
+                    List<Object[]> allTierLists = entityManager.createNativeQuery(
+                        "SELECT COUNT(*) as total, COUNT(DISTINCT user_id) as users FROM tier_lists")
+                        .getResultList();
+                    
+                    if (!allTierLists.isEmpty()) {
+                        Object[] counts = allTierLists.get(0);
+                        System.out.println("DEBUG TIER LIST: Total tier lists in database: " + counts[0] + 
+                                          ", for " + counts[1] + " distinct users");
+                    }
+                    
+                    // Check if any sample user has tier lists
+                    @SuppressWarnings("unchecked")
+                    List<Object[]> sampleUsers = entityManager.createNativeQuery(
+                        "SELECT user_id, COUNT(*) as tierlist_count FROM tier_lists GROUP BY user_id LIMIT 3")
+                        .getResultList();
+                    
+                    if (!sampleUsers.isEmpty()) {
+                        System.out.println("DEBUG TIER LIST: Sample users with tier lists:");
+                        for (Object[] user : sampleUsers) {
+                            System.out.println("  User ID: " + user[0] + ", Tier list count: " + user[1]);
+                        }
+                    }
+                }
+                    
                 // Now process each tier list
                 for (Object[] row : tierLists) {
                     Long tierListId = ((Number) row[0]).longValue();
                     String name = (String) row[1];
+                    
+                    System.out.println("DEBUG TIER LIST: Processing tier list: " + tierListId + " - " + name);
                     
                     Map<String, Object> tierListData = new HashMap<>();
                     tierListData.put("tierlistId", tierListId);
@@ -107,6 +156,7 @@ public class TierListController {
                     try {
                         if (row[2] != null) {
                             tierListData.put("createdAt", row[2].toString());
+                            System.out.println("DEBUG TIER LIST: Created at: " + row[2].toString());
                         }
                     } catch (Exception e) {
                         System.out.println("Warning: Error processing created_at date for tierlist " + tierListId);
@@ -124,6 +174,7 @@ public class TierListController {
                     if (row[4] != null) {
                         tierListData.put("categoryId", ((Number) row[4]).longValue());
                         tierListData.put("categoryName", row[5]);
+                        System.out.println("DEBUG TIER LIST: Category: " + row[5]);
                     }
                     
                     // Add challenge info
@@ -133,18 +184,34 @@ public class TierListController {
                     }
                     
                     // Now get items for this tier list
+                    System.out.println("DEBUG TIER LIST: Fetching items for tier list: " + tierListId);
                     @SuppressWarnings("unchecked")
                     List<Object[]> items = entityManager.createNativeQuery(
                         "SELECT tr.id as item_id, tr.position, " +
-                        "t.tier_id, t.name as tier_name, t.rank as tier_rank, " +
-                        "r.recipe_id, r.title as recipe_name, r.name as recipe_alt_name, r.image_url " +
+                        "t.tier_id, t.name as tier_name, t.rank_order as tier_rank, " +
+                        "r.recipe_id, r.title as recipe_title, r.name as recipe_name, r.image_url " +
                         "FROM tierlist_recipes tr " +
                         "LEFT JOIN tiers t ON tr.tier_id = t.tier_id " +
                         "LEFT JOIN recipes r ON tr.recipe_id = r.recipe_id " +
                         "WHERE tr.tierlist_id = ? " +
-                        "ORDER BY t.rank, tr.position", Object[].class)
+                        "ORDER BY t.rank_order, tr.position", Object[].class)
                         .setParameter(1, tierListId)
                         .getResultList();
+                        
+                    System.out.println("DEBUG TIER LIST: Found " + items.size() + " items for tier list " + tierListId);
+                    
+                    // If no items were found, check if the table exists and has entries
+                    if (items.isEmpty()) {
+                        @SuppressWarnings("unchecked")
+                        List<Object[]> itemCheck = entityManager.createNativeQuery(
+                            "SELECT COUNT(*) FROM tierlist_recipes WHERE tierlist_id = ?")
+                            .setParameter(1, tierListId)
+                            .getResultList();
+                        
+                        if (!itemCheck.isEmpty()) {
+                            System.out.println("DEBUG TIER LIST: tierlist_recipes table check - count: " + itemCheck.get(0));
+                        }
+                    }
                         
                     List<Map<String, Object>> itemsList = new ArrayList<>();
                     
@@ -159,6 +226,7 @@ public class TierListController {
                             itemData.put("tierId", ((Number) item[2]).longValue());
                             itemData.put("tierName", item[3]);
                             itemData.put("tierRank", ((Number) item[4]).intValue());
+                            System.out.println("DEBUG TIER LIST: Item has tier: " + item[3]);
                         }
                         
                         // Recipe info
@@ -166,9 +234,10 @@ public class TierListController {
                             itemData.put("recipeId", ((Number) item[5]).longValue());
                             // Use title as primary name, fallback to name field
                             String recipeName = (item[6] != null) ? (String) item[6] : 
-                                               ((item[7] != null) ? (String) item[7] : "Unnamed Recipe");
+                                              ((item[7] != null) ? (String) item[7] : "Unnamed Recipe");
                             itemData.put("recipeName", recipeName);
                             itemData.put("recipeImage", item[8]);
+                            System.out.println("DEBUG TIER LIST: Item has recipe: " + recipeName);
                         }
                         
                         itemsList.add(itemData);
@@ -181,19 +250,23 @@ public class TierListController {
                 // Close the entity manager
                 entityManager.close();
                 
+                System.out.println("DEBUG TIER LIST: Successfully processed " + tierListsResponse.size() + " tier lists");
+                System.out.println("DEBUG TIER LIST: Response structure: " + 
+                                  (tierListsResponse.isEmpty() ? "Empty" : tierListsResponse.get(0).keySet()));
+                
+                // Even if there are no tier lists, return an empty array with HTTP 200
+                return ResponseEntity.ok(tierListsResponse);
+                
             } catch (Exception e) {
-                System.out.println("TIER LIST DEBUGGING: Error using direct SQL queries: " + e.getMessage());
+                System.out.println("DEBUG TIER LIST: Error using direct SQL queries: " + e.getMessage());
                 e.printStackTrace();
                 
-                // Fallback - return empty list
+                // Fallback - return empty list with HTTP 200
                 return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
             }
             
-            System.out.println("TIER LIST DEBUGGING: Successfully processed " + tierListsResponse.size() + " tier lists");
-            return new ResponseEntity<>(tierListsResponse, HttpStatus.OK);
-            
         } catch (Exception e) {
-            System.out.println("TIER LIST DEBUGGING: Error getting tier lists: " + e.getMessage());
+            System.out.println("DEBUG TIER LIST: Error getting tier lists: " + e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -401,6 +474,139 @@ public class TierListController {
             return new ResponseEntity<>(tierLists, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // New method to create a tier list with recipes
+    @SuppressWarnings("null")
+    @PostMapping("/with-recipes")
+    public ResponseEntity<Map<String, Object>> createTierListWithRecipes(@RequestBody TierListCreateDto tierListDto) {
+        try {
+            System.out.println("Creating new tier list with recipes: " + tierListDto.getName());
+            
+            // First, create and save the tier list
+            TierList tierList = new TierList();
+            tierList.setName(tierListDto.getName());
+            tierList.setIsPublic(tierListDto.getIsPublic() != null ? tierListDto.getIsPublic() : true);
+            
+            // Set user
+            if (tierListDto.getUserId() != null) {
+                Optional<User> userData = userRepository.findById(tierListDto.getUserId());
+                if (!userData.isPresent()) {
+                    System.err.println("User not found with ID: " + tierListDto.getUserId());
+                    return new ResponseEntity<>(Map.of("error", "User not found"), HttpStatus.BAD_REQUEST);
+                }
+                tierList.setUser(userData.get());
+                System.out.println("User found: " + userData.get().getUsername());
+            } else {
+                System.err.println("User ID not specified in request");
+                return new ResponseEntity<>(Map.of("error", "User ID is required"), HttpStatus.BAD_REQUEST);
+            }
+            
+            // Set category
+            if (tierListDto.getCategoryId() != null) {
+                Optional<Category> categoryData = categoryRepository.findById(tierListDto.getCategoryId());
+                if (!categoryData.isPresent()) {
+                    System.err.println("Category not found with ID: " + tierListDto.getCategoryId());
+                    return new ResponseEntity<>(Map.of("error", "Category not found"), HttpStatus.BAD_REQUEST);
+                }
+                tierList.setCategory(categoryData.get());
+                System.out.println("Category found: " + categoryData.get().getName());
+            } else {
+                System.err.println("Category ID not specified in request");
+                return new ResponseEntity<>(Map.of("error", "Category ID is required"), HttpStatus.BAD_REQUEST);
+            }
+            
+            // Set challenge (optional)
+            if (tierListDto.getChallengeId() != null) {
+                Optional<WeeklyChallenge> challengeData = challengeRepository.findById(tierListDto.getChallengeId());
+                if (!challengeData.isPresent()) {
+                    System.err.println("Challenge with ID " + tierListDto.getChallengeId() + " not found");
+                    // Instead of rejecting, just set challenge to null
+                    tierList.setChallenge(null);
+                } else {
+                    tierList.setChallenge(challengeData.get());
+                    System.out.println("Challenge found with ID: " + challengeData.get().getChallengeId());
+                }
+            } else {
+                // Challenge is optional, so we can proceed without it
+                System.out.println("No challenge specified for tier list, continuing without one");
+                tierList.setChallenge(null);
+            }
+            
+            // Set creation time to current time
+            LocalDateTime now = LocalDateTime.now();
+            System.out.println("Setting creation time to: " + now);
+            tierList.setCreatedAt(now);
+            tierList.setLastModified(now);
+            
+            // Save the tier list
+            TierList savedTierList = tierListRepository.save(tierList);
+            System.out.println("Successfully saved tier list. Generated ID: " + savedTierList.getTierlistId());
+            
+            // Now process and save the recipe items
+            if (tierListDto.getRecipes() != null && !tierListDto.getRecipes().isEmpty()) {
+                List<TierlistItem> tierlistItems = new ArrayList<>();
+                
+                for (RecipeItem recipeItem : tierListDto.getRecipes()) {
+                    // Validate recipe exists
+                    Optional<Recipe> recipeData = recipeRepository.findById(recipeItem.getRecipeId());
+                    if (!recipeData.isPresent()) {
+                        System.err.println("Recipe not found with ID: " + recipeItem.getRecipeId());
+                        continue; // Skip this recipe but continue processing others
+                    }
+                    
+                    // Validate tier exists
+                    Optional<Tier> tierData = tierRepository.findById(recipeItem.getTierId());
+                    if (!tierData.isPresent()) {
+                        System.err.println("Tier not found with ID: " + recipeItem.getTierId());
+                        continue; // Skip this tier but continue processing others
+                    }
+                    
+                    // Create the tierlist item
+                    TierlistItem item = new TierlistItem();
+                    item.setTierList(savedTierList);
+                    item.setRecipe(recipeData.get());
+                    item.setTier(tierData.get());
+                    item.setPosition(recipeItem.getPosition() != null ? recipeItem.getPosition() : 0);
+                    
+                    tierlistItems.add(item);
+                }
+                
+                // Save all the tierlist items
+                if (!tierlistItems.isEmpty()) {
+                    List<TierlistItem> savedItems = tierlistItemRepository.saveAll(tierlistItems);
+                    System.out.println("Saved " + savedItems.size() + " tierlist items");
+                } else {
+                    System.out.println("No valid tierlist items to save");
+                }
+            }
+            
+            // Create a simplified response map to avoid lazy loading issues
+            Map<String, Object> response = new HashMap<>();
+            response.put("tierlistId", savedTierList.getTierlistId());
+            response.put("name", savedTierList.getName());
+            response.put("createdAt", savedTierList.getCreatedAt());
+            response.put("lastModified", savedTierList.getLastModified());
+            response.put("userId", savedTierList.getUser().getUserId());
+            response.put("categoryId", savedTierList.getCategory().getCategoryId());
+            response.put("categoryName", savedTierList.getCategory().getName());
+            response.put("isPublic", savedTierList.getIsPublic());
+            
+            if (savedTierList.getChallenge() != null) {
+                response.put("challengeId", savedTierList.getChallenge().getChallengeId());
+            }
+            
+            // Include count of recipes added
+            if (tierListDto.getRecipes() != null) {
+                response.put("recipesAdded", tierListDto.getRecipes().size());
+            }
+            
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            System.err.println("Exception in createTierListWithRecipes: " + e.getMessage());
+            e.printStackTrace(); // Log the specific error
+            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 } 

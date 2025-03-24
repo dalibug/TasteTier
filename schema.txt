@@ -92,8 +92,8 @@ CREATE TABLE tier_lists (
     FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(challenge_id)
 );
 
--- IMPORTANT: You have both of these tables in your database
--- Tierlist Recipes Table (new structure)
+
+-- Tierlist Recipes Table 
 CREATE TABLE tierlist_recipes (
     id INT AUTO_INCREMENT PRIMARY KEY, -- Note this is "id", not "item_id"
     tierlist_id INT NOT NULL,
@@ -106,19 +106,7 @@ CREATE TABLE tierlist_recipes (
     FOREIGN KEY (tier_id) REFERENCES tiers(tier_id)
 );
 
--- Tierlist Items Table (old structure - still exists in your DB)
-CREATE TABLE tierlist_items (
-    item_id INT AUTO_INCREMENT PRIMARY KEY,
-    tierlist_id INT NOT NULL,
-    original_item_id INT NOT NULL COMMENT 'Reference to non-existent items table',
-    tier_id INT NOT NULL,
-    position INT NOT NULL,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tierlist_id) REFERENCES tier_lists(tierlist_id) ON DELETE CASCADE,
-    -- This foreign key is likely broken since items table doesn't exist
-    -- FOREIGN KEY (original_item_id) REFERENCES items(item_id),
-    FOREIGN KEY (tier_id) REFERENCES tiers(tier_id)
-);
+
 
 -- Challenge Results Table
 CREATE TABLE challenge_results (

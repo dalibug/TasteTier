@@ -47,7 +47,21 @@ public class SecurityConfig {
                 .requestMatchers("/api/recipe-cards/**").permitAll() // Allow access to recipe card endpoints
                 .requestMatchers("/api/admin/**").permitAll() // Allow access to admin endpoints for testing
                 .requestMatchers("/api/tierlists/**").permitAll() // Allow unrestricted access to tier lists for testing
-                .requestMatchers("/api/**").authenticated()
+                // Add permits for all other API endpoints to enable CRUD without OAuth
+                .requestMatchers("/api/users/**").permitAll()
+                .requestMatchers("/api/recipes/**").permitAll()
+                .requestMatchers("/api/categories/**").permitAll()
+                .requestMatchers("/api/tiers/**").permitAll()
+                .requestMatchers("/api/tierlist-items/**").permitAll()
+                .requestMatchers("/api/challenges/**").permitAll()
+                .requestMatchers("/api/db-info/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/test/**").permitAll()
+                .requestMatchers("/simple-test/**").permitAll()
+                .requestMatchers("/db-test/**").permitAll()
+                .requestMatchers("/error/**").permitAll()
+                // Leave this as a fallback for any other API endpoints
+                .requestMatchers("/api/**").permitAll()
                 .anyRequest().permitAll()
             )
             .oauth2Login(oauth2 -> oauth2

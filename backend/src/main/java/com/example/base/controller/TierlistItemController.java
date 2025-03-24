@@ -369,7 +369,7 @@ public class TierlistItemController {
                 List<Map<String, Object>> responseItems = new ArrayList<>();
                 for (TierlistItem savedItem : savedItems) {
                     Map<String, Object> responseItem = new HashMap<>();
-                    responseItem.put("itemId", savedItem.getItemId());
+                    responseItem.put("itemId", savedItem.getId());
                     responseItem.put("tierlistId", tierlistId);
                     responseItem.put("position", savedItem.getPosition());
                     responseItem.put("tierId", savedItem.getTier().getTierId());

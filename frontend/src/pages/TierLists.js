@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt, faImage, faEdit, faTrash, faTrashAlt, faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt, faImage, faEdit, faTrash, faTrashAlt, faThumbsUp, faThumbsDown, faBug } from '@fortawesome/free-solid-svg-icons';
 import DatabaseTablesModal from '../components/DatabaseTablesModal';
 import DatabaseTestModal from '../components/DatabaseTestModal';
+import TierListService from '../services/TierListService';
 import '../styles/TierLists.css';
 import '../styles/FixTierCards.css';
+import { useAuth } from '../context/AuthContext';
+import UserTierLists from '../components/UserTierLists';
 
 const TierLists = () => {
+  const { user } = useAuth(); // Get current user from AuthContext
   const [currentCategory, setCurrentCategory] = useState('wings');
   const [tierListName, setTierListName] = useState('');
   const [selectedTiers, setSelectedTiers] = useState({});
@@ -43,42 +47,23 @@ const TierLists = () => {
     backgroundSize: 'cover',
   };
 
-  // Fetch current user information
+  // Modified useEffect to use AuthContext
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        // Determine the API URL based on the environment
-        const isDocker = window.location.hostname !== 'localhost';
-        const apiUrl = isDocker 
-          ? 'http://api:8083/auth/current-user'
-          : 'http://localhost:8083/auth/current-user';
-        
-        const response = await fetch(apiUrl, {
-          credentials: 'include' // Important: include cookies for authentication
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch user data: ${response.status}`);
-        }
-        
-        const userData = await response.json();
-        
-        if (userData.authenticated) {
-          setCurrentUser(userData);
-          // Fetch the user's tier lists after getting the user data
-          fetchUserTierLists();
-        } else {
-          // Not authenticated, redirect to login
-          window.location.href = '/login';
-        }
-      } catch (err) {
-        console.error('Error fetching current user:', err);
-        // We don't redirect here to avoid potential redirect loops if the API is down
-      }
-    };
-    
-    fetchCurrentUser();
-  }, []);
+    // Set current user from context
+    if (user) {
+      console.log('[DEBUG] Using user from AuthContext:', user);
+      setCurrentUser({
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        pictureUrl: user.pictureUrl,
+        isAdmin: user.isAdmin,
+        authenticated: user.isAuthenticated
+      });
+      // Fetch the user's tier lists after setting the user
+      fetchUserTierLists();
+    }
+  }, [user]);
 
   // Fetch active challenge
   useEffect(() => {
@@ -96,8 +81,8 @@ const TierLists = () => {
       // Determine the API URL based on the environment
       const isDocker = window.location.hostname !== 'localhost';
       const apiUrl = isDocker 
-        ? 'http://api:8083/api/weekly-challenges/active'
-        : 'http://localhost:8083/api/weekly-challenges/active';
+        ? '/api/challenges/active/latest'
+        : 'http://localhost:8083/api/challenges/active/latest';
       
       const response = await fetch(apiUrl, {
         credentials: 'include'
@@ -115,24 +100,23 @@ const TierLists = () => {
           });
           return null;
         }
-        throw new Error(`API request failed with status ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
       }
       
-      const challenge = await response.json();
-      console.log('Active challenge:', challenge);
-      setActiveChallenge(challenge);
-      return challenge;
-    } catch (err) {
-      console.error('Error fetching active challenge:', err);
+      const data = await response.json();
+      console.log('Active challenge data:', data);
+      setActiveChallenge(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching active challenge:', error);
       // Create a fallback challenge for testing
-      const fallbackChallenge = {
+      setActiveChallenge({
         challengeId: 1,
         weekNumber: getWeekNumber(new Date()),
         year: new Date().getFullYear(),
         status: 'active'
-      };
-      setActiveChallenge(fallbackChallenge);
-      return fallbackChallenge;
+      });
+      return null;
     }
   };
 
@@ -234,29 +218,9 @@ const TierLists = () => {
   };
 
   const handleLogout = () => {
-    // Try to call backend logout endpoint, but continue even if it fails
-    fetch('http://localhost:8083/logout', {
-      method: 'POST',
-      credentials: 'include'
-    }).catch(() => {
-      // Ignore the error and continue with logout process
-    }).finally(() => {
-      // Clear frontend session
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Clear Google OAuth session
-      const googleLogoutUrl = 'https://accounts.google.com/logout';
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = googleLogoutUrl;
-      document.body.appendChild(iframe);
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-        // Redirect to welcome page after Google logout
-        window.location.href = '/';
-      }, 1000);
-    });
+    // Clear user data and redirect to login
+    setCurrentUser(null);
+    window.location.href = '/login';
   };
 
   const cycleCategory = () => {
@@ -487,71 +451,14 @@ const TierLists = () => {
           console.warn("No active challenge available");
           challenge = {
             challengeId: 1, // Fallback challenge ID
-            title: "Default Challenge"
+            weekNumber: getWeekNumber(new Date()),
+            year: new Date().getFullYear(),
+            status: 'active'
           };
         }
       }
       console.log("Using challenge:", challenge);
 
-      // Determine the API URL based on the environment
-      const isDocker = window.location.hostname !== 'localhost';
-      const apiUrl = isDocker 
-        ? 'http://api:8083/api/tierlists'
-        : 'http://localhost:8083/api/tierlists';
-      
-      console.log('Creating tier list with category:', currentCategory);
-      const categoryId = getCategoryId(currentCategory);
-      console.log('Category ID:', categoryId);
-      
-      // Prepare tier list data
-      const tierListData = {
-        name: tierListName,
-        user: { userId: currentUser.userId },
-        category: { categoryId: categoryId },
-        challenge: { challengeId: challenge.challengeId },
-        isPublic: true
-      };
-      
-      console.log('Sending tier list data:', JSON.stringify(tierListData));
-      
-      // Save the tier list to the database
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(tierListData)
-      });
-      
-      // Log the raw response text first
-      const responseText = await response.text();
-      console.log('Raw tier list response:', responseText);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to create tier list: ${response.status} - ${responseText}`);
-      }
-      
-      // Parse the response text to JSON (if possible)
-      let savedTierList;
-      try {
-        savedTierList = JSON.parse(responseText);
-      } catch (e) {
-        console.error('Could not parse tier list response as JSON:', e);
-        throw new Error('Invalid response format from server');
-      }
-      
-      console.log('Tier list created successfully:', savedTierList);
-      
-      if (!savedTierList || !savedTierList.tierlistId) {
-        throw new Error('Server returned a tier list without an ID');
-      }
-      
-      // Now save the tier list items
-      const itemsApiUrl = isDocker 
-        ? `http://api:8083/api/tierlist-items/batch/${savedTierList.tierlistId}`
-        : `http://localhost:8083/api/tierlist-items/batch/${savedTierList.tierlistId}`;
-      
-      console.log('Items API URL:', itemsApiUrl);
-      
       // Get all recipes from all categories for reference
       const allRecipes = [
         ...recipeCategories.wings,
@@ -563,46 +470,40 @@ const TierLists = () => {
       console.log('Total recipes available:', allRecipes.length);
       console.log('Selected recipes:', Object.keys(selectedTiers));
 
-      // Create the items to be saved - ensuring we use the correct recipe IDs
-      const tierlistItems = Object.entries(selectedTiers).map(([recipeId, tierName], index) => {
+      // Create the recipes array according to the specified format
+      const recipes = Object.entries(selectedTiers).map(([recipeId, tierName], index) => {
         const recipeIdInt = parseInt(recipeId);
         console.log(`Processing recipe ID ${recipeIdInt} for tier ${tierName}`);
         
-        // Find the full recipe object
-        const recipe = allRecipes.find(r => r.recipe_id === recipeIdInt);
-        if (!recipe) {
-          console.warn(`Warning: Recipe with ID ${recipeIdInt} not found in local data`);
-        }
-        
         return {
-          originalItemId: recipeIdInt,  // This is the key ID that must match what's in the DB
+          recipeId: recipeIdInt,
           tierId: getTierId(tierName),
-          position: index,
-          tierlistId: savedTierList.tierlistId,
-          recipeName: recipe?.title || `Recipe ${recipeIdInt}`
+          position: index + 1
         };
       });
       
-      console.log('Sending tierlist items:', JSON.stringify(tierlistItems));
+      console.log('Creating tier list with category:', currentCategory);
+      const categoryId = getCategoryId(currentCategory);
+      console.log('Category ID:', categoryId);
       
-      // Send the tier list items to the backend
-      const itemsResponse = await fetch(itemsApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(tierlistItems)
-      });
+      // Prepare tier list data according to the specified format
+      const tierListData = {
+        name: tierListName,
+        userId: currentUser.userId,
+        categoryId: categoryId,
+        challengeId: challenge ? challenge.challengeId : null,
+        isPublic: true,
+        recipes: recipes
+      };
       
-      // Log the raw response text
-      const itemsResponseText = await itemsResponse.text();
-      console.log('Raw items response:', itemsResponseText);
+      console.log('Sending tier list data:', JSON.stringify(tierListData));
       
-      if (!itemsResponse.ok) {
-        throw new Error(`Failed to create tier list items: ${itemsResponse.status} - ${itemsResponseText}`);
-      }
+      // Use the TierListService to create the tier list with recipes
+      const result = await TierListService.createTierListWithRecipes(tierListData);
+      
+      console.log('Tier list created successfully:', result);
       
       // All successful - refresh tier lists and show success message
-      console.log('Tier list and items saved successfully!');
       setTierListName('');
       setSelectedTiers({});
       setCreatingTierListSuccess(true);
@@ -614,9 +515,11 @@ const TierLists = () => {
       console.log('Refreshing tier lists after successful creation');
       await fetchUserTierLists();
       
+      return result;
     } catch (error) {
       console.error('Error creating tier list:', error);
       setTierListsError(`Failed to create tier list: ${error.message}`);
+      throw error;
     } finally {
       setCreatingTierList(false);
     }
@@ -637,23 +540,20 @@ const TierLists = () => {
 
   // Fetch user's tier lists
   const fetchUserTierLists = async () => {
-    if (!currentUser || !currentUser.userId) {
-      console.warn('Cannot fetch tier lists: No logged-in user');
-      setTierListsError('You must be logged in to view your tier lists');
-      return;
-    }
+    // For testing, we'll force the user ID to 1 if not already set
+    const userId = currentUser?.userId || 1;
+    
+    console.log('[DEBUG] === FETCH TIER LISTS ===');
+    console.log(`[DEBUG] Fetching tier lists for user ID: ${userId}`);
+    setLoadingTierLists(true);
+    setTierListsError(null);
     
     try {
-      console.log('[DEBUG] === FETCH TIER LISTS ===');
-      console.log(`[DEBUG] Fetching tier lists for user ID: ${currentUser.userId}`);
-      setLoadingTierLists(true);
-      setTierListsError(null);
-      
       // Determine the API URL based on the environment
       const isDocker = window.location.hostname !== 'localhost';
       const apiUrl = isDocker 
-        ? `http://api:8083/api/tierlists/user/${currentUser.userId}`
-        : `http://localhost:8083/api/tierlists/user/${currentUser.userId}`;
+        ? `/api/tierlists/user/${userId}`
+        : `http://localhost:8083/api/tierlists/user/${userId}`;
       
       console.log(`[DEBUG] Using API URL: ${apiUrl}`);
       
@@ -684,7 +584,13 @@ const TierLists = () => {
       
       if (!responseText || responseText.trim() === '') {
         console.warn('[DEBUG] Empty response from server');
+        // If we received an empty response for user 1, try the fallback API
+        if (userId === 1) {
+          console.log('[DEBUG] Trying fallback method to fetch tier lists for user 1');
+          return await fetchUserTierListsFallback();
+        }
         setTierLists([]);
+        setLoadingTierLists(false);
         return;
       }
       
@@ -743,18 +649,12 @@ const TierLists = () => {
             
             // Get the tier name - handle multiple possible formats
             let tierName = 'S Tier'; // Default
-            if (typeof item.tier === 'string') {
+            if (typeof item.tierName === 'string') {
+              // Direct tier name from our API
+              tierName = item.tierName;
+            } else if (item.tier && typeof item.tier === 'string') {
               // Direct tier name as string
               tierName = item.tier;
-              console.log(`[DEBUG] Using direct tier name: ${tierName}`);
-            } else if (item.tier && item.tier.tierId) {
-              // Map nested tier.tierId to name
-              const tierId = item.tier.tierId;
-              if (tierId === 1 || tierId === '1') tierName = 'S Tier';
-              else if (tierId === 2 || tierId === '2') tierName = 'A Tier';
-              else if (tierId === 3 || tierId === '3') tierName = 'B Tier';
-              else if (tierId === 4 || tierId === '4') tierName = 'C Tier';
-              console.log(`[DEBUG] Derived tier name from nested tier.tierId ${tierId}: ${tierName}`);
             } else if (item.tierId) {
               // Map direct tierId to name
               const tierId = item.tierId;
@@ -762,48 +662,27 @@ const TierLists = () => {
               else if (tierId === 2 || tierId === '2') tierName = 'A Tier';
               else if (tierId === 3 || tierId === '3') tierName = 'B Tier';
               else if (tierId === 4 || tierId === '4') tierName = 'C Tier';
-              console.log(`[DEBUG] Derived tier name from direct tierId ${tierId}: ${tierName}`);
-            } else if (item.tier && item.tier.name) {
-              // Tier as an object with name property
-              tierName = item.tier.name;
-              console.log(`[DEBUG] Using tier.name: ${tierName}`);
             }
             
             // Get the recipe name - handle multiple possible formats
             let recipeName = 'Unknown Recipe';
-            if (item.recipe && item.recipe.title) {
-              recipeName = item.recipe.title;
-              console.log(`[DEBUG] Using recipe.title: ${recipeName}`);
-            } else if (item.recipeName) {
+            if (item.recipeName) {
               recipeName = item.recipeName;
-              console.log(`[DEBUG] Using recipeName: ${recipeName}`);
-            } else if (item.item && item.item.title) {
-              recipeName = item.item.title;
-              console.log(`[DEBUG] Using item.title: ${recipeName}`);
             } else if (item.recipeId) {
               recipeName = `Recipe ${item.recipeId}`;
-              console.log(`[DEBUG] Using recipeId: ${recipeName}`);
-            } else if (item.originalItemId) {
-              recipeName = `Recipe ${item.originalItemId}`;
-              console.log(`[DEBUG] Using originalItemId: ${recipeName}`);
-            } else if (item.recipe && item.recipe.recipeId) {
-              recipeName = `Recipe ${item.recipe.recipeId}`;
-              console.log(`[DEBUG] Using recipe.recipeId: ${recipeName}`);
             }
             
             const formattedItem = {
-              id: item.id || item.itemId,
+              id: item.itemId || item.id,
               recipeName,
               tier: tierName,
               position: item.position || 0
             };
             
-            console.log(`[DEBUG] Formatted item: ${JSON.stringify(formattedItem)}`);
             return formattedItem;
           });
         } else {
           console.log(`[DEBUG] No items found for tier list "${tierList.name}" or items is not an array`);
-          console.log(`[DEBUG] tierList.items:`, tierList.items);
         }
         
         return formattedTierList;
@@ -822,10 +701,150 @@ const TierLists = () => {
     }
   };
 
+  // New fallback method for user 1
+  const fetchUserTierListsFallback = async () => {
+    try {
+      console.log('[DEBUG] Using fallback method to get tier lists for user 1');
+      
+      // Determine the API URL based on the environment
+      const isDocker = window.location.hostname !== 'localhost';
+      const baseUrl = isDocker ? 'http://api:8083' : 'http://localhost:8083';
+      
+      // First, get all tier lists for user 1 from the generic tables API
+      const tierListsUrl = `${baseUrl}/api/tables/tier_lists?filter=user_id:1`;
+      console.log(`[DEBUG] Fallback tier lists URL: ${tierListsUrl}`);
+      
+      const tierListsResponse = await fetch(tierListsUrl, {
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      if (!tierListsResponse.ok) {
+        console.error(`[DEBUG] Fallback API error: ${tierListsResponse.status}`);
+        throw new Error(`Failed to fetch tier lists from fallback API: ${tierListsResponse.statusText}`);
+      }
+      
+      const tierListsData = await tierListsResponse.json();
+      console.log('[DEBUG] Fallback tier lists raw data:', tierListsData);
+      
+      if (!Array.isArray(tierListsData) || tierListsData.length === 0) {
+        console.warn('[DEBUG] No tier lists found in fallback API');
+        setTierLists([]);
+        setLoadingTierLists(false);
+        return;
+      }
+      
+      // Process the tier lists to the expected format
+      const formattedTierLists = await Promise.all(tierListsData.map(async (tierList) => {
+        // Try to get the category name
+        let categoryName = 'Uncategorized';
+        if (tierList.category_id) {
+          try {
+            const categoryUrl = `${baseUrl}/api/tables/categories?filter=category_id:${tierList.category_id}`;
+            const categoryResponse = await fetch(categoryUrl, { credentials: 'include' });
+            if (categoryResponse.ok) {
+              const categories = await categoryResponse.json();
+              if (Array.isArray(categories) && categories.length > 0) {
+                categoryName = categories[0].name;
+              }
+            }
+          } catch (e) {
+            console.error('[DEBUG] Failed to fetch category name:', e);
+          }
+        }
+        
+        // Try to get items for this tier list
+        let items = [];
+        try {
+          const itemsUrl = `${baseUrl}/api/tierlist-items/tierlist/${tierList.tierlist_id}`;
+          const itemsResponse = await fetch(itemsUrl, { credentials: 'include' });
+          
+          if (itemsResponse.ok) {
+            const itemsData = await itemsResponse.json();
+            if (Array.isArray(itemsData) && itemsData.length > 0) {
+              items = await Promise.all(itemsData.map(async (item) => {
+                let recipeName = `Recipe ${item.recipe_id || item.original_item_id}`;
+                let tierName = 'S Tier';
+                
+                // Try to get recipe name
+                if (item.recipe_id) {
+                  try {
+                    const recipeUrl = `${baseUrl}/api/tables/recipes?filter=recipe_id:${item.recipe_id}`;
+                    const recipeResponse = await fetch(recipeUrl, { credentials: 'include' });
+                    if (recipeResponse.ok) {
+                      const recipes = await recipeResponse.json();
+                      if (Array.isArray(recipes) && recipes.length > 0) {
+                        recipeName = recipes[0].title || recipes[0].name || recipeName;
+                      }
+                    }
+                  } catch (e) {
+                    console.error('[DEBUG] Failed to fetch recipe name:', e);
+                  }
+                }
+                
+                // Try to get tier name
+                if (item.tier_id) {
+                  try {
+                    const tierUrl = `${baseUrl}/api/tables/tiers?filter=tier_id:${item.tier_id}`;
+                    const tierResponse = await fetch(tierUrl, { credentials: 'include' });
+                    if (tierResponse.ok) {
+                      const tiers = await tierResponse.json();
+                      if (Array.isArray(tiers) && tiers.length > 0) {
+                        tierName = tiers[0].name;
+                      } else {
+                        // Default tier name based on ID
+                        if (item.tier_id === 1) tierName = 'S Tier';
+                        else if (item.tier_id === 2) tierName = 'A Tier';
+                        else if (item.tier_id === 3) tierName = 'B Tier';
+                        else if (item.tier_id === 4) tierName = 'C Tier';
+                      }
+                    }
+                  } catch (e) {
+                    console.error('[DEBUG] Failed to fetch tier name:', e);
+                  }
+                }
+                
+                return {
+                  id: item.id || item.item_id,
+                  recipeName,
+                  tier: tierName,
+                  position: item.position || 0
+                };
+              }));
+            }
+          }
+        } catch (e) {
+          console.error('[DEBUG] Failed to fetch tier list items:', e);
+        }
+        
+        return {
+          id: tierList.tierlist_id,
+          name: tierList.name || 'Unnamed Tier List',
+          categoryName,
+          createdAt: tierList.created_at,
+          items
+        };
+      }));
+      
+      console.log('[DEBUG] Final formatted tier lists from fallback:', formattedTierLists);
+      setTierLists(formattedTierLists);
+      setLoadingTierLists(false);
+    } catch (error) {
+      console.error('[DEBUG] Error in fallback method:', error);
+      setTierListsError(`Fallback error: ${error.message}`);
+      setLoadingTierLists(false);
+    }
+  };
+
   useEffect(() => {
     // Fetch user tier lists when the component mounts or when the user changes
     if (currentUser && currentUser.userId) {
       console.log('Fetching tier lists for user:', currentUser.userId);
+      fetchUserTierLists();
+    } else {
+      // When no user is present but we're in development mode,
+      // fetch tier lists for user ID 1 for testing
+      console.log('No user detected, but fetching tier lists for user ID 1 for testing');
       fetchUserTierLists();
     }
   }, [currentUser]);
@@ -849,6 +868,56 @@ const TierLists = () => {
     if (!hasAnyValidItems) return 'no-items';
     
     return 'success';
+  };
+
+  const debugRefresh = async () => {
+    console.log('========== DEBUG INFO ==========');
+    console.log('Current user:', user);
+    console.log('API_BASE_URL:', API_BASE_URL || 'Not defined in this scope');
+    console.log('window.location.hostname:', window.location.hostname);
+    
+    // Get what the API URL would be based on location
+    const isDocker = window.location.hostname !== 'localhost';
+    const tierListsUrl = isDocker 
+      ? `/api/tierlists/user/${user?.userId || 1}`
+      : `http://localhost:8083/api/tierlists/user/${user?.userId || 1}`;
+    
+    console.log('Calculated tier lists URL:', tierListsUrl);
+    
+    try {
+      console.log('Attempting direct fetch with credentials...');
+      const response = await fetch(tierListsUrl, {
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', [...response.headers.entries()]);
+      
+      const text = await response.text();
+      console.log('Response length:', text.length);
+      console.log('Response preview:', text.substring(0, 200) + '...');
+      
+      try {
+        const data = JSON.parse(text);
+        console.log('Parsed data type:', typeof data);
+        console.log('Is array?', Array.isArray(data));
+        console.log('Data length:', Array.isArray(data) ? data.length : 'N/A');
+        if (Array.isArray(data) && data.length > 0) {
+          console.log('First item keys:', Object.keys(data[0]));
+        }
+      } catch (e) {
+        console.error('JSON parse error:', e);
+      }
+    } catch (e) {
+      console.error('Direct fetch error:', e);
+    }
+    
+    console.log('Refreshing tier lists via component...');
+    await fetchUserTierLists();
+    console.log('===============================');
   };
 
   return (
@@ -1009,95 +1078,24 @@ const TierLists = () => {
         {/* Display existing tier lists */}
         <div className="saved-tierlists">
           <h2>Your Saved Tier Lists</h2>
-          
-          {getTierListsStatus() === 'loading' && (
-            <div className="loading-indicator">Loading your tier lists...</div>
-          )}
-          
-          {getTierListsStatus() === 'error' && (
-            <div className="error-message">
-              <p>{tierListsError}</p>
-              <button onClick={fetchUserTierLists} className="retry-btn">Retry</button>
-            </div>
-          )}
-          
-          {getTierListsStatus() === 'empty' && (
-            <div className="no-tierlists">
-              <p>You haven't created any tier lists yet. Start by selecting tiers for recipes above!</p>
-              <button className="refresh-btn" onClick={fetchUserTierLists}>
-                <FontAwesomeIcon icon={faArrowsRotate} /> Refresh
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <button 
+              className="refresh-btn" 
+              onClick={() => fetchUserTierLists()}
+            >
+              <FontAwesomeIcon icon={faArrowsRotate} /> Refresh
+            </button>
+            {currentUser && currentUser.isAdmin && (
+              <button 
+                className="debug-btn" 
+                onClick={debugRefresh}
+                style={{ marginLeft: '10px', background: '#dc3545' }}
+              >
+                <FontAwesomeIcon icon={faBug} /> Debug
               </button>
-            </div>
-          )}
-          
-          {getTierListsStatus() === 'no-items' && (
-            <div className="no-tierlists">
-              <p>Your tier lists were found, but they don't have any items in them. This might be an issue with data loading.</p>
-              <button className="refresh-btn" onClick={fetchUserTierLists}>
-                <FontAwesomeIcon icon={faArrowsRotate} /> Refresh Data
-              </button>
-            </div>
-          )}
-          
-          {getTierListsStatus() === 'success' && (
-            <div className="tierlists-grid">
-              {tierLists.map(tierList => (
-                <div key={tierList.id} className="tierlist-card">
-                  <div className="tierlist-header">
-                    <div className="header-content">
-                      <h3 className="tierlist-name">{tierList.name || 'Unnamed Tier List'}</h3>
-                      {tierList.categoryName && (
-                        <span className="tierlist-category">{tierList.categoryName}</span>
-                      )}
-                      {tierList.createdAt && (
-                        <span className="tierlist-date">
-                          {new Date(tierList.createdAt).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                    <div className="tierlist-actions">
-                      <button 
-                        className="edit-btn"
-                        onClick={() => handleEditClick(tierList)}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="delete-btn"
-                        onClick={() => {
-                          if (window.confirm('Are you sure you want to delete this tier list?')) {
-                            // We don't have delete functionality implemented yet
-                            alert('Delete functionality will be added in a future update.');
-                          }
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="tierlist-items">
-                    {hasTierListValidItems(tierList) ? (
-                      <div className="items-grid">
-                        {tierList.items.map((item, index) => (
-                          <div key={`${tierList.id}-item-${index}`} className="tierlist-item">
-                            <span className={`tier-badge ${item.tier ? item.tier.split(' ')[0].toLowerCase() : 's'}`}>
-                              {item.tier || 'S Tier'}
-                            </span>
-                            <span className="recipe-name" title={item.recipeName}>
-                              {item.recipeName || 'Unknown Recipe'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="no-items">No items in this tier list</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            )}
+          </div>
+          <UserTierLists />
         </div>
 
         {/* Community Tier Lists Button */}

@@ -34,6 +34,9 @@ public class TierList {
 
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
+    
+    @Column(name = "is_public", nullable = false)
+    private Boolean isPublic = true;
 
     @OneToMany(mappedBy = "tierList", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TierlistItem> tierlistItems = new ArrayList<>();
@@ -49,6 +52,7 @@ public class TierList {
         this.name = name;
         this.createdAt = LocalDateTime.now();
         this.lastModified = LocalDateTime.now();
+        this.isPublic = true;
     }
 
     // Getters and Setters
@@ -106,6 +110,14 @@ public class TierList {
 
     public void setLastModified(LocalDateTime lastModified) {
         this.lastModified = lastModified;
+    }
+
+    public Boolean getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public List<TierlistItem> getTierlistItems() {

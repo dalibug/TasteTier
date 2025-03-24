@@ -2,6 +2,7 @@ package com.example.base.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,24 +15,23 @@ public class WeeklyChallenge {
     @Column(name = "challenge_id")
     private Long challengeId;
 
-    @Column(name = "title", nullable = false)
-    private String title;
+    @Column(name = "week_number", nullable = false)
+    private Integer weekNumber;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    @Column(name = "year", nullable = false)
+    private Integer year;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
 
-    @Column(name = "end_date")
-    private LocalDateTime endDate;
+    @Column(name = "status", nullable = false)
+    private String status;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<TierList> tierLists = new ArrayList<>();
@@ -41,12 +41,12 @@ public class WeeklyChallenge {
     }
 
     // Constructor with required fields
-    public WeeklyChallenge(String title, Category category, LocalDateTime startDate, LocalDateTime endDate, Boolean isActive) {
-        this.title = title;
-        this.category = category;
+    public WeeklyChallenge(Integer weekNumber, Integer year, LocalDate startDate, LocalDate endDate, String status) {
+        this.weekNumber = weekNumber;
+        this.year = year;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.isActive = isActive;
+        this.status = status;
     }
 
     // Getters and Setters
@@ -58,52 +58,52 @@ public class WeeklyChallenge {
         this.challengeId = challengeId;
     }
 
-    public String getTitle() {
-        return title;
+    public Integer getWeekNumber() {
+        return weekNumber;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setWeekNumber(Integer weekNumber) {
+        this.weekNumber = weekNumber;
     }
 
-    public String getDescription() {
-        return description;
+    public Integer getYear() {
+        return year;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setYear(Integer year) {
+        this.year = year;
     }
 
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public LocalDateTime getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
-    public Boolean getIsActive() {
-        return isActive;
+    public String getStatus() {
+        return status;
     }
 
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<TierList> getTierLists() {
@@ -114,7 +114,7 @@ public class WeeklyChallenge {
         this.tierLists = tierLists;
     }
 
-    // Helper methods
+    // Helper methods for managing the bi-directional relationship
     public void addTierList(TierList tierList) {
         tierLists.add(tierList);
         tierList.setChallenge(this);

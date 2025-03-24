@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.base.entity.TestEntity;
 import com.example.base.repository.TestEntityRepository;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000", "http://localhost"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/test-entities")
 public class TestEntityController {
