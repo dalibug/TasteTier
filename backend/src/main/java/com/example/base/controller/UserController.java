@@ -1,16 +1,24 @@
 package com.example.base.controller;
 
 import com.example.base.entity.User;
+import com.example.base.entity.TierList;
 import com.example.base.repository.UserRepository;
+import com.example.base.repository.TierListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 @CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000", "http://localhost"}, allowCredentials = "true")
@@ -20,24 +28,34 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private TierListRepository tierListRepository;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
     // Get all users
     @SuppressWarnings("null")
     @GetMapping
+    @Transactional(readOnly = true)
     public ResponseEntity<List<User>> getAllUsers() {
         try {
             List<User> users = userRepository.findAll();
+            if (users.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Get user by ID
+    // Get user by id
     @GetMapping("/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
         Optional<User> userData = userRepository.findById(id);
-        
         if (userData.isPresent()) {
             return new ResponseEntity<>(userData.get(), HttpStatus.OK);
         } else {
@@ -48,23 +66,35 @@ public class UserController {
     // Create a new user
     @SuppressWarnings("null")
     @PostMapping
+    @Transactional
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
-            // Check if username already exists
-            if (userRepository.existsByUsername(user.getUsername())) {
-                return new ResponseEntity<>(HttpStatus.CONFLICT);
-            }
-            
-            // Check if email already exists
-            if (userRepository.existsByEmail(user.getEmail())) {
-                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            // Check if user with this OAuth ID already exists
+            if (user.getOauthId() != null && user.getOauthProvider() != null) {
+                Optional<User> existingUser = userRepository.findByOauthProviderAndOauthId(
+                    user.getOauthProvider(), user.getOauthId());
+                if (existingUser.isPresent()) {
+                    // Update existing user with new data if needed
+                    User updatedUser = existingUser.get();
+                    if (user.getUsername() != null) {
+                        updatedUser.setUsername(user.getUsername());
+                    }
+                    if (user.getEmail() != null) {
+                        updatedUser.setEmail(user.getEmail());
+                    }
+                    if (user.getPictureUrl() != null) {
+                        updatedUser.setPictureUrl(user.getPictureUrl());
+                    }
+                    return new ResponseEntity<>(userRepository.save(updatedUser), HttpStatus.OK);
+                }
             }
             
             // Set creation time
             user.setCreatedAt(LocalDateTime.now());
             
-            User savedUser = userRepository.save(user);
-            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+            // Create new user
+            User newUser = userRepository.save(user);
+            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -72,13 +102,14 @@ public class UserController {
 
     // Update a user
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
         Optional<User> userData = userRepository.findById(id);
         
         if (userData.isPresent()) {
             User existingUser = userData.get();
             
-            // Update fields
+            // Update fields if provided
             if (user.getUsername() != null) {
                 existingUser.setUsername(user.getUsername());
             }
@@ -88,8 +119,11 @@ public class UserController {
             if (user.getPictureUrl() != null) {
                 existingUser.setPictureUrl(user.getPictureUrl());
             }
-            if (user.getLastLogin() != null) {
-                existingUser.setLastLogin(user.getLastLogin());
+            if (user.getOauthId() != null) {
+                existingUser.setOauthId(user.getOauthId());
+            }
+            if (user.getOauthProvider() != null) {
+                existingUser.setOauthProvider(user.getOauthProvider());
             }
             if (user.getAccessToken() != null) {
                 existingUser.setAccessToken(user.getAccessToken());
@@ -101,6 +135,8 @@ public class UserController {
                 existingUser.setTokenExpiresAt(user.getTokenExpiresAt());
             }
             
+            existingUser.setLastLogin(LocalDateTime.now());
+
             return new ResponseEntity<>(userRepository.save(existingUser), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -109,6 +145,7 @@ public class UserController {
 
     // Delete a user
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Long id) {
         try {
             userRepository.deleteById(id);
@@ -117,10 +154,11 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    // OAuth login/signup
+    
+    // OAuth login or register
     @SuppressWarnings("null")
     @PostMapping("/oauth")
+    @Transactional
     public ResponseEntity<User> oauthLogin(@RequestBody Map<String, String> oauthData) {
         try {
             String provider = oauthData.get("provider");
@@ -131,56 +169,65 @@ public class UserController {
             String accessToken = oauthData.get("accessToken");
             String refreshToken = oauthData.get("refreshToken");
             
-            // Find user by OAuth provider and ID
-            Optional<User> existingUser = userRepository.findByOauthProviderAndOauthId(provider, oauthId);
-            
-            if (existingUser.isPresent()) {
-                // Update existing user
-                User user = existingUser.get();
+            // First try to find by OAuth provider and ID
+            Optional<User> existingUserByOauth = userRepository.findByOauthProviderAndOauthId(provider, oauthId);
+            if (existingUserByOauth.isPresent()) {
+                User user = existingUserByOauth.get();
+                // Update user details
                 user.setLastLogin(LocalDateTime.now());
-                user.setAccessToken(accessToken);
-                user.setRefreshToken(refreshToken);
-                user.setTokenExpiresAt(LocalDateTime.now().plusHours(1)); // Example expiry
-                
+                if (pictureUrl != null) user.setPictureUrl(pictureUrl);
+                if (accessToken != null) user.setAccessToken(accessToken);
+                if (refreshToken != null) user.setRefreshToken(refreshToken);
+                user.setTokenExpiresAt(LocalDateTime.now().plusHours(1));
                 return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
-            } else {
-                // Create new user
-                User newUser = new User();
-                newUser.setOauthProvider(provider);
-                newUser.setOauthId(oauthId);
-                newUser.setEmail(email);
-                newUser.setUsername(username);
-                newUser.setPictureUrl(pictureUrl);
-                newUser.setCreatedAt(LocalDateTime.now());
-                newUser.setLastLogin(LocalDateTime.now());
-                newUser.setAccessToken(accessToken);
-                newUser.setRefreshToken(refreshToken);
-                newUser.setTokenExpiresAt(LocalDateTime.now().plusHours(1)); // Example expiry
-                
-                return new ResponseEntity<>(userRepository.save(newUser), HttpStatus.CREATED);
             }
+            
+            // Then try by email
+            Optional<User> existingUserByEmail = userRepository.findByEmail(email);
+            if (existingUserByEmail.isPresent()) {
+                User user = existingUserByEmail.get();
+                // Link OAuth ID to existing email account
+                user.setOauthProvider(provider);
+                user.setOauthId(oauthId);
+                user.setLastLogin(LocalDateTime.now());
+                if (pictureUrl != null) user.setPictureUrl(pictureUrl);
+                if (accessToken != null) user.setAccessToken(accessToken);
+                if (refreshToken != null) user.setRefreshToken(refreshToken);
+                user.setTokenExpiresAt(LocalDateTime.now().plusHours(1));
+                return new ResponseEntity<>(userRepository.save(user), HttpStatus.OK);
+            }
+            
+            // Create new user
+            User newUser = new User();
+            newUser.setOauthProvider(provider);
+            newUser.setOauthId(oauthId);
+            newUser.setEmail(email);
+            newUser.setPictureUrl(pictureUrl);
+            // Generate username based on email if not provided
+            newUser.setUsername(username != null ? username : email.split("@")[0]);
+            newUser.setCreatedAt(LocalDateTime.now());
+            newUser.setLastLogin(LocalDateTime.now());
+            newUser.setAccessToken(accessToken);
+            newUser.setRefreshToken(refreshToken);
+            newUser.setTokenExpiresAt(LocalDateTime.now().plusHours(1));
+            
+            return new ResponseEntity<>(userRepository.save(newUser), HttpStatus.CREATED);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    // Get user tier list count
+    
+    // Get tier list count for a user
     @GetMapping("/{id}/tierlist-count")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> getUserTierListCount(@PathVariable("id") Long id) {
         try {
-            // Check if user exists
             Optional<User> userData = userRepository.findById(id);
+            
             if (!userData.isPresent()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            
-            // Get count of tier lists for this user using JPA EntityManager
-            javax.persistence.EntityManager entityManager = 
-                ((org.springframework.orm.jpa.JpaTransactionManager) org.springframework.transaction.support.TransactionSynchronizationManager
-                    .getResourceMap().keySet().stream()
-                    .filter(o -> o instanceof org.springframework.orm.jpa.JpaTransactionManager)
-                    .findFirst().orElse(null))
-                .getEntityManagerFactory().createEntityManager();
             
             // Count tier lists for this user
             @SuppressWarnings("unchecked")
@@ -189,12 +236,11 @@ public class UserController {
                 .setParameter(1, id)
                 .getSingleResult();
             
-            entityManager.close();
-            
             Map<String, Object> response = new HashMap<>();
             response.put("count", count);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            System.out.println("DEBUG TIER LIST: Error using direct SQL queries: " + e.getMessage());
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

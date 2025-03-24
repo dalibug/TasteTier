@@ -873,7 +873,13 @@ const TierLists = () => {
   const debugRefresh = async () => {
     console.log('========== DEBUG INFO ==========');
     console.log('Current user:', user);
-    console.log('API_BASE_URL:', API_BASE_URL || 'Not defined in this scope');
+    
+    // Define the base URL based on environment
+    const API_BASE_URL = process.env.REACT_APP_DOCKER_ENV === "true" 
+      ? "http://localhost:8083" 
+      : "http://localhost:8083";
+    
+    console.log('API_BASE_URL:', API_BASE_URL);
     console.log('window.location.hostname:', window.location.hostname);
     
     // Get what the API URL would be based on location

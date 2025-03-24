@@ -55,6 +55,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  padding-right: 10px;
+  min-height: 100px;
 }
 
 .tierlist-card {

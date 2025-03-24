@@ -79,6 +79,30 @@ const Profile = () => {
     }
   }, [userTierLists]);
 
+  // Add a scroll indicator class if content is scrollable
+  useEffect(() => {
+    const checkScrollable = () => {
+      const section = document.querySelector('.user-tierlists-section');
+      if (section) {
+        if (section.scrollHeight > section.clientHeight) {
+          section.classList.add('has-scroll');
+        } else {
+          section.classList.remove('has-scroll');
+        }
+      }
+    };
+
+    // Check after content loads
+    checkScrollable();
+    
+    // Check again if window resizes
+    window.addEventListener('resize', checkScrollable);
+    
+    return () => {
+      window.removeEventListener('resize', checkScrollable);
+    };
+  }, [userTierLists, loading]);
+
   // Fetch user's tier lists
   const fetchUserTierLists = async (userId) => {
     console.log("[DEBUG] Starting to fetch tier lists for user ID:", userId);

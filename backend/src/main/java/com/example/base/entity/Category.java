@@ -21,10 +21,10 @@ public class Category {
     private String description;
 
     @Column(name = "active_from", nullable = false)
-    private LocalDate activeFrom;
+    private LocalDate activeFrom = LocalDate.of(2020, 1, 1); // Default to a safe date
 
     @Column(name = "active_until", nullable = false)
-    private LocalDate activeUntil;
+    private LocalDate activeUntil = LocalDate.of(2030, 12, 31); // Default to a safe future date
 
     @Column(name = "is_active")
     private Boolean isActive = true;
@@ -42,8 +42,8 @@ public class Category {
     // Constructor with required fields
     public Category(String name, LocalDate activeFrom, LocalDate activeUntil) {
         this.name = name;
-        this.activeFrom = activeFrom;
-        this.activeUntil = activeUntil;
+        this.activeFrom = activeFrom != null ? activeFrom : LocalDate.of(2020, 1, 1);
+        this.activeUntil = activeUntil != null ? activeUntil : LocalDate.of(2030, 12, 31);
     }
 
     // Getters and Setters
@@ -76,7 +76,7 @@ public class Category {
     }
 
     public void setActiveFrom(LocalDate activeFrom) {
-        this.activeFrom = activeFrom;
+        this.activeFrom = activeFrom != null ? activeFrom : LocalDate.of(2020, 1, 1);
     }
 
     public LocalDate getActiveUntil() {
@@ -84,7 +84,7 @@ public class Category {
     }
 
     public void setActiveUntil(LocalDate activeUntil) {
-        this.activeUntil = activeUntil;
+        this.activeUntil = activeUntil != null ? activeUntil : LocalDate.of(2030, 12, 31);
     }
 
     public Boolean getIsActive() {

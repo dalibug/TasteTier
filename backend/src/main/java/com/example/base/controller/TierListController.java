@@ -1,5 +1,6 @@
 package com.example.base.controller;
 
+import com.example.base.dto.TierListDTO;
 import com.example.base.entity.TierList;
 import com.example.base.entity.User;
 import com.example.base.entity.Category;
@@ -22,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,8 +32,9 @@ import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000", "http://localhost"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/tierlists")
 public class TierListController {
@@ -56,13 +60,20 @@ public class TierListController {
     @Autowired
     private TierRepository tierRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     // Get all tier lists
     @SuppressWarnings("null")
     @GetMapping
-    public ResponseEntity<List<TierList>> getAllTierLists() {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<TierListDTO>> getAllTierLists() {
         try {
             List<TierList> tierLists = tierListRepository.findAll();
-            return new ResponseEntity<>(tierLists, HttpStatus.OK);
+            List<TierListDTO> tierListDTOs = tierLists.stream()
+                .map(TierListDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(tierListDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -70,13 +81,14 @@ public class TierListController {
 
     // Get tier lists by user id
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Map<String, Object>>> getTierListsByUserId(@PathVariable Long userId) {
-        System.out.println("DEBUG TIER LIST: Getting tier lists for user ID: " + userId);
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getTierListsByUserId(@PathVariable("userId") Long userId) {
+        System.out.println("DEBUG TIER LIST: Fetching tier lists for user ID: " + userId);
+        
         try {
-            // Check if user exists
             Optional<User> userOpt = userRepository.findById(userId);
+            
             if (!userOpt.isPresent()) {
-                System.out.println("DEBUG TIER LIST: User with ID: " + userId + " not found");
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
             
@@ -86,14 +98,6 @@ public class TierListController {
             List<Map<String, Object>> tierListsResponse = new ArrayList<>();
             
             try {
-                // Build tier list data using direct entity manager queries to avoid zero date issues
-                javax.persistence.EntityManager entityManager = 
-                    ((org.springframework.orm.jpa.JpaTransactionManager) org.springframework.transaction.support.TransactionSynchronizationManager
-                        .getResourceMap().keySet().stream()
-                        .filter(o -> o instanceof org.springframework.orm.jpa.JpaTransactionManager)
-                        .findFirst().orElse(null))
-                    .getEntityManagerFactory().createEntityManager();
-                    
                 // First get all tier lists
                 System.out.println("DEBUG TIER LIST: Executing tier lists query for user ID: " + userId);
                 @SuppressWarnings("unchecked")
@@ -185,6 +189,54 @@ public class TierListController {
                     
                     // Now get items for this tier list
                     System.out.println("DEBUG TIER LIST: Fetching items for tier list: " + tierListId);
+                    
+                    // First check if the tierlist_recipes table has any records
+                    @SuppressWarnings("unchecked")
+                    List<Object> countCheck = entityManager.createNativeQuery(
+                        "SELECT COUNT(*) FROM tierlist_recipes")
+                        .getResultList();
+                    
+                    if (!countCheck.isEmpty()) {
+                        System.out.println("DEBUG TIER LIST: Total records in tierlist_recipes table: " + countCheck.get(0));
+                    }
+                    
+                    // Check for this specific tier list
+                    @SuppressWarnings("unchecked")
+                    List<Object> itemCheck = entityManager.createNativeQuery(
+                        "SELECT COUNT(*) FROM tierlist_recipes WHERE tierlist_id = ?")
+                        .setParameter(1, tierListId)
+                        .getResultList();
+                    
+                    if (!itemCheck.isEmpty()) {
+                        System.out.println("DEBUG TIER LIST: Item count for tierlist " + tierListId + ": " + itemCheck.get(0));
+                    }
+                    
+                    // If we have items, let's verify the SQL query works correctly
+                    if (!itemCheck.isEmpty() && ((Number)itemCheck.get(0)).intValue() > 0) {
+                        System.out.println("DEBUG TIER LIST: Verifying raw query for tierlist_id " + tierListId);
+                        
+                        @SuppressWarnings("unchecked")
+                        List<Object[]> rawItems = entityManager.createNativeQuery(
+                            "SELECT * FROM tierlist_recipes WHERE tierlist_id = ?")
+                            .setParameter(1, tierListId)
+                            .setMaxResults(3)
+                            .getResultList();
+                            
+                        if (!rawItems.isEmpty()) {
+                            System.out.println("DEBUG TIER LIST: Raw items found: " + rawItems.size());
+                            Object[] firstItem = rawItems.get(0);
+                            
+                            if (firstItem.length > 0) {
+                                System.out.println("DEBUG TIER LIST: First item details - ID: " + firstItem[0] + 
+                                                  ", tierlist_id: " + firstItem[1] + 
+                                                  ", recipe_id: " + firstItem[2] + 
+                                                  ", tier_id: " + firstItem[3]);
+                            }
+                        } else {
+                            System.out.println("DEBUG TIER LIST: Raw query returned no results unexpectedly");
+                        }
+                    }
+                    
                     @SuppressWarnings("unchecked")
                     List<Object[]> items = entityManager.createNativeQuery(
                         "SELECT tr.id as item_id, tr.position, " +
@@ -203,16 +255,16 @@ public class TierListController {
                     // If no items were found, check if the table exists and has entries
                     if (items.isEmpty()) {
                         @SuppressWarnings("unchecked")
-                        List<Object[]> itemCheck = entityManager.createNativeQuery(
-                            "SELECT COUNT(*) FROM tierlist_recipes WHERE tierlist_id = ?")
-                            .setParameter(1, tierListId)
+                        List<Object[]> schemaCheck = entityManager.createNativeQuery(
+                            "SHOW COLUMNS FROM tierlist_recipes")
                             .getResultList();
                         
-                        if (!itemCheck.isEmpty()) {
-                            System.out.println("DEBUG TIER LIST: tierlist_recipes table check - count: " + itemCheck.get(0));
+                        System.out.println("DEBUG TIER LIST: tierlist_recipes table structure:");
+                        for (Object[] column : schemaCheck) {
+                            System.out.println("  " + column[0] + " - " + column[1]);
                         }
                     }
-                        
+                    
                     List<Map<String, Object>> itemsList = new ArrayList<>();
                     
                     for (Object[] item : items) {
@@ -275,10 +327,14 @@ public class TierListController {
     // Get tier lists by category ID
     @SuppressWarnings("null")
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<TierList>> getTierListsByCategoryId(@PathVariable("categoryId") Long categoryId) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<TierListDTO>> getTierListsByCategoryId(@PathVariable("categoryId") Long categoryId) {
         try {
             List<TierList> tierLists = tierListRepository.findByCategoryCategoryId(categoryId);
-            return new ResponseEntity<>(tierLists, HttpStatus.OK);
+            List<TierListDTO> tierListDTOs = tierLists.stream()
+                .map(TierListDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(tierListDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -287,12 +343,16 @@ public class TierListController {
     // Get tier lists by user ID and category ID
     @SuppressWarnings("null")
     @GetMapping("/user/{userId}/category/{categoryId}")
-    public ResponseEntity<List<TierList>> getTierListsByUserIdAndCategoryId(
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<TierListDTO>> getTierListsByUserIdAndCategoryId(
             @PathVariable("userId") Long userId,
             @PathVariable("categoryId") Long categoryId) {
         try {
             List<TierList> tierLists = tierListRepository.findByUserUserIdAndCategoryCategoryId(userId, categoryId);
-            return new ResponseEntity<>(tierLists, HttpStatus.OK);
+            List<TierListDTO> tierListDTOs = tierLists.stream()
+                .map(TierListDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(tierListDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -300,11 +360,12 @@ public class TierListController {
 
     // Get tier list by ID
     @GetMapping("/{id}")
-    public ResponseEntity<TierList> getTierListById(@PathVariable("id") Long id) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<TierListDTO> getTierListById(@PathVariable("id") Long id) {
         Optional<TierList> tierListData = tierListRepository.findById(id);
         
         if (tierListData.isPresent()) {
-            return new ResponseEntity<>(tierListData.get(), HttpStatus.OK);
+            return new ResponseEntity<>(new TierListDTO(tierListData.get()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -457,10 +518,14 @@ public class TierListController {
     // Search tier lists by name
     @SuppressWarnings("null")
     @GetMapping("/search")
-    public ResponseEntity<List<TierList>> searchTierLists(@RequestParam("name") String name) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<TierListDTO>> searchTierLists(@RequestParam("name") String name) {
         try {
             List<TierList> tierLists = tierListRepository.findByNameContainingIgnoreCase(name);
-            return new ResponseEntity<>(tierLists, HttpStatus.OK);
+            List<TierListDTO> tierListDTOs = tierLists.stream()
+                .map(TierListDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(tierListDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -468,10 +533,14 @@ public class TierListController {
 
     // Get tier lists by challenge ID
     @GetMapping("/challenge/{challengeId}")
-    public ResponseEntity<List<TierList>> getTierListsByChallengeId(@PathVariable("challengeId") Long challengeId) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<TierListDTO>> getTierListsByChallengeId(@PathVariable("challengeId") Long challengeId) {
         try {
             List<TierList> tierLists = tierListRepository.findByChallengeChallengeId(challengeId);
-            return new ResponseEntity<>(tierLists, HttpStatus.OK);
+            List<TierListDTO> tierListDTOs = tierLists.stream()
+                .map(TierListDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(tierListDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

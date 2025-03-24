@@ -15,6 +15,9 @@ public class WeeklyChallenge {
     @Column(name = "challenge_id")
     private Long challengeId;
 
+    @Column(name = "title", length = 255)
+    private String title;
+
     @Column(name = "week_number", nullable = false)
     private Integer weekNumber;
 
@@ -56,6 +59,14 @@ public class WeeklyChallenge {
 
     public void setChallengeId(Long challengeId) {
         this.challengeId = challengeId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Integer getWeekNumber() {

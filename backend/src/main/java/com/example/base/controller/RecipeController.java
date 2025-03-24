@@ -1,5 +1,6 @@
 package com.example.base.controller;
 
+import com.example.base.dto.RecipeDTO;
 import com.example.base.entity.Recipe;
 import com.example.base.entity.Category;
 import com.example.base.entity.User;
@@ -9,11 +10,13 @@ import com.example.base.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000", "http://localhost"}, allowCredentials = "true")
 @RestController
@@ -32,10 +35,14 @@ public class RecipeController {
     // Get all recipes
     @SuppressWarnings("null")
     @GetMapping
-    public ResponseEntity<List<Recipe>> getAllRecipes() {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<RecipeDTO>> getAllRecipes() {
         try {
             List<Recipe> recipes = recipeRepository.findAll();
-            return new ResponseEntity<>(recipes, HttpStatus.OK);
+            List<RecipeDTO> recipeDTOs = recipes.stream()
+                .map(RecipeDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(recipeDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -44,10 +51,14 @@ public class RecipeController {
     // Get recipes by category ID
     @SuppressWarnings("null")
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<Recipe>> getRecipesByCategoryId(@PathVariable("categoryId") Long categoryId) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<RecipeDTO>> getRecipesByCategoryId(@PathVariable("categoryId") Long categoryId) {
         try {
             List<Recipe> recipes = recipeRepository.findByCategoryCategoryId(categoryId);
-            return new ResponseEntity<>(recipes, HttpStatus.OK);
+            List<RecipeDTO> recipeDTOs = recipes.stream()
+                .map(RecipeDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(recipeDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -55,11 +66,12 @@ public class RecipeController {
 
     // Get recipe by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Recipe> getRecipeById(@PathVariable("id") Long id) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<RecipeDTO> getRecipeById(@PathVariable("id") Long id) {
         Optional<Recipe> recipeData = recipeRepository.findById(id);
         
         if (recipeData.isPresent()) {
-            return new ResponseEntity<>(recipeData.get(), HttpStatus.OK);
+            return new ResponseEntity<>(new RecipeDTO(recipeData.get()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -68,7 +80,8 @@ public class RecipeController {
     // Create a new recipe
     @SuppressWarnings("null")
     @PostMapping
-    public ResponseEntity<Recipe> createRecipe(@RequestBody Recipe recipe) {
+    @Transactional
+    public ResponseEntity<RecipeDTO> createRecipe(@RequestBody Recipe recipe) {
         try {
             // Set created time
             recipe.setCreatedAt(LocalDateTime.now());
@@ -94,7 +107,7 @@ public class RecipeController {
             }
             
             Recipe savedRecipe = recipeRepository.save(recipe);
-            return new ResponseEntity<>(savedRecipe, HttpStatus.CREATED);
+            return new ResponseEntity<>(new RecipeDTO(savedRecipe), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -102,7 +115,8 @@ public class RecipeController {
 
     // Update a recipe
     @PutMapping("/{id}")
-    public ResponseEntity<Recipe> updateRecipe(@PathVariable("id") Long id, @RequestBody Recipe recipe) {
+    @Transactional
+    public ResponseEntity<RecipeDTO> updateRecipe(@PathVariable("id") Long id, @RequestBody Recipe recipe) {
         Optional<Recipe> recipeData = recipeRepository.findById(id);
         
         if (recipeData.isPresent()) {
@@ -133,7 +147,8 @@ public class RecipeController {
                 }
             }
             
-            return new ResponseEntity<>(recipeRepository.save(existingRecipe), HttpStatus.OK);
+            Recipe updatedRecipe = recipeRepository.save(existingRecipe);
+            return new ResponseEntity<>(new RecipeDTO(updatedRecipe), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -141,6 +156,7 @@ public class RecipeController {
 
     // Delete a recipe
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<HttpStatus> deleteRecipe(@PathVariable("id") Long id) {
         try {
             recipeRepository.deleteById(id);
@@ -153,10 +169,14 @@ public class RecipeController {
     // Search recipes by title
     @SuppressWarnings("null")
     @GetMapping("/search")
-    public ResponseEntity<List<Recipe>> searchRecipes(@RequestParam("q") String query) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<RecipeDTO>> searchRecipes(@RequestParam("q") String query) {
         try {
             List<Recipe> recipes = recipeRepository.findByTitleContainingIgnoreCase(query);
-            return new ResponseEntity<>(recipes, HttpStatus.OK);
+            List<RecipeDTO> recipeDTOs = recipes.stream()
+                .map(RecipeDTO::new)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(recipeDTOs, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
