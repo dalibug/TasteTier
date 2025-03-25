@@ -44,6 +44,7 @@ public class WeeklyChallengeController {
     }
     
     // Get active challenges
+    @SuppressWarnings("null")
     @GetMapping("/active")
     public ResponseEntity<List<WeeklyChallenge>> getActiveChallenges() {
         try {
@@ -55,6 +56,7 @@ public class WeeklyChallengeController {
     }
     
     // Get most recent active challenge
+    @SuppressWarnings("null")
     @GetMapping("/active/latest")
     public ResponseEntity<WeeklyChallenge> getLatestActiveChallenge() {
         try {
@@ -70,6 +72,7 @@ public class WeeklyChallengeController {
     }
 
     // Create a new challenge
+    @SuppressWarnings("null")
     @PostMapping
     public ResponseEntity<WeeklyChallenge> createChallenge(@RequestBody WeeklyChallenge challenge) {
         try {

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 @Service
 public class RecipeService {
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(RecipeService.class);
 
     @Autowired
