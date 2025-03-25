@@ -11,8 +11,6 @@
 - Noah Mckegney  
 - Alexandro Mora  
 
-**GitHub Link:** [TasteTier Repository](https://github.com/dalibug/TasteTier)
-
 ---
 
 ## Introduction
