@@ -547,14 +547,6 @@ const Profile = () => {
               </div>
               <div className="profile-details">
                 <div className="detail-item">
-                  <span className="detail-label">Account Created:</span>
-                  <span className="detail-value">{formatDate(currentUser.createdAt)}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-label">Last Login:</span>
-                  <span className="detail-value">{formatDate(currentUser.lastLogin)}</span>
-                </div>
-                <div className="detail-item">
                   <span className="detail-label">Tier Lists Created:</span>
                   <span className="detail-value">{tierListCount}</span>
                 </div>
@@ -612,11 +604,6 @@ const Profile = () => {
                             </span>
                           )}
                         </div>
-                        <div className="tierlist-actions">
-                          <Link to="/tierlists">
-                            <button className="edit-btn">Edit</button>
-                          </Link>
-                        </div>
                       </div>
                       
                       <div className="tierlist-items">
@@ -647,7 +634,7 @@ const Profile = () => {
               
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', paddingBottom: '15px' }}>
                 <Link to="/tierlists">
-                  <button className="create-btn">
+                  <button className="create-btn elegant-create-btn">
                     <FontAwesomeIcon icon={faPlus} /> Create a New Tier List
                   </button>
                 </Link>

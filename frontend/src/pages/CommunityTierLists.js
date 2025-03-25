@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faHome, faSignOutAlt, faListAlt, faThumbsUp, faThumbsDown, faPercentage, faSpinner, faArrowUp, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHome, faSignOutAlt, faListAlt, faSpinner, faArrowUp, faArrowsRotate, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import '../styles/TierLists.css';
 import '../styles/Profile.css';
 import TierListService from '../services/TierListService';
@@ -109,12 +109,9 @@ const CommunityTierLists = () => {
           name: tierList.name || 'Unnamed Tier List',
           creator: tierList.username || tierList.userName || 'Anonymous',
           userId: tierList.userId || tierList.user_id,
+          profilePicture: tierList.pictureUrl || tierList.profile_picture || null,
           categoryName: tierList.categoryName || 'Uncategorized',
           createdAt: tierList.createdAt || tierList.created_at,
-          likes: tierList.likeCount || 0,
-          isLiked: false,
-          isDisliked: false,
-          similarity: Math.floor(Math.random() * 100),
           items: []
         };
         
@@ -192,72 +189,31 @@ const CommunityTierLists = () => {
     return 'success';
   };
 
-  const handleLike = (id) => {
-    setCommunityLists(prevLists =>
-      prevLists.map(list => {
-        if (list.id === id) {
-          // If already liked, unlike it
-          if (list.isLiked) {
-            return {
-              ...list,
-              likes: list.likes - 1,
-              isLiked: false
-            };
-          }
-          // If disliked, remove dislike and add like
-          else if (list.isDisliked) {
-            return {
-              ...list,
-              likes: list.likes + 1,
-              isLiked: true,
-              isDisliked: false
-            };
-          }
-          // Otherwise, just like it
-          else {
-            return {
-              ...list,
-              likes: list.likes + 1,
-              isLiked: true
-            };
-          }
-        }
-        return list;
-      })
-    );
+  // Function to generate a profile avatar with initials when no picture URL is available
+  const getProfileInitials = (name) => {
+    if (!name) return '?';
+    
+    // Extract initials from name
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return name[0].toUpperCase();
   };
 
-  const handleDislike = (id) => {
-    setCommunityLists(prevLists =>
-      prevLists.map(list => {
-        if (list.id === id) {
-          // If already disliked, remove dislike
-          if (list.isDisliked) {
-            return {
-              ...list,
-              isDisliked: false
-            };
-          }
-          // If liked, remove like and add dislike
-          else if (list.isLiked) {
-            return {
-              ...list,
-              likes: list.likes - 1,
-              isLiked: false,
-              isDisliked: true
-            };
-          }
-          // Otherwise, just dislike it
-          else {
-            return {
-              ...list,
-              isDisliked: true
-            };
-          }
-        }
-        return list;
-      })
-    );
+  // Function to get a consistent background color based on the creator's name
+  const getProfileColor = (name) => {
+    if (!name) return '#888888';
+    
+    // Generate a simple hash from the name
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Convert hash to a pastel color
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 70%, 70%)`;
   };
 
   const handleLogout = () => {
@@ -412,7 +368,23 @@ const CommunityTierLists = () => {
                     <div className="header-content">
                       <h3 className="tierlist-name">{tierList.name}</h3>
                       <div className="tierlist-meta">
-                        <span className="creator-name">by <strong>{tierList.creator}</strong></span>
+                        <div className="creator-profile">
+                          {tierList.profilePicture ? (
+                            <img 
+                              src={tierList.profilePicture} 
+                              alt={tierList.creator} 
+                              className="creator-avatar" 
+                            />
+                          ) : (
+                            <div 
+                              className="creator-avatar-initials"
+                              style={{ backgroundColor: getProfileColor(tierList.creator) }}
+                            >
+                              {getProfileInitials(tierList.creator)}
+                            </div>
+                          )}
+                          <span className="creator-name">by <strong>{tierList.creator}</strong></span>
+                        </div>
                         {tierList.categoryName && (
                           <span className="tierlist-category">{tierList.categoryName}</span>
                         )}
@@ -466,9 +438,6 @@ const CommunityTierLists = () => {
                           // Ensure we display all tiers in proper order
                           const tierOrder = ['s', 'a', 'b', 'c', 'd', 'f', 'other'];
                           
-                          // For debugging purposes
-                          console.log(`[DEBUG] Tier list ${tierList.id} has items in tiers:`, Object.keys(itemsByTier));
-                          
                           return tierOrder.map(tier => {
                             if (!itemsByTier[tier]) return null;
                             
@@ -500,30 +469,6 @@ const CommunityTierLists = () => {
                     ) : (
                       <p className="no-items elegant-message">No items in this tier list</p>
                     )}
-                  </div>
-                  
-                  <div className="tierlist-footer elegant-footer">
-                    <div className="likes-container">
-                      <div className="like-buttons">
-                        <button 
-                          className={`like-btn ${tierList.isLiked ? 'active' : ''}`}
-                          onClick={() => handleLike(tierList.id)}
-                        >
-                          <FontAwesomeIcon icon={faThumbsUp} size="sm" fixedWidth />
-                        </button>
-                        <button 
-                          className={`dislike-btn ${tierList.isDisliked ? 'active' : ''}`}
-                          onClick={() => handleDislike(tierList.id)}
-                        >
-                          <FontAwesomeIcon icon={faThumbsDown} size="sm" fixedWidth />
-                        </button>
-                      </div>
-                      <span className="likes-count">{tierList.likes} {tierList.likes === 1 ? 'Like' : 'Likes'}</span>
-                    </div>
-                    <div className="similarity-badge elegant-similarity">
-                      <span>{tierList.similarity}</span>
-                      <FontAwesomeIcon icon={faPercentage} />
-                    </div>
                   </div>
                 </div>
               ))}

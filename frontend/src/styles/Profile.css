@@ -168,10 +168,10 @@
 /* User's Tier Lists Section */
 .user-tierlists-section {
   margin-top: 30px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: transparent;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   position: relative;
   padding-bottom: 40px;
   width: 100%;
@@ -187,7 +187,7 @@
   left: 0;
   right: 0;
   height: 30px;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.9), transparent);
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.1), transparent);
   pointer-events: none;
   opacity: 0;
   border-bottom-left-radius: 12px;
@@ -221,16 +221,20 @@
 .user-tierlists-section h2 {
   font-size: 24px;
   margin-bottom: 20px;
-  color: #333;
-  border-bottom: 2px solid #e0e0e0;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
   padding-bottom: 10px;
 }
 
 .no-tierlists {
   text-align: center;
   padding: 20px;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   border-radius: 8px;
+  color: #fff;
 }
 
 .create-btn {
@@ -285,72 +289,62 @@
 }
 
 .tierlist-card {
-  background: white;
+  background: rgba(44, 44, 44, 0.7);
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
-  min-height: 200px;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
+  margin-bottom: 20px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tierlist-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .tierlist-header {
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
-  padding-bottom: 10px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .header-content {
-  flex: 1;
-  overflow: hidden;
+  flex-grow: 1;
+  text-align: center;
 }
 
 .tierlist-name {
-  font-size: 16px;
+  font-size: 1.2rem;
   font-weight: 600;
+  color: #fff;
   margin: 0 0 5px 0;
-  color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
 }
 
-.tierlist-category {
+.tierlist-category, .tierlist-date {
   display: inline-block;
-  background: #f0f0f0;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 11px;
-  margin-right: 5px;
-  color: #555;
-}
-
-.tierlist-date {
-  display: block;
-  font-size: 11px;
-  color: #888;
-  margin-top: 2px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-right: 15px;
 }
 
 .tierlist-items {
-  flex: 1;
+  padding: 15px;
+  max-height: 300px;
   overflow-y: auto;
-  max-height: 250px;
-  padding: 10px 0;
-  scrollbar-width: thin;
+  background: rgba(44, 44, 44, 0.4);
 }
 
 .tierlist-items::-webkit-scrollbar {
@@ -373,42 +367,47 @@
 
 .items-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
 }
 
 .tierlist-item {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: #f9f9f9;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.2s;
   overflow: hidden;
-  height: auto;
-  min-height: 42px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border-left: 4px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .tierlist-item:hover {
-  transform: translateX(2px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .tierlist-item .recipe-name {
-  font-size: 13px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 5px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 70%;
-  text-align: left;
-  margin-right: auto;
 }
 
 .tierlist-item .tier-badge {
-  margin-left: auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 3px 7px;
+  border-radius: 0 6px 0 6px;
+  font-weight: bold;
+  font-size: 0.7rem;
 }
 
 .empty-item {
@@ -420,36 +419,58 @@
 }
 
 .tier-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 6px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
   text-align: center;
-  border-radius: 4px;
-  font-weight: 600;
+  border-radius: 3px;
+  font-weight: bold;
   font-size: 12px;
+  letter-spacing: 0.5px;
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .tier-badge.s {
-  background-color: #ffd700;
-  color: #333;
+  background-color: #FFD700; /* Gold */
+  color: #000;
 }
 
 .tier-badge.a {
-  background-color: #c0c0c0;
-  color: #333;
+  background-color: #C0C0C0; /* Silver */
+  color: #000;
 }
 
 .tier-badge.b {
-  background-color: #cd7f32;
+  background-color: #CD7F32; /* Bronze */
   color: white;
 }
 
 .tier-badge.c {
-  background-color: #989898;
+  background-color: #2ECC71; /* Green */
   color: white;
+}
+
+/* Color coding for tier items */
+.tierlist-item.s-tier {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: rgba(255, 215, 0, 0.5);
+}
+
+.tierlist-item.a-tier {
+  background: rgba(192, 192, 192, 0.2);
+  border-color: rgba(192, 192, 192, 0.5);
+}
+
+.tierlist-item.b-tier {
+  background: rgba(205, 127, 50, 0.2);
+  border-color: rgba(205, 127, 50, 0.5);
+}
+
+.tierlist-item.c-tier {
+  background: rgba(46, 204, 113, 0.2);
+  border-color: rgba(46, 204, 113, 0.5);
 }
 
 .retry-btn {
@@ -646,21 +667,6 @@
   width: 16px;
 }
 
-.edit-btn {
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.edit-btn:hover {
-  background-color: #0d8bf2;
-}
-
 @media (max-width: 1200px) {
   .tierlists-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -740,4 +746,24 @@
 
 .profile-background .tierlist-item:has(.tier-badge.c) {
   border-left-color: #989898;
+}
+
+.elegant-create-btn {
+  background-color: rgba(66, 133, 244, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 12px 25px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  margin-top: 25px;
+}
+
+.elegant-create-btn:hover {
+  background-color: rgba(66, 133, 244, 1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 } 

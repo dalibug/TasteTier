@@ -92,13 +92,33 @@ const TierListService = {
                 id: tierList.tierlistId,
                 name: tierList.name || 'Unnamed Tier List',
                 username: tierList.userName || tierList.username || 'Anonymous', 
+                profilePicture: tierList.pictureUrl || null,
                 categoryName: tierList.categoryName,
                 createdAt: tierList.createdAt,
                 lastModified: tierList.lastModified,
                 isPublic: tierList.isPublic,
-                likeCount: 0, // Default until we implement likes
+                userId: tierList.userId || tierList.user_id,
                 items: []
               };
+              
+              // Try to fetch user profile picture if not included in tier list data
+              if (!formattedTierList.profilePicture && formattedTierList.userId) {
+                try {
+                  const userUrl = `${API_BASE_URL}/tables/users?filter=user_id:${formattedTierList.userId}`;
+                  const userResponse = await fetch(userUrl, {
+                    credentials: 'include'
+                  });
+                  
+                  if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    if (Array.isArray(userData) && userData.length > 0 && userData[0].picture_url) {
+                      formattedTierList.profilePicture = userData[0].picture_url;
+                    }
+                  }
+                } catch (err) {
+                  console.error(`[DEBUG TierListService] Error fetching user profile picture:`, err);
+                }
+              }
               
               // Use the tables API which is working based on logs - same approach as Profile.js
               const itemsUrl = `${API_BASE_URL}/tables/tierlist_recipes?filter=tierlist_id:${tierList.tierlistId}`;
@@ -272,11 +292,12 @@ const TierListService = {
                 id: tierList.tierlistId, 
                 name: tierList.name || 'Unnamed Tier List',
                 username: tierList.userName || tierList.username || 'Anonymous',
+                profilePicture: tierList.pictureUrl || null,
                 categoryName: tierList.categoryName,
                 createdAt: tierList.createdAt,
                 lastModified: tierList.lastModified,
                 isPublic: tierList.isPublic,
-                likeCount: 0,
+                userId: tierList.userId || tierList.user_id,
                 items: [] 
               };
             }

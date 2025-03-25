@@ -2371,3 +2371,194 @@
   box-shadow: 0 2px 8px rgba(255, 65, 54, 0.4);
   border: 1px solid rgba(255, 65, 54, 0.6);
 } 
+
+/* Creator profile styles */
+.creator-profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.creator-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.creator-avatar-initials {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  font-weight: bold;
+  color: white;
+  font-size: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced elegant card styling */
+.elegant-card {
+  background-color: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 24px;
+}
+
+.elegant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.elegant-header {
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  padding: 16px 20px;
+  border-bottom: 1px solid #e1e5eb;
+}
+
+.tierlist-name {
+  font-size: 1.3rem;
+  margin: 0 0 8px;
+  color: #343a40;
+  font-weight: 600;
+}
+
+.tierlist-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.tierlist-category, .tierlist-date {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  max-width: fit-content;
+}
+
+.elegant-items {
+  padding: 16px;
+}
+
+.elegant-tier-group {
+  margin-bottom: 16px;
+}
+
+.elegant-tier-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.tier-s { background-color: rgba(255, 215, 0, 0.2); }
+.tier-a { background-color: rgba(192, 192, 192, 0.2); }
+.tier-b { background-color: rgba(205, 127, 50, 0.2); }
+.tier-c { background-color: rgba(46, 204, 113, 0.2); }
+.tier-d { background-color: rgba(52, 152, 219, 0.2); }
+.tier-f { background-color: rgba(231, 76, 60, 0.2); }
+.tier-other { background-color: rgba(149, 165, 166, 0.2); }
+
+.elegant-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.s { background-color: #FFD700; color: #000; }
+.a { background-color: #C0C0C0; color: #000; }
+.b { background-color: #CD7F32; color: #fff; }
+.c { background-color: #2ECC71; color: #fff; }
+.d { background-color: #3498DB; color: #fff; }
+.f { background-color: #E74C3C; color: #fff; }
+.other { background-color: #95A5A6; color: #fff; }
+
+.tier-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.elegant-recipes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.elegant-recipe-item {
+  background-color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e1e5eb;
+  transition: all 0.2s ease;
+  flex: 1 1 calc(33.33% - 8px);
+  min-width: 150px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.elegant-recipe-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-color: #ced4da;
+}
+
+.elegant-recipe-name {
+  display: block;
+  font-size: 0.85rem;
+  color: #495057;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-items {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .elegant-recipe-item {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 576px) {
+  .elegant-recipe-item {
+    flex: 1 1 100%;
+  }
+  
+  .creator-profile {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .creator-avatar, .creator-avatar-initials {
+    margin-bottom: 4px;
+  }
+}
