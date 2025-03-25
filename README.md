@@ -3,14 +3,14 @@
 Project 02 Retrospective Hani Al Barkawi, Dalia Cabrera, Noah Mckegney, Alexandro Mora
 
 
-##Introduction
+## Introduction
 This project tested our ability to integrate new software without any prior knowledge or experience, however it was extremely satisfying once it all came together.
 We communicated primarily through Slack and in person meetings.
 We initially did not have a set number of stories, we simply added as the work progressed and that resulted in 18 github issues. In the end we completed 18 of the 18 issues.
 
-##Team Member Retrospectives
+## eam Member Retrospectives
 
-###Alexandro Mora
+### Alexandro Mora
 I did the best work possible. My contributions were well received and used to build on.
 ○ What was your role / which stories did you work on
 ■ My role was primarily database integration
@@ -32,7 +32,7 @@ work was properly implemented in our working branch
 ■ It's important to tackle one issue or error at a time instead of trying to fix
 something in its entirety.
 
-###Dalia Cabrera Hurtado
+### Dalia Cabrera Hurtado
 My contributions were ...
 ○ What was your role / which stories did you work on
 ■ My role was to build the Recipe API. I worked on the stories related to creating,
@@ -61,7 +61,7 @@ security for local testing.
 ■ The most valuable thing I learned is how to design and implement a scalable API
 that effectively integrates with different environments, and how to manage configuration and security for both development and production.
 
-###Noah Mckegney
+### Noah Mckegney
 My contributions were ...
 ○ What was your role / which stories did you work on
 ■ I was in charge of user signup using OAuth. The task involved integrating a
@@ -85,7 +85,7 @@ in most apps, and I am happy that I got a bit of experience with it.
 ■ After working on this project I think I understand the components that go into
 building a full stack application a lot better. I am super inspired to try and use what I have learned to build a web application on my own.
 
-###Hani Al Barkawi
+### Hani Al Barkawi
 I shared responsibility with Alex to design and implement the database along with the interface and project structure like heroku setup.
 ● What was your role / which stories did you work on
 ○ The initial setup of the project was set up by me in the db config branch which separates
@@ -108,10 +108,10 @@ implement anything new
 ○ On a personal level I learned to have more composure,but overall this helped shape for
 me the “full stack” development process in a more clear way.
 
-##Conclusions
-###How successful was the project?
+## Conclusions
+### How successful was the project?
 In that we were able to successfully meet all of the requirements of both the prompt and the tasks we set ourselves, and looked good doing it, we all agree it was a rousing 95.5% success.
-###What was the largest victory?
+### What was the largest victory?
 Our largest victory was getting OAuth to work and having it not break our routes when we deployed to Heroku.
-###Final assessment of the project
+### Final assessment of the project
 This project not only met our technical requirements but also provided a significant learning opportunity for all team members. We now have a clearer understanding of the full stack development process, which will serve as a solid foundation for future projects.
