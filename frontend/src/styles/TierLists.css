@@ -501,10 +501,9 @@
 
 .tierlist-meta {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin-top: 5px;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
 }
 
 .creator-name {
@@ -695,22 +694,34 @@
 
 /* Similarity Badge - updated for community tier lists */
 .similarity-badge {
-  background: rgba(44, 44, 44, 0.6);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85em;
-  font-family: 'Work Sans', sans-serif;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 190px;
+  background: rgba(135, 162, 127, 0.8);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+  margin-top: 8px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.similarity-badge:hover {
+  transform: translateY(-2px);
+  background: rgba(135, 162, 127, 0.9);
+}
+
+.similarity-badge svg {
+  font-size: 14px;
+  color: white;
+}
+
+.similarity-badge span {
+  font-family: 'Work Sans', sans-serif;
 }
 
 /* For TierLists page - just the likes badge */

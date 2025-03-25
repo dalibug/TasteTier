@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faHome, faSignOutAlt, faListAlt, faSpinner, faArrowUp, faArrowsRotate, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHome, faSignOutAlt, faListAlt, faSpinner, faArrowUp, faArrowsRotate, faUserCircle, faChartLine } from '@fortawesome/free-solid-svg-icons';
 import '../styles/TierLists.css';
 import '../styles/Profile.css';
 import TierListService from '../services/TierListService';
+import { useAuth } from '../context/AuthContext';
 
 const CommunityTierLists = () => {
+  const { user } = useAuth();
   const backgroundStyle = {
     background: `url(${backgroundImage}) no-repeat center center fixed`,
     backgroundSize: 'cover',
@@ -21,6 +23,7 @@ const CommunityTierLists = () => {
   const contentRef = useRef(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [communityLists, setCommunityLists] = useState([]);
+  const [userTierLists, setUserTierLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
@@ -28,7 +31,10 @@ const CommunityTierLists = () => {
   // Fetch all tier lists when component mounts
   useEffect(() => {
     fetchCommunityTierLists();
-  }, []);
+    if (user) {
+      fetchUserTierLists();
+    }
+  }, [user]);
 
   const fetchCommunityTierLists = async () => {
     try {
@@ -285,6 +291,89 @@ const CommunityTierLists = () => {
     });
   }
 
+  // Function to calculate similarity between two tier lists
+  const calculateSimilarity = (list1, list2) => {
+    if (!list1.items || !list2.items || list1.items.length === 0 || list2.items.length === 0) {
+      return 0;
+    }
+
+    // Create maps of recipe positions for each list
+    const list1Map = new Map();
+    const list2Map = new Map();
+
+    list1.items.forEach(item => {
+      list1Map.set(item.recipeName, {
+        tier: item.tier,
+        position: item.position
+      });
+    });
+
+    list2.items.forEach(item => {
+      list2Map.set(item.recipeName, {
+        tier: item.tier,
+        position: item.position
+      });
+    });
+
+    // Find common recipes
+    const commonRecipes = list1.items.filter(item => list2Map.has(item.recipeName));
+    if (commonRecipes.length === 0) return 0;
+
+    // Calculate tier agreement score
+    let tierAgreement = 0;
+    let positionAgreement = 0;
+
+    commonRecipes.forEach(item => {
+      const list2Item = list2Map.get(item.recipeName);
+      
+      // Tier agreement (exact match)
+      if (item.tier === list2Item.tier) {
+        tierAgreement++;
+      }
+
+      // Position agreement (within 2 positions)
+      const positionDiff = Math.abs(item.position - list2Item.position);
+      if (positionDiff <= 2) {
+        positionAgreement++;
+      }
+    });
+
+    // Calculate final similarity score
+    const tierScore = (tierAgreement / commonRecipes.length) * 60; // 60% weight for tier agreement
+    const positionScore = (positionAgreement / commonRecipes.length) * 40; // 40% weight for position agreement
+    const finalScore = Math.round(tierScore + positionScore);
+
+    return finalScore;
+  };
+
+  // Function to get similarity score for a community tier list
+  const getSimilarityScore = (communityList) => {
+    if (!userTierLists || userTierLists.length === 0) return null;
+
+    // Calculate average similarity with all user's tier lists
+    const similarities = userTierLists.map(userList => 
+      calculateSimilarity(communityList, userList)
+    );
+
+    const averageSimilarity = Math.round(
+      similarities.reduce((sum, score) => sum + score, 0) / similarities.length
+    );
+
+    return averageSimilarity;
+  };
+
+  // Fetch user's tier lists
+  const fetchUserTierLists = async () => {
+    if (!user) return;
+
+    try {
+      const data = await TierListService.getUserTierLists(user.id);
+      setUserTierLists(data);
+    } catch (error) {
+      console.error('Error fetching user tier lists:', error);
+    }
+  };
+
   return (
     <div className="tierlists-background" style={backgroundStyle}>
       <div className="fixed-header">
@@ -392,6 +481,12 @@ const CommunityTierLists = () => {
                           <span className="tierlist-date">
                             Created: {new Date(tierList.createdAt).toLocaleDateString()}
                           </span>
+                        )}
+                        {user && (
+                          <div className="similarity-badge">
+                            <FontAwesomeIcon icon={faChartLine} />
+                            <span>{getSimilarityScore(tierList)}% Match</span>
+                          </div>
                         )}
                       </div>
                     </div>
