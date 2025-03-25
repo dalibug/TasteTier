@@ -11,6 +11,8 @@
 - Noah Mckegney  
 - Alexandro Mora  
 
+**GitHub Link:** [TasteTier Repository](https://github.com/dalibug/TasteTier)
+
 ---
 
 ## Introduction
@@ -154,4 +156,3 @@ This project tested our ability to integrate new software without any prior know
 
 - **Final Assessment:**  
   The project not only met our technical requirements but also provided significant learning opportunities. It gave all team members a clearer understanding of the full-stack development process, which will serve as a solid foundation for future projects.
-
