@@ -961,6 +961,11 @@ const TierLists = () => {
                     <FontAwesomeIcon icon={faUser} /> Account
                   </button>
                 </Link>
+                <Link to="/community-tierlists">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faListAlt} /> Community Lists
+                  </button>
+                </Link>
                 <button id="settings-menu-item" onClick={handleLogout}>
                   <FontAwesomeIcon icon={faSignOutAlt} /> Logout
                 </button>
@@ -1098,15 +1103,6 @@ const TierLists = () => {
               )}
             </div>
           )}
-        </div>
-
-        {/* Community Tier Lists Button */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-          <Link to="/community-tierlists">
-            <button id="view-community-tierlists-btn">
-              View Community Tier Lists
-            </button>
-          </Link>
         </div>
       </div>
 

@@ -630,6 +630,11 @@ const Profile = () => {
                     <FontAwesomeIcon icon={faUser} /> Account
                   </button>
                 </Link>
+                <Link to="/community-tierlists">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faListAlt} /> Community Lists
+                  </button>
+                </Link>
                 <Link to="/tierlists">
                   <button id="settings-menu-item">
                     <FontAwesomeIcon icon={faListAlt} /> Tier Lists
