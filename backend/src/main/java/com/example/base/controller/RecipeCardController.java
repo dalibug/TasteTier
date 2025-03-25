@@ -37,6 +37,7 @@ public class RecipeCardController {
             
             // Count recipes
             String countSql = "SELECT COUNT(*) as count FROM recipes";
+            @SuppressWarnings("null")
             int count = jdbcTemplate.queryForObject(countSql, Integer.class);
             result.append("\nTotal recipes: ").append(count);
             

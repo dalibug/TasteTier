@@ -20,6 +20,7 @@ public class WeeklyChallengeController {
     private WeeklyChallengeRepository challengeRepository;
 
     // Get all challenges
+    @SuppressWarnings("null")
     @GetMapping
     public ResponseEntity<List<WeeklyChallenge>> getAllChallenges() {
         try {

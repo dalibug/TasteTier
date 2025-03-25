@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
+@SuppressWarnings("unused")
 @CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000"}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/tierlist-items")
