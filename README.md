@@ -1,114 +1,155 @@
-# Spring Boot + React Full Stack Application
+# CST 438: Project 01 Retrospective – Team 07  
+**Dr. Drew A. Clinkenbeard**  
 
-This project is a full-stack application with a Spring Boot backend and React frontend. The backend connects to a JawsDB MySQL database and provides a REST API for CRUD operations on test entities. The frontend is a React application that interacts with the backend API.
+---
 
-## Project Structure
+## Project 02 Retrospective  
+**Team Members:**  
+- Hani Al Barkawi  
+- Dalia Cabrera  
+- Noah Mckegney  
+- Alexandro Mora  
 
-```
-project/
-├── backend/                  # Spring Boot backend
-│   ├── src/                  # Source code
-│   │   ├── main/
-│   │   │   ├── java/        # Java code
-│   │   │   └── resources/   # Application properties
-│   │   └── test/            # Test code
-│   ├── build.gradle         # Gradle build file
-│   └── gradlew              # Gradle wrapper
-├── frontend/                 # React frontend
-│   ├── public/              # Public assets
-│   ├── src/                 # Source code
-│   │   ├── App.js           # Main React component
-│   │   ├── App.css          # Styles
-│   │   └── ...              # Other React files
-│   ├── package.json         # NPM dependencies
-│   └── ...                  # Other React config files
-└── package.json             # Root package.json for running both apps
-```
+---
 
-## Prerequisites
+## Introduction
 
-- Java 17 or higher
-- Node.js and npm
-- MySQL database (or JawsDB MySQL on Heroku)
+This project tested our ability to integrate new software without any prior knowledge or experience. The process was extremely satisfying once everything came together. We communicated primarily through Slack and in-person meetings. Although we did not initially have a set number of stories, we added them as the work progressed, resulting in 18 GitHub issues, all of which were completed.
 
-## Configuration
+---
 
-### Backend Configuration
+## Team Member Retrospectives
 
-The backend is configured to connect to a JawsDB MySQL database. The configuration is in `backend/src/main/resources/application.properties`:
+### Alexandro Mora
 
-```properties
-spring.datasource.url=jdbc:mysql://your-jawsdb-host:3306/your-database
-spring.datasource.username=your-username
-spring.datasource.password=your-password
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.hikari.maximum-pool-size=5
+- **Role / Stories:**  
+  - Primarily responsible for database integration.  
+  - Created the database and ensured that all team members' work was properly merged into our working branch.
 
-spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
+- **Time Spent Outside of Class:**  
+  - Approximately 4 hours per week.
 
-server.port=8081
-```
+- **Biggest Challenge:**  
+  - Getting OAuth to work with our database.
 
-### Frontend Configuration
+- **Why It Was a Challenge:**  
+  - Needed to ensure that the security configuration would correctly route the program even when changes were made so that the routes remained intact.
 
-The frontend is configured to connect to the backend API at `http://localhost:8081`. If you change the backend port, you'll need to update the API URLs in `frontend/src/App.js`.
+- **How It Was Addressed:**  
+  - Through trial and error, extensive reading, and collaborating with Noah (who developed our OAuth software).
 
-## Running the Application
+- **Favorite/Most Interesting Part:**  
+  - Seeing everything come together and creating the UI.
 
-### Running Both Frontend and Backend
+- **If You Could Do It Over:**  
+  - Start sooner.
 
-From the root directory, run:
+- **Most Valuable Lesson Learned:**  
+  - Tackling one issue at a time is more effective than trying to fix everything at once.
 
-```bash
-npm install
-npm start
-```
+---
 
-This will start both the backend and frontend concurrently.
+### Dalia Cabrera Hurtado
 
-### Running the Backend Only
+- **Role / Stories:**  
+  - Built the Recipe API.  
+  - Worked on stories related to creating, reading, updating, and deleting recipes.
 
-From the `backend` directory, run:
+- **Folder Structure and User Stories:**
+  - **api/controller (RecipeController):** Handles HTTP requests (e.g., creating, updating, deleting recipes).
+  - **api/model (Recipe):** Defines the data structure (fields like name, description, ingredients, instructions, imageUrl) for the recipe’s content and details.
+  - **api/repository (RecipeRepository):** Manages database operations (CRUD).
+  - **api/config (DataSeeder, DevSecurityConfig):**  
+    - *DataSeeder* seeds initial data, fulfilling stories requiring sample recipes for demonstration.  
+    - *DevSecurityConfig* disables security in development, enabling testing of user stories without dealing with OAuth locally.
 
-```bash
-./gradlew bootRun
-```
+- **Time Spent Outside of Class:**  
+  - A few hours each week.
 
-The backend will start on port 8081.
+- **Biggest Challenge:**  
+  - Coordinating work in tandem with the team due to shared configurations and overlapping dependencies.
 
-### Running the Frontend Only
+- **How It Was Addressed:**  
+  - Created separate configuration files for development (`application-dev.properties` with H2) and production (`application-prod.properties` with MySQL on Heroku).  
+  - Resolved OAuth conflicts by annotating `SecurityConfig.java` with `@Profile({"prod"})` and creating a dedicated `DevSecurityConfig.java` annotated with `@Profile({"dev"})`.
 
-From the `frontend` directory, run:
+- **Favorite/Most Interesting Part:**  
+  - Seeing the project come together.
 
-```bash
-npm install
-npm start
-```
+- **If You Could Do It Over:**  
+  - Spend more time early on establishing clear communication and configuration guidelines.
 
-The frontend will start on port 3000.
+- **Most Valuable Lesson Learned:**  
+  - Designing and implementing a scalable API that integrates with different environments and managing configuration and security for both development and production.
 
-## API Endpoints
+---
 
-- `GET /api/test-entities`: Get all test entities
-- `GET /api/test-entities/{id}`: Get a test entity by ID
-- `POST /api/test-entities`: Create a new test entity
-- `PUT /api/test-entities/{id}`: Update a test entity
-- `DELETE /api/test-entities/{id}`: Delete a test entity
-- `DELETE /api/test-entities`: Delete all test entities
-- `GET /api/test-entities/test-connection`: Test the database connection
-- `GET /db-test`: Test the database connection (alternative endpoint)
+### Noah Mckegney
 
-## Deployment
+- **Role / Stories:**  
+  - In charge of user signup using OAuth.  
+  - Integrated a Google OAuth application with Spring Boot, designed a user class for handling user data, and implemented an API post request for login.  
+  - Collaborated closely with Alexandro to merge OAuth with the branch containing the front and backend.
 
-### Deploying to Heroku
+- **Time Spent Outside of Class:**  
+  - A few hours every weekend and on Wednesdays.
 
-1. Create a new Heroku app
-2. Add JawsDB MySQL add-on
-3. Set up environment variables for database connection
-4. Deploy the application
+- **Biggest Challenge:**  
+  - Integrating and packaging the data fetched from OAuth to serve it in a format suitable for the database.
 
-## License
+- **Why It Was a Challenge:**  
+  - Lack of prior experience with OAuth and Spring Boot, leading to uncertainty in integrating the two.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- **How It Was Addressed:**  
+  - After trying various complex solutions with Spring Boot’s security, decided to simplify the approach by leveraging familiar OOP concepts and building a custom solution (acknowledging that it might not be as secure as the Spring Boot security defaults).
+
+- **Favorite/Most Interesting Part:**  
+  - Successfully implementing OAuth login.
+
+- **If You Could Do It Over:**  
+  - Remind myself that many solutions exist for the same problem and not to be overwhelmed by initial complexity.
+
+- **Most Valuable Lesson Learned:**  
+  - Gained a deeper understanding of the components involved in building a full-stack application, inspiring future personal web application projects.
+
+---
+
+### Hani Al Barkawi
+
+- **Role / Stories:**  
+  - Shared responsibility with Alexandro to design and implement the database along with the project structure and Heroku setup.
+  - Set up the initial project configuration in the `db config` branch, separating the frontend and backend into different folders, and hosting the database on Heroku.
+
+- **Time Spent Outside of Class:**  
+  - On average, 3 hours per day (sometimes 5–6 hours, sometimes none).
+
+- **Biggest Challenge:**  
+  - Getting Docker to work consistently; changes often broke the Docker build.
+
+- **Why It Was a Challenge:**  
+  - Frequent fixes were needed each time work on the project resumed.
+
+- **How It Was Addressed:**  
+  - Resolved issues on a case-by-case basis as they arose.
+
+- **Favorite/Most Interesting Part:**  
+  - Learning about Heroku and its deployment process.
+
+- **If You Could Do It Over:**  
+  - Start earlier; avoided time wasted on setting up an AWS server when Heroku would have sufficed.
+
+- **Most Valuable Lesson Learned:**  
+  - Learned to maintain composure under pressure and gained a clearer understanding of the full-stack development process.
+
+---
+
+## Conclusions
+
+- **Overall Success:**  
+  We successfully met all project requirements and achieved a 95.5% success rate based on our self-assessment.
+
+- **Largest Victory:**  
+  Getting OAuth to work without breaking our routes upon deployment to Heroku.
+
+- **Final Assessment:**  
+  The project not only met our technical requirements but also provided significant learning opportunities. It gave all team members a clearer understanding of the full-stack development process, which will serve as a solid foundation for future projects.
