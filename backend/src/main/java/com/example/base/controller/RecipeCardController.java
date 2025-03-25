@@ -58,7 +58,7 @@ public class RecipeCardController {
             // 1 = Chicken Wings, 2 = Pasta, 3 = Steak, 4 = Soup
             
             // Get all recipes from recipes table
-            String sql = "SELECT recipe_id, title, description, category_id, image_url, ingredients FROM recipes ORDER BY recipe_id";
+            String sql = "SELECT recipe_id, title, description, category_id, image_url, ingredients, instructions FROM recipes ORDER BY recipe_id";
             List<Map<String, Object>> allRecipes = jdbcTemplate.queryForList(sql);
             
             // Group recipes by category
@@ -145,7 +145,7 @@ public class RecipeCardController {
                     return ResponseEntity.badRequest().build();
             }
             
-            String sql = "SELECT recipe_id, title, description, category_id, image_url, ingredients FROM recipes WHERE category_id = ? ORDER BY recipe_id";
+            String sql = "SELECT recipe_id, title, description, category_id, image_url, ingredients, instructions FROM recipes WHERE category_id = ? ORDER BY recipe_id";
             List<Map<String, Object>> recipes = jdbcTemplate.queryForList(sql, categoryId);
             
             return ResponseEntity.ok(recipes);

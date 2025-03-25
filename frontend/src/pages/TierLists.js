@@ -1128,58 +1128,88 @@ const TierLists = () => {
         <div className="image-popout-overlay" onClick={closeImagePopout}>
           <div className="image-popout-card" onClick={(e) => e.stopPropagation()}>
             <button className="close-popout-btn" onClick={closeImagePopout}>×</button>
-            <div className="image-container">
-              {selectedRecipeId && getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.image_url ? (
-                preloadedImages[selectedRecipeId] ? (
-                  // If we have a preloaded image, use an img tag
-                  <img 
-                    src={preloadedImages[selectedRecipeId]} 
-                    alt={getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.title}
-                    className="recipe-image"
-                    onLoad={() => {
-                      console.log('Popup image loaded');
-                      setImageLoading(false);
-                    }}
-                    onError={(e) => {
-                      console.error('Image failed to load in popup:', e);
-                      setImageLoading(false);
-                      e.target.onerror = null;
-                      e.target.src = "https://placehold.co/300x300/gray/white?text=No+Image";
-                    }}
-                    style={{
-                      maxWidth: "100%", 
-                      maxHeight: "300px", 
-                      objectFit: "cover",
-                      display: imageLoading ? "none" : "block" // Hide while loading
-                    }}
-                  />
-                ) : (
-                  // If we don't have a preloaded image yet, use a div with background-image
-                  // This approach sometimes works better with Google Drive
-                  <div 
-                    className="image-container-direct"
-                    style={{
-                      backgroundImage: `url(${getRecipeImageSrc(getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId))})`,
-                      backgroundSize: "contain",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                      width: "100%",
-                      height: "300px"
-                    }}
-                    onLoad={() => setImageLoading(false)}
-                  ></div>
-                )
-              ) : (
-                <div className="placeholder-text">No image available for this recipe</div>
-              )}
-              {imageLoading && (
-                <div className="loading-spinner" style={{margin: "auto"}}></div>
-              )}
-            </div>
-            <div className="recipe-details">
-              <h3>{getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.title}</h3>
-              <p>{getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId)?.description}</p>
-            </div>
+            {(() => {
+              // Get the selected recipe once to avoid repeated lookups
+              const selectedRecipe = getCurrentRecipes().find(recipe => recipe.recipe_id === selectedRecipeId);
+              
+              // Debug log to check recipe data structure
+              console.log('Selected Recipe Data:', selectedRecipe);
+              console.log('Has ingredients:', Boolean(selectedRecipe?.ingredients));
+              console.log('Has instructions:', Boolean(selectedRecipe?.instructions));
+              
+              return (
+                <>
+                  <div className="image-container">
+                    {selectedRecipe?.image_url ? (
+                      preloadedImages[selectedRecipeId] ? (
+                        // If we have a preloaded image, use an img tag
+                        <img 
+                          src={preloadedImages[selectedRecipeId]} 
+                          alt={selectedRecipe.title}
+                          className="recipe-image"
+                          onLoad={() => {
+                            console.log('Popup image loaded');
+                            setImageLoading(false);
+                          }}
+                          onError={(e) => {
+                            console.error('Image failed to load in popup:', e);
+                            setImageLoading(false);
+                            e.target.onerror = null;
+                            e.target.src = "https://placehold.co/300x300/gray/white?text=No+Image";
+                          }}
+                          style={{
+                            maxWidth: "100%", 
+                            maxHeight: "300px", 
+                            objectFit: "cover",
+                            display: imageLoading ? "none" : "block" // Hide while loading
+                          }}
+                        />
+                      ) : (
+                        // If we don't have a preloaded image yet, use a div with background-image
+                        // This approach sometimes works better with Google Drive
+                        <div 
+                          className="image-container-direct"
+                          style={{
+                            backgroundImage: `url(${getRecipeImageSrc(selectedRecipe)})`,
+                            backgroundSize: "contain",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat",
+                            width: "100%",
+                            height: "300px"
+                          }}
+                          onLoad={() => setImageLoading(false)}
+                        ></div>
+                      )
+                    ) : (
+                      <div className="placeholder-text">No image available for this recipe</div>
+                    )}
+                    {imageLoading && (
+                      <div className="loading-spinner" style={{margin: "auto"}}></div>
+                    )}
+                  </div>
+                  <div className="recipe-details">
+                    <h3>{selectedRecipe?.title}</h3>
+                    <p>{selectedRecipe?.description}</p>
+                    
+                    {/* Display ingredients */}
+                    {selectedRecipe?.ingredients && (
+                      <div className="recipe-ingredients">
+                        <h4>Ingredients</h4>
+                        <pre>{selectedRecipe.ingredients}</pre>
+                      </div>
+                    )}
+                    
+                    {/* Display instructions */}
+                    {selectedRecipe?.instructions && (
+                      <div className="recipe-instructions">
+                        <h4>Instructions</h4>
+                        <pre>{selectedRecipe.instructions}</pre>
+                      </div>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
