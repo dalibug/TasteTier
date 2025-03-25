@@ -1,6 +1,4 @@
 # CST 438: Project 01 Retrospective – Team 07  
-**Mar 19, 2025**  
-**Dr. Drew A. Clinkenbeard**  
 
 ---
 
