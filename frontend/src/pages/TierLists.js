@@ -312,12 +312,20 @@ const TierLists = () => {
     if (typeof imageObj === 'string') {
       const img = new Image();
       img.onload = () => {
+        console.log(`Direct URL successful for recipe ${recipeId}`);
         setPreloadedImages(prev => ({
           ...prev,
           [recipeId]: imageObj
         }));
       };
-      img.onerror = () => {};
+      img.onerror = () => {
+        console.log(`Direct URL failed for recipe ${recipeId}`);
+        // Set a placeholder image on error
+        setPreloadedImages(prev => ({
+          ...prev,
+          [recipeId]: "https://placehold.co/300x300/gray/white?text=No+Image"
+        }));
+      };
       img.src = imageObj;
       return;
     }
@@ -373,12 +381,32 @@ const TierLists = () => {
       };
       img.onerror = () => {
         console.log(`All URL formats failed for recipe ${recipeId}`);
+        // Set a placeholder image when all attempts fail
+        setPreloadedImages(prev => ({
+          ...prev,
+          [recipeId]: "https://placehold.co/300x300/gray/white?text=No+Image"
+        }));
       };
       img.src = imageObj.thumbnailUrl;
     };
     
     // Start the chain of attempts
     tryDirectUrl();
+  };
+
+  // Helper to get the image source for a recipe
+  const getRecipeImageSrc = (recipe) => {
+    if (!recipe.image_url) return null;
+    if (preloadedImages[recipe.recipe_id]) return preloadedImages[recipe.recipe_id];
+    
+    const imageObj = getImageUrl(recipe.image_url);
+    if (!imageObj) return "https://placehold.co/300x300/gray/white?text=No+Image";
+    
+    // If it's a string, use that directly
+    if (typeof imageObj === 'string') return imageObj;
+    
+    // Otherwise use the direct URL by default and let the preloader update it later
+    return imageObj.directUrl;
   };
 
   // Update to preload images when recipes are fetched
@@ -395,21 +423,6 @@ const TierLists = () => {
       });
     }
   }, [loading, recipeCategories]);
-
-  // Helper to get the image source for a recipe
-  const getRecipeImageSrc = (recipe) => {
-    if (!recipe.image_url) return null;
-    if (preloadedImages[recipe.recipe_id]) return preloadedImages[recipe.recipe_id];
-    
-    const imageObj = getImageUrl(recipe.image_url);
-    if (!imageObj) return null;
-    
-    // If it's a string, use that directly
-    if (typeof imageObj === 'string') return imageObj;
-    
-    // Otherwise use the direct URL by default and let the preloader update it later
-    return imageObj.directUrl;
-  };
 
   const handleEditClick = (tierList) => {
     setSelectedTierList(tierList);
@@ -967,7 +980,8 @@ const TierLists = () => {
                 className="tierlist-name-input"
               />
               <button 
-                className={`create-tierlist-btn ${Object.keys(selectedTiers).length > 0 ? 'active' : 'disabled'}`}
+                id="create-tierlist-btn"
+                className={Object.keys(selectedTiers).length > 0 ? 'active' : 'disabled'}
                 disabled={Object.keys(selectedTiers).length === 0 || creatingTierList}
                 onClick={createTierList}
               >
@@ -1055,7 +1069,7 @@ const TierLists = () => {
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
-                          backgroundColor: 'rgba(240, 240, 240, 0.8)' // Light background for better visibility
+                          backgroundColor: 'rgba(240, 240, 240, 0.8)'
                         }}
                       >
                         {!getRecipeImageSrc(recipe) && 

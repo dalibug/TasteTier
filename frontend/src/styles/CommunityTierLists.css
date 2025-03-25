@@ -176,9 +176,9 @@
 }
 
 .creator-info {
-  color: rgba(255, 255, 255, 0.5) !important;
-  font-size: 0.8rem !important;
-  margin-top: 5px !important;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  margin-top: 5px;
 }
 
 .tierlist-items {
