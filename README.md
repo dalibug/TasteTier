@@ -1,4 +1,5 @@
 # CST 438: Project 01 Retrospective – Team 07  
+**Mar 19, 2025**  
 **Dr. Drew A. Clinkenbeard**  
 
 ---
@@ -153,3 +154,4 @@ This project tested our ability to integrate new software without any prior know
 
 - **Final Assessment:**  
   The project not only met our technical requirements but also provided significant learning opportunities. It gave all team members a clearer understanding of the full-stack development process, which will serve as a solid foundation for future projects.
+
