@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import '../styles/Profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faHome, faSignOutAlt, faListAlt, faPlus, faArrowsRotate, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHome, faSignOutAlt, faListAlt, faPlus, faArrowsRotate, faArrowUp, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import UserTierLists from '../components/UserTierLists';
 import TierListService from '../services/TierListService';
 
@@ -15,6 +15,12 @@ const Profile = () => {
   const [error, setError] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [editingTierList, setEditingTierList] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    recipes: []
+  });
   const navigate = useNavigate();
 
   const backgroundStyle = {
@@ -490,6 +496,122 @@ const Profile = () => {
     });
   };
 
+  const handleDeleteTierList = async (tierListId) => {
+    try {
+      // Determine the API URL based on environment
+      const baseUrl = process.env.REACT_APP_DOCKER_ENV === "true" 
+        ? "http://localhost:8083" 
+        : "http://localhost:8083";
+      
+      const apiUrl = `${baseUrl}/api/tierlists/${tierListId}`;
+      console.log("[DEBUG] Using tierlists controller API URL for delete:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[DEBUG] Error response body:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Fetch user's tier lists again after deletion
+      fetchUserTierLists(currentUser.userId);
+    } catch (err) {
+      console.error('Failed to delete tier list:', err);
+      setError('Failed to delete tier list. Please try again later.');
+    }
+  };
+
+  const handleEditClick = (tierList) => {
+    console.log('Edit button clicked for tier list:', tierList);
+    setEditingTierList(tierList);
+    setEditFormData({
+      title: tierList.name || '',
+      description: tierList.description || '',
+      recipes: tierList.items || []
+    });
+    console.log('Editing tier list state set to:', tierList);
+  };
+
+  const handleEditClose = () => {
+    console.log('Closing edit modal');
+    setEditingTierList(null);
+    setEditFormData({
+      title: '',
+      description: '',
+      recipes: []
+    });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    console.log('Submitting edit form with data:', editFormData);
+    try {
+      // Determine the API URL based on environment
+      const baseUrl = process.env.REACT_APP_DOCKER_ENV === "true" 
+        ? "http://localhost:8083" 
+        : "http://localhost:8083";
+      
+      const apiUrl = `${baseUrl}/api/tierlists/${editingTierList.id}`;
+      console.log("[DEBUG] Using tierlists controller API URL for edit:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: editFormData.title,
+          description: editFormData.description,
+          items: editFormData.recipes.map(recipe => ({
+            recipeId: recipe.id,
+            recipeName: recipe.recipeName,
+            tier: recipe.tier,
+            position: recipe.position || 0
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[DEBUG] Error response body:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log('Edit successful');
+      // Fetch user's tier lists again after successful edit
+      fetchUserTierLists(currentUser.userId);
+      handleEditClose();
+    } catch (error) {
+      console.error('Error updating tier list:', error);
+      setError('Failed to update tier list. Please try again later.');
+    }
+  };
+
+  const handleDeleteRecipe = (recipeId) => {
+    setEditFormData(prev => ({
+      ...prev,
+      recipes: prev.recipes.filter(recipe => recipe.id !== recipeId)
+    }));
+  };
+
+  const handleUpdateRecipeTier = (recipeId, newTier) => {
+    setEditFormData(prev => ({
+      ...prev,
+      recipes: prev.recipes.map(recipe => 
+        recipe.id === recipeId ? { ...recipe, tier: newTier } : recipe
+      )
+    }));
+  };
+
   return (
     <div className="profile-background" style={backgroundStyle}>
       <div className="fixed-header">
@@ -555,7 +677,7 @@ const Profile = () => {
 
             {/* User Tier Lists Section */}
             <div className="user-tierlists-section">
-              <h2>My Recipe Tier Lists</h2>
+              <h1 className="category-heading">My Recipe Tier Lists</h1>
               
               {getTierListsStatus() === 'loading' && (
                 <div className="loading-indicator">Loading your tier lists...</div>
@@ -589,9 +711,9 @@ const Profile = () => {
               )}
               
               {getTierListsStatus() === 'success' && (
-                <div className="tierlists-grid" style={{ width: '100%', minHeight: '100px' }}>
+                <div id="profile-tierlists-grid" style={{ width: '100%', minHeight: '100px' }}>
                   {userTierLists.map(tierList => (
-                    <div key={tierList.id} className="tierlist-card">
+                    <div key={tierList.id} id={`tierlist-card-${tierList.id}`} className="tierlist-card">
                       <div className="tierlist-header">
                         <div className="header-content">
                           <h3 className="tierlist-name">{tierList.name || 'Unnamed Tier List'}</h3>
@@ -603,6 +725,27 @@ const Profile = () => {
                               {new Date(tierList.createdAt).toLocaleDateString()}
                             </span>
                           )}
+                        </div>
+                        <div className="tierlist-actions">
+                          <button 
+                            id={`edit-tierlist-btn-${tierList.id}`}
+                            title="Edit Tier List"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              console.log('Edit button clicked for tier list:', tierList);
+                              handleEditClick(tierList);
+                            }}
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button 
+                            className="delete-tierlist-btn" 
+                            title="Delete Tier List"
+                            onClick={() => handleDeleteTierList(tierList.id)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
                         </div>
                       </div>
                       
@@ -631,14 +774,6 @@ const Profile = () => {
                   ))}
                 </div>
               )}
-              
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', paddingBottom: '15px' }}>
-                <Link to="/tierlists">
-                  <button className="create-btn elegant-create-btn">
-                    <FontAwesomeIcon icon={faPlus} /> Create a New Tier List
-                  </button>
-                </Link>
-              </div>
             </div>
           </div>
         )}
@@ -652,6 +787,75 @@ const Profile = () => {
         >
           <FontAwesomeIcon icon={faArrowUp} />
         </button>
+      )}
+
+      {editingTierList && (
+        <div id="profile-edit-modal" className="edit-modal" onClick={(e) => e.stopPropagation()}>
+          <div id="profile-edit-modal-content" className="edit-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="edit-modal-header">
+              <h2 className="edit-modal-title">Edit Tier List</h2>
+              <button className="edit-modal-close" onClick={handleEditClose}>
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleEditSubmit}>
+              <div className="edit-form-group">
+                <label htmlFor="title">Title</label>
+                <input
+                  type="text"
+                  id="title"
+                  value={editFormData.title}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, title: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="edit-form-group">
+                <label htmlFor="description">Description</label>
+                <input
+                  type="text"
+                  id="description"
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
+                />
+              </div>
+              <div className="recipe-list">
+                <h3>Recipes</h3>
+                {editFormData.recipes.map((recipe) => (
+                  <div key={recipe.id} className="recipe-list-item">
+                    <span className="recipe-name">{recipe.recipeName}</span>
+                    <div className="recipe-actions">
+                      <select
+                        value={recipe.tier}
+                        onChange={(e) => handleUpdateRecipeTier(recipe.id, e.target.value)}
+                      >
+                        <option value="S Tier">S Tier</option>
+                        <option value="A Tier">A Tier</option>
+                        <option value="B Tier">B Tier</option>
+                        <option value="C Tier">C Tier</option>
+                        <option value="D Tier">D Tier</option>
+                        <option value="F Tier">F Tier</option>
+                      </select>
+                      <button
+                        className="delete-recipe-btn"
+                        onClick={() => handleDeleteRecipe(recipe.id)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="edit-form-actions">
+                <button type="button" className="cancel-btn" onClick={handleEditClose}>
+                  Cancel
+                </button>
+                <button type="submit" className="save-btn">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
