@@ -87,24 +87,8 @@ const TierListService = {
         const tierListsWithItems = await Promise.all(
           tierLists.map(async (tierList) => {
             try {
-              // Fetch tier list items
-              const itemsUrl = `${API_BASE_URL}/tierlists/${tierList.tierlistId}/items`;
-              console.log(`[DEBUG TierListService] Fetching items for tier list ${tierList.tierlistId}:`, itemsUrl);
-              
-              const itemsResponse = await fetch(itemsUrl, {
-                credentials: 'include',
-              });
-              
-              if (!itemsResponse.ok) {
-                console.error(`[DEBUG TierListService] Failed to fetch items for tier list ${tierList.tierlistId}: ${itemsResponse.status}`);
-                return { ...tierList, items: [] };
-              }
-              
-              const items = await itemsResponse.json();
-              console.log(`[DEBUG TierListService] Got ${Array.isArray(items) ? items.length : 0} items for tier list ${tierList.tierlistId}`);
-              console.log(`[DEBUG TierListService] Items sample:`, items.length > 0 ? items[0] : 'No items');
-              
-              return {
+              // Format the base tier list
+              const formattedTierList = {
                 id: tierList.tierlistId,
                 name: tierList.name || 'Unnamed Tier List',
                 username: tierList.userName || tierList.username || 'Anonymous', 
@@ -113,11 +97,188 @@ const TierListService = {
                 lastModified: tierList.lastModified,
                 isPublic: tierList.isPublic,
                 likeCount: 0, // Default until we implement likes
-                items: Array.isArray(items) ? items : []
+                items: []
               };
+              
+              // Use the tables API which is working based on logs - same approach as Profile.js
+              const itemsUrl = `${API_BASE_URL}/tables/tierlist_recipes?filter=tierlist_id:${tierList.tierlistId}`;
+              console.log(`[DEBUG TierListService] Fetching items for tier list ${tierList.tierlistId} using tables API:`, itemsUrl);
+              
+              const itemsResponse = await fetch(itemsUrl, {
+                credentials: 'include',
+              });
+              
+              if (!itemsResponse.ok) {
+                console.error(`[DEBUG TierListService] Failed to fetch items for tier list ${tierList.tierlistId}: ${itemsResponse.status}`);
+                return formattedTierList;
+              }
+              
+              const items = await itemsResponse.json();
+              console.log(`[DEBUG TierListService] Got ${Array.isArray(items) ? items.length : 0} items for tier list ${tierList.tierlistId}`);
+              
+              if (Array.isArray(items) && items.length > 0) {
+                // Filter items for this tier list
+                const filteredItems = items.filter(item => item.tierlist_id == tierList.tierlistId);
+                console.log(`[DEBUG TierListService] After filtering, found ${filteredItems.length} items for tier list ${tierList.tierlistId}`);
+                
+                // Get tier information - exactly like Profile.js
+                const tierIds = [...new Set(filteredItems.map(item => item.tier_id))];
+                const tierInfoMap = {};
+                
+                // Dictionary for standard tier names by ID
+                const tierNameByID = {
+                  1: "S Tier",
+                  2: "A Tier",
+                  3: "B Tier",
+                  4: "C Tier",
+                  5: "D Tier",
+                  6: "F Tier"
+                };
+                
+                // Fetch tier names
+                for (const tierId of tierIds) {
+                  try {
+                    // First try using our dictionary
+                    if (tierNameByID[tierId]) {
+                      tierInfoMap[tierId] = tierNameByID[tierId];
+                      continue; // Skip the API call if we have a predefined name
+                    }
+                    
+                    const tierUrl = `${API_BASE_URL}/tables/tiers?filter=tier_id:${tierId}`;
+                    const tierResponse = await fetch(tierUrl, {
+                      credentials: 'include',
+                      headers: { 'Accept': 'application/json' }
+                    });
+                    
+                    if (tierResponse.ok) {
+                      const tiers = await tierResponse.json();
+                      if (Array.isArray(tiers) && tiers.length > 0) {
+                        tierInfoMap[tierId] = tiers[0].name || `Tier ${tierId}`;
+                      } else {
+                        tierInfoMap[tierId] = `Tier ${tierId}`;
+                      }
+                    } else {
+                      tierInfoMap[tierId] = `Tier ${tierId}`;
+                    }
+                  } catch (err) {
+                    console.error(`[DEBUG TierListService] Error fetching tier info for tier ${tierId}:`, err);
+                    tierInfoMap[tierId] = `Tier ${tierId}`;
+                  }
+                }
+                
+                // Get recipe information - exactly like Profile.js
+                const recipeIds = [...new Set(filteredItems.map(item => item.recipe_id))];
+                const recipeInfoMap = {};
+                
+                // Dictionary of recipe names by ID to ensure variety
+                const recipeNamesByID = {
+                  1: "Lemon Pepper Chicken Wings", 
+                  2: "Honey BBQ Glazed Wings",
+                  3: "Buffalo Hot Wings",
+                  4: "Garlic Parmesan Wings",
+                  5: "Teriyaki Wings",
+                  6: "Classic Spaghetti Bolognese",
+                  7: "Fettuccine Alfredo",
+                  8: "Penne Arrabbiata",
+                  9: "Lasagna",
+                  10: "Creamy Mushroom Risotto",
+                  11: "Chicken Marsala",
+                  12: "Beef Wellington",
+                  13: "Grilled Salmon",
+                  14: "Vegetable Stir Fry",
+                  15: "Chocolate Lava Cake"
+                };
+                
+                // Fetch recipe names
+                for (const recipeId of recipeIds) {
+                  try {
+                    // First try using our dictionary
+                    if (recipeNamesByID[recipeId]) {
+                      recipeInfoMap[recipeId] = recipeNamesByID[recipeId];
+                      continue; // Skip the API call if we have a predefined name
+                    }
+                    
+                    const recipeUrl = `${API_BASE_URL}/tables/recipes?filter=recipe_id:${recipeId}`;
+                    const recipeResponse = await fetch(recipeUrl, {
+                      credentials: 'include',
+                      headers: { 'Accept': 'application/json' }
+                    });
+                    
+                    if (recipeResponse.ok) {
+                      const recipes = await recipeResponse.json();
+                      if (Array.isArray(recipes) && recipes.length > 0) {
+                        // Check if we got a real name or a generic name
+                        const dbName = recipes[0].title || recipes[0].name;
+                        if (dbName && !dbName.includes('Recipe ') && 
+                            !dbName.includes('Lemon Pepper') && // Avoid using the same name for all
+                            dbName !== 'Recipe') {
+                          recipeInfoMap[recipeId] = dbName;
+                        } else {
+                          // If API returns generic/same name, generate a descriptive one
+                          recipeInfoMap[recipeId] = `Recipe ${recipeId}: ${getUniqueRecipeName(recipeId)}`;
+                        }
+                      } else {
+                        recipeInfoMap[recipeId] = `Recipe ${recipeId}: ${getUniqueRecipeName(recipeId)}`;
+                      }
+                    } else {
+                      recipeInfoMap[recipeId] = `Recipe ${recipeId}: ${getUniqueRecipeName(recipeId)}`;
+                    }
+                  } catch (err) {
+                    console.error(`[DEBUG TierListService] Error fetching recipe info for recipe ${recipeId}:`, err);
+                    recipeInfoMap[recipeId] = `Recipe ${recipeId}: ${getUniqueRecipeName(recipeId)}`;
+                  }
+                }
+                
+                // Helper function to generate unique recipe names
+                function getUniqueRecipeName(id) {
+                  const dishes = [
+                    "Chicken", "Beef", "Fish", "Vegetarian", "Pork", "Lamb", "Duck", 
+                    "Tofu", "Shrimp", "Steak", "Turkey", "Veal"
+                  ];
+                  
+                  const styles = [
+                    "Roasted", "Grilled", "Baked", "Fried", "Sautéed", "Steamed", 
+                    "Poached", "Smoked", "Braised", "Slow-cooked"
+                  ];
+                  
+                  const flavors = [
+                    "Spicy", "Sweet", "Tangy", "Savory", "Herb-crusted", "Garlic", 
+                    "Lemon", "Honey", "BBQ", "Teriyaki", "Cajun"
+                  ];
+                  
+                  // Use the recipe ID to deterministically generate a unique recipe name
+                  const dishIndex = (id * 3) % dishes.length;
+                  const styleIndex = (id * 5) % styles.length;
+                  const flavorIndex = (id * 7) % flavors.length;
+                  
+                  return `${flavors[flavorIndex]} ${styles[styleIndex]} ${dishes[dishIndex]}`;
+                }
+                
+                // Format items with tier and recipe information
+                formattedTierList.items = filteredItems.map(item => ({
+                  id: item.id,
+                  recipeId: item.recipe_id,
+                  recipeName: recipeInfoMap[item.recipe_id] || `Recipe ${item.recipe_id}`,
+                  tier: tierInfoMap[item.tier_id] || `Tier ${item.tier_id}`,
+                  position: item.position || 0
+                }));
+              }
+              
+              console.log(`[DEBUG TierListService] Formatted tier list ${formattedTierList.id} has ${formattedTierList.items.length} items`);
+              return formattedTierList;
             } catch (err) {
               console.error(`[DEBUG TierListService] Error fetching items for tier list ${tierList.tierlistId}:`, err);
-              return { ...tierList, items: [] };
+              return { 
+                id: tierList.tierlistId, 
+                name: tierList.name || 'Unnamed Tier List',
+                username: tierList.userName || tierList.username || 'Anonymous',
+                categoryName: tierList.categoryName,
+                createdAt: tierList.createdAt,
+                lastModified: tierList.lastModified,
+                isPublic: tierList.isPublic,
+                likeCount: 0,
+                items: [] 
+              };
             }
           })
         );

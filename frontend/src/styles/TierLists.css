@@ -209,12 +209,13 @@
   margin-top: 200px;
 }
 
-/* Community Content Wrapper - wider for 3 columns */
+/* Community Content Wrapper - wider for 2 columns */
 .community-content-wrapper {
-  padding: 100px 2rem 2rem;
-  max-width: 1200px;
+  padding: 100px 3rem 2rem;
+  max-width: 1400px; /* Increased from 1200px */
+  width: 90%;
   margin: 0 auto;
-  max-height: 80vh; /* Set max height for scroll container */
+  max-height: 85vh; /* Increased from 80vh */
   overflow-y: auto; /* Enable vertical scrolling */
   scrollbar-width: thin; /* For Firefox */
   position: relative;
@@ -736,8 +737,8 @@
 /* Community TierLists Grid */
 .community-tierlists-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Exactly 3 columns */
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr); /* Changed from 3 to 2 columns for wider cards */
+  gap: 25px; /* Increased gap for more breathing room */
   width: 100%;
   padding-bottom: 30px; /* Add padding at bottom for scrolling */
   max-height: 680px; /* Height for approximately 3 cards vertically */
@@ -1734,6 +1735,7 @@
 .error-container,
 .no-lists-message {
   background-color: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   border-radius: 12px;
   padding: 40px 20px;
@@ -1851,16 +1853,10 @@
   border-color: rgba(44, 44, 44, 0.3);
 }
 
-/* Make sure media queries work with our new 3-column layout */
+/* Make sure media queries work with our new 2-column layout */
 @media (max-width: 1100px) {
   .community-tierlists-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
-  }
-}
-
-@media (max-width: 700px) {
-  .community-tierlists-grid {
-    grid-template-columns: 1fr; /* 1 column on small screens */
+    grid-template-columns: 1fr; /* 1 column on medium screens */
   }
 }
 
@@ -1904,4 +1900,474 @@
   color: #333;
   border-bottom: 2px solid #f0f0f0;
   padding-bottom: 15px;
+}
+
+/* Community Tier List specific styles */
+.community-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.community-tierlist-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 40px;
+  border-left: 4px solid #ccc;
+}
+
+.community-tierlist-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.community-tierlist-item .recipe-name {
+  font-size: 14px;
+  color: #2c2c2c;
+  font-weight: 500;
+  margin-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+
+.community-tierlist-item .tier-badge {
+  font-size: 12px;
+  color: white;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Tier badge colors */
+.community-tierlist-item.s-tier {
+  border-left-color: #ffd700; /* Gold */
+}
+
+.community-tierlist-item.a-tier {
+  border-left-color: #c0c0c0; /* Silver */
+}
+
+.community-tierlist-item.b-tier {
+  border-left-color: #cd7f32; /* Bronze */
+}
+
+.community-tierlist-item.c-tier {
+  border-left-color: #989898; /* Grey */
+}
+
+.community-tierlist-item.d-tier {
+  border-left-color: #a52a2a; /* Brown */
+}
+
+.community-tierlist-item.f-tier {
+  border-left-color: #ff4136; /* Red */
+}
+
+/* Elegant styling for community tier lists */
+.elegant-items {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.elegant-tiers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 350px; /* Increased height to show more items */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 5px;
+  flex: 1;
+}
+
+.elegant-tiers-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.elegant-tiers-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.elegant-tiers-container::-webkit-scrollbar-thumb {
+  background: rgba(44, 44, 44, 0.2);
+  border-radius: 2px;
+}
+
+.elegant-tiers-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 44, 44, 0.3);
+}
+
+.elegant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 5px;
+}
+
+.elegant-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.elegant-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.elegant-grid::-webkit-scrollbar-thumb {
+  background: rgba(44, 44, 44, 0.3);
+  border-radius: 2px;
+}
+
+.elegant-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 44, 44, 0.4);
+}
+
+.elegant-item {
+  background-color: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.elegant-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.elegant-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #2c2c2c;
+  max-width: 70%;
+}
+
+.elegant-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.elegant-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  text-align: center;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+/* S Tier elegant badge - Gold */
+.elegant-item.s-tier {
+  border-left-color: #FFD700;
+}
+
+/* A Tier elegant badge - Silver */
+.elegant-item.a-tier {
+  border-left-color: #C0C0C0;
+}
+
+/* B Tier elegant badge - Bronze */
+.elegant-item.b-tier {
+  border-left-color: #CD7F32;
+}
+
+/* C Tier elegant badge - Gray */
+.elegant-item.c-tier {
+  border-left-color: #808080;
+}
+
+.elegant-card {
+  background-color: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1.5rem;
+  min-height: 150px;
+  max-height: 450px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.elegant-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.elegant-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding-bottom: 15px !important;
+  margin-bottom: 15px !important;
+}
+
+.elegant-header .tierlist-name {
+  color: #333 !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+  margin-bottom: 8px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.elegant-header .tierlist-meta {
+  opacity: 0.9 !important;
+}
+
+.elegant-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding-top: 15px !important;
+  margin-top: auto !important;
+}
+
+.elegant-similarity {
+  background-color: rgba(135, 162, 127, 0.5) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  backdrop-filter: blur(5px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 20px !important;
+  padding: 5px 12px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.elegant-similarity:hover {
+  transform: scale(1.05) !important;
+}
+
+/* Adjust the card height to accommodate more content */
+.elegant-card {
+  min-height: 400px !important;
+  height: auto !important;
+  max-height: 500px !important;
+}
+
+/* Elegant tier-based styling */
+.elegant-tier-group {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.elegant-tier-group:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.elegant-tier-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.elegant-tier-header .tier-name {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.elegant-tier-header .tier-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+  text-transform: uppercase;
+  font-size: 16px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.elegant-tier-header .tier-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(44, 44, 44, 0.8);
+}
+
+.elegant-recipes-list {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.elegant-recipe-item {
+  padding: 10px 15px;
+  margin-bottom: 6px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  display: flex;
+  align-items: center;
+}
+
+.elegant-recipe-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(3px);
+}
+
+.elegant-tier-group:has(.tier-badge.s) .elegant-recipe-item {
+  border-left-color: rgba(255, 215, 0, 0.7);
+}
+
+.elegant-tier-group:has(.tier-badge.a) .elegant-recipe-item {
+  border-left-color: rgba(192, 192, 192, 0.7);
+}
+
+.elegant-tier-group:has(.tier-badge.b) .elegant-recipe-item {
+  border-left-color: rgba(205, 127, 50, 0.7);
+}
+
+.elegant-tier-group:has(.tier-badge.c) .elegant-recipe-item {
+  border-left-color: rgba(152, 152, 152, 0.7);
+}
+
+.elegant-tier-group:has(.tier-badge.d) .elegant-recipe-item {
+  border-left-color: rgba(165, 42, 42, 0.7);
+}
+
+.elegant-tier-group:has(.tier-badge.f) .elegant-recipe-item {
+  border-left-color: rgba(255, 65, 54, 0.7);
+}
+
+.elegant-recipe-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tier header specific colors */
+.elegant-tier-header.tier-s {
+  background-color: rgba(255, 215, 0, 0.2);
+}
+
+.elegant-tier-header.tier-a {
+  background-color: rgba(192, 192, 192, 0.2);
+}
+
+.elegant-tier-header.tier-b {
+  background-color: rgba(205, 127, 50, 0.2);
+}
+
+.elegant-tier-header.tier-c {
+  background-color: rgba(152, 152, 152, 0.2);
+}
+
+.elegant-tier-header.tier-d {
+  background-color: rgba(165, 42, 42, 0.15);
+}
+
+.elegant-tier-header.tier-f {
+  background-color: rgba(255, 65, 54, 0.15);
+}
+
+/* Override the tier badge styling with enhanced look */
+.elegant-tier-header .tier-badge.s {
+  background-color: #ffd700;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+}
+
+.elegant-tier-header .tier-badge.a {
+  background-color: #c0c0c0;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+  border: 1px solid rgba(192, 192, 192, 0.6);
+}
+
+.elegant-tier-header .tier-badge.b {
+  background-color: #cd7f32;
+  color: white;
+  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
+  border: 1px solid rgba(205, 127, 50, 0.6);
+}
+
+.elegant-tier-header .tier-badge.c {
+  background-color: #989898;
+  color: white;
+  box-shadow: 0 2px 8px rgba(152, 152, 152, 0.4);
+  border: 1px solid rgba(152, 152, 152, 0.6);
+}
+
+.elegant-tier-header .tier-badge.d {
+  background-color: #a52a2a;
+  color: white;
+  box-shadow: 0 2px 8px rgba(165, 42, 42, 0.4);
+  border: 1px solid rgba(165, 42, 42, 0.6);
+}
+
+.elegant-tier-header .tier-badge.f {
+  background-color: #ff4136;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 65, 54, 0.4);
+  border: 1px solid rgba(255, 65, 54, 0.6);
 } 
