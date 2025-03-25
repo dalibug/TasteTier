@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import '../styles/Profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faHome, faSignOutAlt, faListAlt, faPlus, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faHome, faSignOutAlt, faListAlt, faPlus, faArrowsRotate, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import UserTierLists from '../components/UserTierLists';
 import TierListService from '../services/TierListService';
 
@@ -14,6 +14,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   const navigate = useNavigate();
 
   const backgroundStyle = {
@@ -102,6 +103,16 @@ const Profile = () => {
       window.removeEventListener('resize', checkScrollable);
     };
   }, [userTierLists, loading]);
+
+  // Track scroll position to show/hide scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollToTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Fetch user's tier lists
   const fetchUserTierLists = async (userId) => {
@@ -472,33 +483,42 @@ const Profile = () => {
     return 'success';
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   return (
     <div className="profile-background" style={backgroundStyle}>
-      <div className="nav-buttons">
-        <div className="user-profile">
-          <button 
-            className="settings-btn user-btn" 
-            onClick={() => setShowUserMenu(!showUserMenu)}
-          >
-            <FontAwesomeIcon icon={faUser} />
-          </button>
-          {showUserMenu && (
-            <div className="settings-menu user-menu">
-              <Link to="/profile">
-                <button id="settings-menu-item">
-                  <FontAwesomeIcon icon={faUser} /> Account
+      <div className="fixed-header">
+        <div className="nav-buttons">
+          <div className="user-profile">
+            <button 
+              className="settings-btn user-btn" 
+              onClick={() => setShowUserMenu(!showUserMenu)}
+            >
+              <FontAwesomeIcon icon={faUser} />
+            </button>
+            {showUserMenu && (
+              <div className="settings-menu user-menu">
+                <Link to="/profile">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faUser} /> Account
+                  </button>
+                </Link>
+                <Link to="/tierlists">
+                  <button id="settings-menu-item">
+                    <FontAwesomeIcon icon={faListAlt} /> Tier Lists
+                  </button>
+                </Link>
+                <button id="settings-menu-item" onClick={handleLogout}>
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Logout
                 </button>
-              </Link>
-              <Link to="/tierlists">
-                <button id="settings-menu-item">
-                  <FontAwesomeIcon icon={faListAlt} /> Tier Lists
-                </button>
-              </Link>
-              <button id="settings-menu-item" onClick={handleLogout}>
-                <FontAwesomeIcon icon={faSignOutAlt} /> Logout
-              </button>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -542,11 +562,7 @@ const Profile = () => {
             </div>
 
             {/* User Tier Lists Section */}
-            <div className="user-tierlists-section" style={{ 
-              maxHeight: '75vh', 
-              overflowY: 'auto',
-              paddingBottom: '40px' 
-            }}>
+            <div className="user-tierlists-section">
               <h2>My Recipe Tier Lists</h2>
               
               {getTierListsStatus() === 'loading' && (
@@ -581,7 +597,7 @@ const Profile = () => {
               )}
               
               {getTierListsStatus() === 'success' && (
-                <div className="tierlists-grid" style={{ paddingRight: '10px', minHeight: '100px' }}>
+                <div className="tierlists-grid" style={{ width: '100%', minHeight: '100px' }}>
                   {userTierLists.map(tierList => (
                     <div key={tierList.id} className="tierlist-card">
                       <div className="tierlist-header">
@@ -607,12 +623,15 @@ const Profile = () => {
                         {hasTierListValidItems(tierList) ? (
                           <div className="items-grid">
                             {tierList.items.map((item, index) => (
-                              <div key={`${tierList.id}-item-${index}`} className="tierlist-item">
-                                <span className={`tier-badge ${item.tier ? item.tier.split(' ')[0].toLowerCase() : 's'}`}>
-                                  {item.tier || 'S Tier'}
-                                </span>
+                              <div 
+                                key={`${tierList.id}-item-${index}`} 
+                                className={`tierlist-item ${item.tier ? item.tier.split(' ')[0].toLowerCase() + '-tier' : 's-tier'}`}
+                              >
                                 <span className="recipe-name" title={item.recipeName}>
                                   {item.recipeName || 'Unknown Recipe'}
+                                </span>
+                                <span className={`tier-badge ${item.tier ? item.tier.split(' ')[0].toLowerCase() : 's'}`}>
+                                  {item.tier || 'S Tier'}
                                 </span>
                               </div>
                             ))}
@@ -637,6 +656,16 @@ const Profile = () => {
           </div>
         )}
       </div>
+      
+      {showScrollToTop && (
+        <button 
+          className="scroll-to-top-btn" 
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+        >
+          <FontAwesomeIcon icon={faArrowUp} />
+        </button>
+      )}
     </div>
   );
 };

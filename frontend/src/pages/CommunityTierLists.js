@@ -29,23 +29,31 @@ const CommunityTierLists = () => {
         
         // Process the data to match our component's needs
         if (Array.isArray(data)) {
-          const formattedLists = data.map(tierList => ({
-            id: tierList.id,
-            name: tierList.name || 'Unnamed Tier List',
-            creator: tierList.username || 'Anonymous',
-            categoryName: tierList.categoryName || 'General',
-            createdAt: tierList.createdAt,
-            likes: tierList.likeCount || 0,
-            isLiked: false,
-            isDisliked: false,
-            similarity: Math.floor(Math.random() * 100), // Placeholder until we implement similarity algorithm
-            items: Array.isArray(tierList.items) 
-              ? tierList.items.map(item => ({
-                  recipeName: item.recipeName || item.name || 'Unknown Recipe',
-                  tier: item.tierName || 'S Tier'
-                }))
-              : []
-          }));
+          console.log('Community tier lists raw data:', data);
+          const formattedLists = data.map(tierList => {
+            console.log('Tier list item:', tierList);
+            return {
+              id: tierList.id,
+              name: tierList.name || 'Unnamed Tier List',
+              creator: tierList.username || tierList.userName || 'Anonymous', // Try both username variants
+              categoryName: tierList.categoryName || 'General',
+              createdAt: tierList.createdAt,
+              likes: tierList.likeCount || 0,
+              isLiked: false,
+              isDisliked: false,
+              similarity: Math.floor(Math.random() * 100), // Placeholder until we implement similarity algorithm
+              items: Array.isArray(tierList.items) 
+                ? tierList.items.map(item => {
+                    return {
+                      recipeName: item.recipeName || item.name || 'Unknown Recipe',
+                      tier: item.tierName || item.tier || 'S Tier',
+                      tierId: item.tierId || 1,
+                      position: item.position || 0
+                    };
+                  })
+                : []
+            };
+          });
           
           setCommunityLists(formattedLists);
         } else {
@@ -248,14 +256,22 @@ const CommunityTierLists = () => {
                   </div>
                   <div className="tierlist-items">
                     {tierList.items && tierList.items.length > 0 ? (
-                      tierList.items.map((item, index) => (
-                        <div key={index} className="tierlist-item">
-                          <span className="recipe-name" title={item.recipeName}>{item.recipeName}</span>
-                          <span className={`tier-badge ${item.tier.split(' ')[0].toLowerCase()}`}>
-                            {item.tier}
-                          </span>
-                        </div>
-                      ))
+                      <div className="tierlist-items-grid">
+                        {tierList.items.map((item, index) => {
+                          const tierClass = item.tier ? `tier-badge-${item.tier.toLowerCase().replace(/\s+/g, '')}` : 'tier-badge-stier';
+                          
+                          return (
+                            <div key={`${tierList.id}-${index}`} className="tierlist-item">
+                              <div className="tierlist-item-content">
+                                <div className="tierlist-item-name">{item.recipeName || 'Unknown Recipe'}</div>
+                                <div className={`tier-badge ${tierClass}`}>
+                                  {item.tier || 'S Tier'}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     ) : (
                       <div className="empty-tierlist-message">
                         <p className="no-items">This tier list doesn't have any recipes.</p>

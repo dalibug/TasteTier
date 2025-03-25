@@ -102,11 +102,12 @@ const TierListService = {
               
               const items = await itemsResponse.json();
               console.log(`[DEBUG TierListService] Got ${Array.isArray(items) ? items.length : 0} items for tier list ${tierList.tierlistId}`);
+              console.log(`[DEBUG TierListService] Items sample:`, items.length > 0 ? items[0] : 'No items');
               
               return {
                 id: tierList.tierlistId,
                 name: tierList.name || 'Unnamed Tier List',
-                username: tierList.userName || 'Anonymous', 
+                username: tierList.userName || tierList.username || 'Anonymous', 
                 categoryName: tierList.categoryName,
                 createdAt: tierList.createdAt,
                 lastModified: tierList.lastModified,

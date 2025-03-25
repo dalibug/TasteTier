@@ -11,6 +11,8 @@
   flex-direction: column;
   align-items: center;
   overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 100vh;
 }
 
 .profile-container {
@@ -21,6 +23,27 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  height: auto;
+}
+
+/* Customize the scrollbar for Webkit browsers */
+.profile-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.profile-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.profile-container::-webkit-scrollbar-thumb {
+  background: rgba(44, 44, 44, 0.5);
+  border-radius: 10px;
+}
+
+.profile-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(44, 44, 44, 0.7);
 }
 
 .profile-title {
@@ -52,6 +75,7 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
+  margin-bottom: 30px;
 }
 
 .profile-card {
@@ -148,10 +172,11 @@
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-height: 75vh;
-  overflow-y: auto;
   position: relative;
   padding-bottom: 40px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 /* Add scroll indicator */
@@ -232,9 +257,31 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  padding-right: 10px;
   width: 100%;
   box-sizing: border-box;
+  max-height: 680px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  grid-auto-flow: row;
+  grid-auto-rows: min-content;
+}
+
+.tierlists-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tierlists-grid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.tierlists-grid::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.tierlists-grid::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
 .tierlist-card {
@@ -246,8 +293,10 @@
   display: flex;
   flex-direction: column;
   min-height: 200px;
+  width: 100%;
   max-width: 100%;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .tierlist-card:hover {
@@ -299,8 +348,27 @@
 .tierlist-items {
   flex: 1;
   overflow-y: auto;
-  max-height: 180px;
+  max-height: 250px;
   padding: 10px 0;
+  scrollbar-width: thin;
+}
+
+.tierlist-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tierlist-items::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.tierlist-items::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.tierlist-items::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
 .items-grid {
@@ -311,20 +379,36 @@
 
 .tierlist-item {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  padding: 8px;
+  padding: 10px;
   background: #f9f9f9;
   border-radius: 6px;
   overflow: hidden;
+  height: auto;
+  min-height: 42px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 4px solid transparent;
 }
 
-.recipe-name {
-  flex: 1;
-  white-space: nowrap;
+.tierlist-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tierlist-item .recipe-name {
+  font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-left: 8px;
-  font-size: 14px;
+  white-space: nowrap;
+  max-width: 70%;
+  text-align: left;
+  margin-right: auto;
+}
+
+.tierlist-item .tier-badge {
+  margin-left: auto;
 }
 
 .empty-item {
@@ -591,4 +675,69 @@
   .user-tierlists-section {
     max-height: 80vh;
   }
+}
+
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(44, 44, 44, 0.8);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.scroll-to-top-btn:hover {
+  background-color: rgba(44, 44, 44, 1);
+  transform: translateY(-2px);
+}
+
+.tierlist-item.s-tier, .tierlist-item .tier-badge.s ~ .recipe-name {
+  border-left-color: #ffd700;
+}
+
+.tierlist-item.a-tier, .tierlist-item .tier-badge.a ~ .recipe-name {
+  border-left-color: #c0c0c0;
+}
+
+.tierlist-item.b-tier, .tierlist-item .tier-badge.b ~ .recipe-name {
+  border-left-color: #cd7f32;
+}
+
+.tierlist-item.c-tier, .tierlist-item .tier-badge.c ~ .recipe-name {
+  border-left-color: #989898;
+}
+
+/* Make borders for items in the Profile page */
+.profile-background .tierlist-item .tier-badge.s + .recipe-name {
+  border-left-color: transparent;
+}
+
+.profile-background .tierlist-item .tier-badge.s ~ .recipe-name {
+  border-left-color: transparent;
+}
+
+.profile-background .tierlist-item:has(.tier-badge.s) {
+  border-left-color: #ffd700;
+}
+
+.profile-background .tierlist-item:has(.tier-badge.a) {
+  border-left-color: #c0c0c0;
+}
+
+.profile-background .tierlist-item:has(.tier-badge.b) {
+  border-left-color: #cd7f32;
+}
+
+.profile-background .tierlist-item:has(.tier-badge.c) {
+  border-left-color: #989898;
 } 
