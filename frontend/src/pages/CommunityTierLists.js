@@ -293,57 +293,36 @@ const CommunityTierLists = () => {
 
   // Function to calculate similarity between two tier lists
   const calculateSimilarity = (list1, list2) => {
-    if (!list1.items || !list2.items || list1.items.length === 0 || list2.items.length === 0) {
-      return 0;
-    }
+    // Get all unique recipes from both lists
+    const allRecipes = new Set([
+      ...list1.items.map(item => item.recipe_id),
+      ...list2.items.map(item => item.recipe_id)
+    ]);
 
-    // Create maps of recipe positions for each list
-    const list1Map = new Map();
-    const list2Map = new Map();
+    if (allRecipes.size === 0) return 0;
 
-    list1.items.forEach(item => {
-      list1Map.set(item.recipeName, {
-        tier: item.tier,
-        position: item.position
-      });
-    });
+    let totalSimilarity = 0;
+    let commonRecipes = 0;
 
-    list2.items.forEach(item => {
-      list2Map.set(item.recipeName, {
-        tier: item.tier,
-        position: item.position
-      });
-    });
+    // Compare each recipe
+    allRecipes.forEach(recipeId => {
+      const item1 = list1.items.find(item => item.recipe_id === recipeId);
+      const item2 = list2.items.find(item => item.recipe_id === recipeId);
 
-    // Find common recipes
-    const commonRecipes = list1.items.filter(item => list2Map.has(item.recipeName));
-    if (commonRecipes.length === 0) return 0;
-
-    // Calculate tier agreement score
-    let tierAgreement = 0;
-    let positionAgreement = 0;
-
-    commonRecipes.forEach(item => {
-      const list2Item = list2Map.get(item.recipeName);
-      
-      // Tier agreement (exact match)
-      if (item.tier === list2Item.tier) {
-        tierAgreement++;
-      }
-
-      // Position agreement (within 2 positions)
-      const positionDiff = Math.abs(item.position - list2Item.position);
-      if (positionDiff <= 2) {
-        positionAgreement++;
+      // If recipe exists in both lists
+      if (item1 && item2) {
+        commonRecipes++;
+        // Calculate tier similarity (exact match = 1, different tier = 0)
+        const tierSimilarity = item1.tier === item2.tier ? 1 : 0;
+        totalSimilarity += tierSimilarity;
       }
     });
 
-    // Calculate final similarity score
-    const tierScore = (tierAgreement / commonRecipes.length) * 60; // 60% weight for tier agreement
-    const positionScore = (positionAgreement / commonRecipes.length) * 40; // 40% weight for position agreement
-    const finalScore = Math.round(tierScore + positionScore);
+    // If no common recipes, return 0
+    if (commonRecipes === 0) return 0;
 
-    return finalScore;
+    // Calculate final similarity score (0-100)
+    return Math.round((totalSimilarity / commonRecipes) * 100);
   };
 
   // Function to get similarity score for a community tier list

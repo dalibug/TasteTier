@@ -504,6 +504,7 @@
   flex-direction: column;
   gap: 4px;
   margin-top: 8px;
+  padding-right: 120px; /* Add padding to prevent text overlap with badge */
 }
 
 .creator-name {
@@ -703,11 +704,14 @@
   border-radius: 20px;
   font-size: 0.85em;
   font-weight: 500;
-  margin-top: 8px;
+  position: absolute;
+  top: 15px;
+  right: 15px;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
+  z-index: 2;
 }
 
 .similarity-badge:hover {
