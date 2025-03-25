@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/background3.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt, faImage, faEdit, faTrash, faTrashAlt, faThumbsUp, faThumbsDown, faBug } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCog, faUser, faHome, faSignOutAlt, faImage, faEdit, faTrash, faTrashAlt, faThumbsUp, faThumbsDown, faBug, faListAlt } from '@fortawesome/free-solid-svg-icons';
 import DatabaseTablesModal from '../components/DatabaseTablesModal';
 import DatabaseTestModal from '../components/DatabaseTestModal';
+import UserTierListsModal from '../components/UserTierListsModal';
 import TierListService from '../services/TierListService';
 import '../styles/TierLists.css';
 import '../styles/FixTierCards.css';
@@ -21,6 +22,7 @@ const TierLists = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
   const [showDatabaseTestModal, setShowDatabaseTestModal] = useState(false);
+  const [showTierListsModal, setShowTierListsModal] = useState(false); // New state for tier lists modal
   const [activeChallenge, setActiveChallenge] = useState(null);
   const [showImagePopout, setShowImagePopout] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
@@ -1013,6 +1015,9 @@ const TierLists = () => {
                 <button id="settings-menu-item" onClick={() => setShowDatabaseTestModal(true)}>
                   Database Testing
                 </button>
+                <button id="settings-menu-item" onClick={() => setShowTierListsModal(true)}>
+                  <FontAwesomeIcon icon={faListAlt} /> My Tier Lists
+                </button>
               </div>
             )}
           </>
@@ -1081,29 +1086,6 @@ const TierLists = () => {
           )}
         </div>
 
-        {/* Display existing tier lists */}
-        <div className="saved-tierlists">
-          <h2>Your Saved Tier Lists</h2>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <button 
-              className="refresh-btn" 
-              onClick={() => fetchUserTierLists()}
-            >
-              <FontAwesomeIcon icon={faArrowsRotate} /> Refresh
-            </button>
-            {currentUser && currentUser.isAdmin && (
-              <button 
-                className="debug-btn" 
-                onClick={debugRefresh}
-                style={{ marginLeft: '10px', background: '#dc3545' }}
-              >
-                <FontAwesomeIcon icon={faBug} /> Debug
-              </button>
-            )}
-          </div>
-          <UserTierLists />
-        </div>
-
         {/* Community Tier Lists Button */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
           <Link to="/community-tierlists">
@@ -1122,6 +1104,14 @@ const TierLists = () => {
       <DatabaseTestModal
         isOpen={showDatabaseTestModal}
         onClose={() => setShowDatabaseTestModal(false)}
+      />
+      
+      <UserTierListsModal
+        isOpen={showTierListsModal}
+        onClose={() => setShowTierListsModal(false)}
+        onRefresh={() => fetchUserTierLists()}
+        isAdmin={currentUser?.isAdmin}
+        onDebug={debugRefresh}
       />
 
       {showImagePopout && (

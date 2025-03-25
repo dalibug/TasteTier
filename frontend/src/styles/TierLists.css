@@ -1821,4 +1821,27 @@
   background-color: rgba(0, 0, 0, 0.02);
   border-radius: 6px;
   width: 100%;
+}
+
+.tier-lists-modal {
+  max-width: 900px;
+  width: 90%;
+  max-height: 80vh;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.tier-lists-modal .modal-body {
+  margin-top: 20px;
+  overflow-y: auto;
+  max-height: calc(80vh - 150px);
+}
+
+.tier-lists-modal .modal-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
 } 
