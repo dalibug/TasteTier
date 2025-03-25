@@ -1,3 +1,4 @@
+```markdown
 CST 438: Project 01 Retrospective Team 07
 
 Project 02 Retrospective Hani Al Barkawi, Dalia Cabrera, Noah Mckegney, Alexandro Mora
@@ -115,3 +116,4 @@ What was the largest victory?
 Our largest victory was getting OAuth to work and having it not break our routes when we deployed to Heroku.
 Final assessment of the project
 This project not only met our technical requirements but also provided a significant learning opportunity for all team members. We now have a clearer understanding of the full stack development process, which will serve as a solid foundation for future projects.
+```
